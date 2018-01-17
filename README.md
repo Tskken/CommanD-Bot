@@ -15,6 +15,10 @@ A sudo command line for full control over your Discord server.  This bot is powe
 
 ---
 
+# NOTE!!!: 
+##This is not a correct and up to date README.  All example commands are subject to change along with any given library's and code design.
+
+---
 
 ## Table Of Contents
 + [Introduction](#Introduction)
