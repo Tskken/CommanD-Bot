@@ -1,28 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6a77c490-cc79-4981-a6b9-dff4e6ce28f4" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/CommanD-Bot.iml" afterPath="$PROJECT_DIR$/.idea/CommanD-Bot.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cea60211-094c-4bc1-8e17-c3ed49e2f73e.xml" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cea60211-094c-4bc1-8e17-c3ed49e2f73e/storage_v2/_src_/schema/main.uQUzAA.meta" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace-Dylan-Surface.xml" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/CommanD/bot.go" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/CommanD/command_functions.go" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/CommanD/commands.go" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/CommanD/database" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/CommanD/database.go" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/CommanD/source/main.go" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/CommanD/source/main/CommanD.go" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/CommanD/source/main/main.exe" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/CommanD/source/source.exe" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/CommanD/util.go" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-    </list>
+    <list default="true" id="6a77c490-cc79-4981-a6b9-dff4e6ce28f4" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -200,6 +179,7 @@
     <property name="configurable.Global.GOPATH.is.expanded" value="true" />
     <property name="configurable.Project.GOPATH.is.expanded" value="true" />
     <property name="configurable.Module.GOPATH.is.expanded" value="false" />
+    <property name="GO_FMT" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -263,6 +243,10 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Refactered code format.&#10;&#10;Packege name changes.&#10;&#10;File format changes." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactered code format.&#10;&#10;Packege name changes.&#10;&#10;File format changes." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
