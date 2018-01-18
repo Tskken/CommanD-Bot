@@ -1,4 +1,4 @@
-package Bot
+package CommanD_Bot
 
 /*
 Last Updated: 11/20/27
@@ -15,8 +15,6 @@ import (
 
 	// External imports //
 	"github.com/bwmarrin/discordgo"
-	"github.com/tsukinai/CommanD-Bot/Commands"
-	"github.com/tsukinai/CommanD-Bot/util"
 )
 
 // Checks if bot role exist //
@@ -228,13 +226,13 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// - Parces on a space
 	// - Returns []string
 	//args := ParceInput(m.Content)
-	arg := util.ToLower(util.ParceInput(m.Content), 0)
+	arg := ToLower(ParceInput(m.Content), 0)
 
 	// Check if command exist with in command map //
 	// - ok: true or false if command exists
 	// -- true: command exists
 	// -- false: command does not exist
-	if _, ok := Commands.BotCommands[arg]; ok != true {
+	if _, ok := BotCommands[*arg]; ok != true {
 		// Given command did not exist in map //
 		log.Println("Command does not exists: ", arg)
 		return
@@ -245,7 +243,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// - s: discordgo session
 	// - m.Message: original message
 	// - admin: user permission level
-	err = Commands.BotCommands[arg](s, m.Message, admin)
+	err = BotCommands[*arg](s, m.Message, admin)
 	if err != nil {
 		log.Println(err)
 	}
