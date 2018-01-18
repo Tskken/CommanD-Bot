@@ -20,8 +20,7 @@ import (
 
 	// External imports //
 	"github.com/bwmarrin/discordgo"
-	"github.com/tsukinai/CommanD-Bot/Bot"
-	"github.com/tsukinai/CommanD-Bot/Commands"
+	"github.com/tsukinai/CommanD-Bot"
 )
 
 // Current BotSession //
@@ -32,10 +31,10 @@ var botSession *discordgo.Session
 // - Create new BotSession
 func init() {
 	// Load command maps //
-	Commands.Load()
+	CommanD_Bot.Load()
 
 	// Create new BotSession //
-	botSession = Bot.New("Bot MzU3OTUwMTc3OTQ1OTc2ODM5.DOYtIQ.oa9Fqrl8RlhyunioLrmfItnpBkE")
+	botSession = CommanD_Bot.New("Bot MzU3OTUwMTc3OTQ1OTc2ODM5.DOYtIQ.oa9Fqrl8RlhyunioLrmfItnpBkE")
 }
 
 // Program entry point //

@@ -1,4 +1,4 @@
-package Commands
+package CommanD_Bot
 
 /*
 Last Updated: 11/20/27

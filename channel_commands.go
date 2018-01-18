@@ -1,4 +1,4 @@
-package Commands
+package CommanD_Bot
 
 import "github.com/bwmarrin/discordgo"
 

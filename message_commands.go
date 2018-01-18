@@ -1,21 +1,27 @@
-package Commands
+package CommanD_Bot
 
 import (
 	"github.com/bwmarrin/discordgo"
 	"log"
 	"strconv"
-	"github.com/tsukinai/CommanD-Bot/util"
 )
 
-func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	arg := util.ToLower(util.ParceInput(m.Content), 1)
-	switch arg{
+// TODO - Comment
+func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error{
+	arg := ToLower(ParceInput(m.Content), 1)
+	if arg == nil {
+		_, err := s.ChannelMessageSend(m.ChannelID, "There was no argument passed with !message.  Type !help -message to see supported options.")
+		return err
+	}
+
+	switch *arg{
 	case "-delete":
-		DeleteMessage(s, m, admin)
+		return DeleteMessage(s, m, admin)
 	case "-del":
-		DeleteMessage(s, m, admin)
+		return DeleteMessage(s, m, admin)
 	default:
-		s.ChannelMessageSend(m.ChannelID, arg + " is not an understood argument.  Type !help messages to get a list of commands.")
+		_, err := s.ChannelMessageSend(m.ChannelID, *arg + " is not an understood argument.  Type !help messages to get a list of commands.")
+		return err
 	}
 	return nil
 }
@@ -28,7 +34,7 @@ func DeleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 	// Parce message content in to a string array //
 	// - Parced on a space
 	// - Returns a string array
-	args := util.ParceInput(m.Content)
+	args := ParceInput(m.Content)
 
 
 	// Delete Messages based on args[] //
@@ -44,7 +50,11 @@ func DeleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 		// Delete last messages //
 		// - args[0] command call
 		// - toDelete() returns a string[] of messages to delete
-		return s.ChannelMessagesBulkDelete(m.ChannelID, toDelete(s, m, "", 1, admin))
+		messages, err := toDelete(s, m, "", 1, admin)
+		if err != nil {
+			return err
+		}
+		return s.ChannelMessagesBulkDelete(m.ChannelID, messages)
 	} else if len(args) == 3 {
 		// args[] len 2 //
 		// - args[0]: command
@@ -59,12 +69,20 @@ func DeleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 			// args[1] was not able to convert to an int //
 			// - run delete for a given user on just one message
 			// - toDelete() returns a string[] of messages to delete
-			return s.ChannelMessagesBulkDelete(m.ChannelID, toDelete(s, m, args[2], 1, admin))
+			messages, err := toDelete(s, m, args[2], 1, admin)
+			if err != nil {
+				return err
+			}
+			return s.ChannelMessagesBulkDelete(m.ChannelID, messages)
 		}
 		// args[1] was able to be converted to an int i //
 		// - run delete on i number of messages
 		// - toDelete() returns a string[] of messages to delete
-		return s.ChannelMessagesBulkDelete(m.ChannelID, toDelete(s, m,"", i, admin))
+		messages, err := toDelete(s, m,"", i, admin)
+		if err != nil {
+			return err
+		}
+		return s.ChannelMessagesBulkDelete(m.ChannelID, messages)
 	}
 
 	// args[] is len 3 //
@@ -80,7 +98,11 @@ func DeleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 	}
 	// Delete messages //
 	// - toDelete() returns a string[] of messages to delete
-	return s.ChannelMessagesBulkDelete(m.ChannelID, toDelete(s, m, args[3], i, admin))
+	messages, err := toDelete(s, m, args[3], i, admin)
+	if err != nil {
+		return err
+	}
+	return s.ChannelMessagesBulkDelete(m.ChannelID, messages)
 }
 
 // Wrapper for deleteUserMessages //
@@ -90,20 +112,21 @@ func DeleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 // - i: number of messges to delete
 // - admin: user admin role (true: has adin role | false: does not have admin role)
 // - Returns list of message ID's to delete
-func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, admin bool)[]string {
+func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, admin bool)([]string, error) {
 	// String array of message ID's to be deleted //
 	toDelete := make([]string, 0)
 
 	// get list of messages to delete for non-admin //
 	// - returns a []string of i number of messages by m.Auther.Username
 	if admin == false {
-		return deleteUserMessages(s, m, m.Author.Username, i)
+		return getUserMessages(s, m, m.Author.Username, i)
+
 	}
 
 	// get list of messages to delete for admin user with given Username //
 	// - returns a []string of i number of messages by uName username
 	if uName != "" {
-		return deleteUserMessages(s, m, uName, i)
+		return getUserMessages(s, m, uName, i)
 	}
 
 	// No uName was given //
@@ -112,8 +135,7 @@ func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, a
 	// get list of i number of messages plus 1 for original delete call //
 	messages, err := s.ChannelMessages(m.ChannelID, i + 1, "", "", "")
 	if err != nil {
-		log.Println(err)
-		return nil
+		return nil, err
 	}
 
 	// add messages to toDelete []string //
@@ -122,7 +144,7 @@ func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, a
 	}
 
 	// Return list of messages to delete //
-	return toDelete
+	return toDelete, nil
 }
 
 // Find user messages to delete //
@@ -131,7 +153,7 @@ func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, a
 // - uName: username of messages to delete
 // - i: number of messges to delete
 // - Returns list of message ID's to delete
-func deleteUserMessages(s *discordgo.Session, m *discordgo.Message, uName string, i int)[]string{
+func getUserMessages(s *discordgo.Session, m *discordgo.Message, uName string, i int)([]string, error){
 	// String array of message ID's to be deleted //
 	toDelete := make([]string, 0)
 
@@ -144,8 +166,7 @@ func deleteUserMessages(s *discordgo.Session, m *discordgo.Message, uName string
 		// Get i number of messages from channel starting before current message ID//
 		messages, err := s.ChannelMessages(m.ChannelID, i, current, "", "")
 		if err != nil {
-			log.Println(err)
-			return nil
+			return nil, err
 		}
 		// If no messages were found //
 		// - No more messages to delete in channel
@@ -157,7 +178,7 @@ func deleteUserMessages(s *discordgo.Session, m *discordgo.Message, uName string
 			// - return nil error
 			if len(toDelete) == 0 {
 				log.Println("No messges in channel to delete")
-				return nil
+				return nil, nil
 			}
 		}
 
@@ -176,5 +197,5 @@ func deleteUserMessages(s *discordgo.Session, m *discordgo.Message, uName string
 	toDelete = append(toDelete, m.ID)
 
 	// Return list of messages to delete //
-	return toDelete
+	return toDelete, nil
 }

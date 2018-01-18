@@ -1,4 +1,4 @@
-package util
+package CommanD_Bot
 
 /*
 Last Updated: 11/7/27
@@ -13,6 +13,7 @@ import (
 	// Golang imports //
 	"strings"
 	// External imports //
+	"log"
 )
 
 // Parce given string on a space //
@@ -24,8 +25,13 @@ func ParceInput(input string) []string {
 }
 
 // TODO - Comment
-// TODO - Implement error check
-func ToLower(input []string, i int) string {
+func ToLower(input []string, i int) *string {
+	if len(input) <= i {
+		log.Println("ToLower:", "given location to ToLower is outside of bounds of given array.")
+		return nil
+	}
+
 	arg := strings.ToLower(input[i])
-	return arg
+
+	return &arg
 }

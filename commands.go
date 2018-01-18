@@ -1,4 +1,4 @@
-package Commands
+package CommanD_Bot
 
 /*
 Last Updated: 11/20/27
@@ -16,17 +16,18 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+/*
 type commandInfo struct {
 	name string
 	info []string
 	args []string
 	perm byte
-}
+}*/
 
 // Bot Command Dictionary //
 var BotCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool) error)
 
-var HelpCommands = make(map[string][]commandInfo)
+//var HelpCommands = make(map[string][]commandInfo)
 
 // Load command maps with bot commands //
 // - BotCommands loaded with all commands
@@ -35,7 +36,7 @@ func Load() {
 	// Load all commands in to botCommands map //
 	//loadKeyMap()
 	loadBotCommands()
-	loadHelpCommands()
+	//loadHelpCommands()
 }
 
 // Loads commands in to botCommands map //
@@ -59,6 +60,7 @@ func loadBotCommands() {
 	*/
 }
 
+/*
 // TODO - Refactor Help structure
 func loadHelpCommands(){
 	info := make([]commandInfo, 0)
@@ -80,4 +82,4 @@ func loadHelpCommands(){
 
 
 	HelpCommands["!delete"] = info
-}
+}*/
