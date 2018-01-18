@@ -50,6 +50,8 @@ func loadBotCommands() {
 	BotCommands["!pl"] = PlayerCommands
 	BotCommands["!channel"] = ChannelCommands
 	BotCommands["!ch"] = ChannelCommands
+	BotCommands["!utility"] = UtilityCommands
+	BotCommands["!util"] = UtilityCommands
 	/*
 	BotCommands[1] = Help
 	BotCommands[2] = DeleteMessage
