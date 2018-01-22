@@ -9,6 +9,8 @@ commands_functions.go
 
 Command functions
 
+TODO - REDO !help with SQLight database
+
 TODO - Fix comments with in file
 */
 
@@ -25,8 +27,6 @@ import (
 // Returns all commands a user can use
 // - s: discord server info
 // - m: original discord message trigger
-// TODO - FIX !help
-// TODO - Refactor function layout
 func Help(s *discordgo.Session, m *discordgo.Message, admin bool) error {
 	args := Bot.ParceInput(m.Content)
 

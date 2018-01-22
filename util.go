@@ -35,3 +35,9 @@ func ToLower(input []string, i int) *string {
 
 	return &arg
 }
+
+// TODO - Comment
+func ToString(input []string) string {
+	return strings.Join(input, " ")
+}
+
