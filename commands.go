@@ -34,7 +34,6 @@ var BotCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, b
 // - commandHelp loaded with all info on commands
 func Load() {
 	// Load all commands in to botCommands map //
-	//loadKeyMap()
 	loadBotCommands()
 	//loadHelpCommands()
 }
@@ -52,14 +51,6 @@ func loadBotCommands() {
 	BotCommands["!ch"] = ChannelCommands
 	BotCommands["!utility"] = UtilityCommands
 	BotCommands["!util"] = UtilityCommands
-	/*
-	BotCommands[1] = Help
-	BotCommands[2] = DeleteMessage
-	BotCommands[3] = CreateChannel
-	BotCommands[4] = DeleteChannel
-	BotCommands[5] = KickMember
-	BotCommands[6] = BanMember
-	*/
 }
 
 /*

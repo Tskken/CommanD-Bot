@@ -17,6 +17,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+var BanTime = make(map[string]int)
+
 // Checks if bot role exist //
 // - If it does not create it
 // -- Set bot role to Bot-Bot
@@ -158,6 +160,10 @@ func GuildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
 	// - err: Error if role create errors (nil if non)
 	if _, err := RoleCheck(s, g.Guild); err != nil {
 		log.Println(err)
+	}
+
+	if _, ok := BanTime[g.Name]; ok != true {
+		BanTime[g.Name] = 30
 	}
 }
 
