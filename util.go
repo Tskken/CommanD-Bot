@@ -1,18 +1,7 @@
 package CommanD_Bot
 
-/*
-Last Updated: 11/7/27
-Author: Dylan Blanchard
-
-util.go
-
-All non bot related functions
-*/
-
 import (
-	// Golang imports //
 	"strings"
-	// External imports //
 	"log"
 )
 
@@ -25,15 +14,15 @@ func ParceInput(input string) []string {
 }
 
 // TODO - Comment
-func ToLower(input []string, i int) *string {
+func ToLower(input []string, i int) (*string, error) {
 	if len(input) <= i {
 		log.Println("ToLower:", "given location to ToLower is outside of bounds of given array.")
-		return nil
+		return nil, NewError("Given location to ToLower is outside of bounds of given array", "util.go")
 	}
 
 	arg := strings.ToLower(input[i])
 
-	return &arg
+	return &arg, nil
 }
 
 // TODO - Comment

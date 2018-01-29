@@ -1,46 +1,38 @@
 package CommanD_Bot
 
-/*
-Last Updated: 11/20/27
-Author: Dylan Blanchard
-
-commands.go
-
-Command function implementation
-*/
-
 import (
-	// Golang imports //
-
-	// External imports //
 	"github.com/bwmarrin/discordgo"
 )
-
-/*
-type commandInfo struct {
-	name string
-	info []string
-	args []string
-	perm byte
-}*/
 
 // Bot Command Dictionary //
 var BotCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool) error)
 
-//var HelpCommands = make(map[string][]commandInfo)
-
 // Load command maps with bot commands //
 // - BotCommands loaded with all commands
-// - commandHelp loaded with all info on commands
 func Load() {
 	// Load all commands in to botCommands map //
 	loadBotCommands()
-	//loadHelpCommands()
+}
+
+func Save() {
+	//saveBotMaps()
 }
 
 // Loads commands in to botCommands map //
-// TODO - Add commands to BotCommands map
+// TODO - Fix comments
 func loadBotCommands() {
+
+
+	/*
+	encdec := EncDec{}
+	encdec.OpenFile()
+	encdec.NewDecGob()
+	err := encdec.DecGob(&BanTime)
+	if err != nil {
+		log.Println(err)
+	}
+	encdec.CloseFile()*/
+
 	// Bot Commands dictionary //
 	// - Runs all command functions given string key as command name
 	BotCommands["!message"] = MessageCommands
@@ -49,30 +41,25 @@ func loadBotCommands() {
 	BotCommands["!pl"] = PlayerCommands
 	BotCommands["!channel"] = ChannelCommands
 	BotCommands["!ch"] = ChannelCommands
+	BotCommands["!guild"] = GuildCommands
+	BotCommands["!gl"] = GuildCommands
 	BotCommands["!utility"] = UtilityCommands
 	BotCommands["!util"] = UtilityCommands
+
 }
 
-/*
-// TODO - Refactor Help structure
-func loadHelpCommands(){
-	info := make([]commandInfo, 0)
 
-	cmd := commandInfo{}
-	cmd.name = "!delete"
-	cmd.info = append(cmd.info, "Delete last message sent in channel")
-	cmd.info = append(cmd.info, "Delete last message you sent in channel")
-	cmd.perm = 2
-
-	info = append(info, cmd)
-
-	cmd.info = nil
-	cmd.info = append(cmd.info, "Delete the last given number of messages")
-	cmd.info = append(cmd.info, "Delete the last given number of messages sent by you")
-	cmd.args = append(cmd.args, "<number to delete>")
-
-	info = append(info, cmd)
-
-
-	HelpCommands["!delete"] = info
-}*/
+func saveBotMaps()error{
+	encdec := NewEncDec()
+	err := encdec.OpenFile()
+	if err != nil {
+		return err
+	}
+	encdec.NewEncGob()
+	err = encdec.EncGob(BanTime)
+	if err != nil {
+		return err
+	}
+	err = encdec.CloseFile()
+	return err
+}

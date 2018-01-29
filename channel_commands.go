@@ -4,7 +4,10 @@ import "github.com/bwmarrin/discordgo"
 
 // TODO - Comment
 func ChannelCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	arg := ToLower(ParceInput(m.Content),1)
+	arg, err := ToLower(ParceInput(m.Content),1)
+	if err != nil {
+		return err
+	}
 
 	switch *arg {
 	case "-new":
@@ -22,11 +25,7 @@ func ChannelCommands(s *discordgo.Session, m *discordgo.Message, admin bool) err
 }
 
 // TODO - Implement CreateChannel
-func CreateChannel(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	return nil
-}
+func CreateChannel(s *discordgo.Session, m *discordgo.Message, admin bool) error {return nil}
 
 // TODO - Implement DeleteChannel
-func DeleteChannel(s *discordgo.Session, m *discordgo.Message, admin bool)error {
-	return nil
-}
+func DeleteChannel(s *discordgo.Session, m *discordgo.Message, admin bool)error {return nil}

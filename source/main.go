@@ -1,13 +1,8 @@
 package main
 
 /*
-Bot-Bot V0.6
-Last Update: 11/20/2017
+Bot-Bot V0.7
 Author: Dylan Blanchard
-
-main.go
-
-Main program file.  Entry point
 */
 
 import (
@@ -46,6 +41,8 @@ func main() {
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
+
+	CommanD_Bot.Save()
 
 	// Close bot session //
 	err := botSession.Close()

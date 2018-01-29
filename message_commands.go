@@ -2,14 +2,15 @@ package CommanD_Bot
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"log"
 	"strconv"
 )
 
 // TODO - Comment
 func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error{
-	arg := ToLower(ParceInput(m.Content), 1)
-	if arg == nil {
+	arg, err := ToLower(ParceInput(m.Content), 1)
+	if err != nil {
+		return err
+	} else if arg == nil {
 		_, err := s.ChannelMessageSend(m.ChannelID, "There was no argument passed with !message.  Type !help -message to see supported options.")
 		return err
 	}
@@ -23,7 +24,7 @@ func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) err
 		_, err := s.ChannelMessageSend(m.ChannelID, *arg + " is not an understood argument.  Type !help messages to get a list of commands.")
 		return err
 	}
-	return nil
+	return NewError("Switch case failed", "message_commands.go")
 }
 
 // Deletes messages with in a channel //
@@ -75,6 +76,11 @@ func DeleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 			}
 			return s.ChannelMessagesBulkDelete(m.ChannelID, messages)
 		}
+		// TODO - Comment
+		if i >= 100 {
+			_, err  = s.ChannelMessageSend(m.ChannelID, "You can only delete up to 99 messages at a time.")
+			return err
+		}
 		// args[1] was able to be converted to an int i //
 		// - run delete on i number of messages
 		// - toDelete() returns a string[] of messages to delete
@@ -94,7 +100,13 @@ func DeleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 	// - i: amount to delete as int
 	i, err := strconv.Atoi(args[2])
 	if err != nil {
-		log.Println(err)
+		return err
+	}
+
+	// TODO - Comment
+	if i >= 100 {
+		_, err  = s.ChannelMessageSend(m.ChannelID, "You can only delete up to 99 messages at a time.")
+		return err
 	}
 	// Delete messages //
 	// - toDelete() returns a string[] of messages to delete
@@ -172,13 +184,11 @@ func getUserMessages(s *discordgo.Session, m *discordgo.Message, uName string, i
 		// - No more messages to delete in channel
 		// - return nil error
 		if len(messages) == 0 {
-			log.Println("No more messages to delete")
 			// If toDelete is empty //
 			// - No messages were found in channel
 			// - return nil error
 			if len(toDelete) == 0 {
-				log.Println("No messges in channel to delete")
-				return nil, nil
+				return nil, NewError("There was no messages to delete with in given channel", "message_commands.go")
 			}
 		}
 

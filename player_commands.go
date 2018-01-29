@@ -7,7 +7,10 @@ import (
 
 // TODO - comment
 func PlayerCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	arg := ToLower(ParceInput(m.Content), 1)
+	arg, err := ToLower(ParceInput(m.Content), 1)
+	if err != nil {
+		return err
+	}
 
 	channel, err := GetChannel(s, m)
 	if err != nil {
@@ -84,7 +87,7 @@ func PlayerCommands(s *discordgo.Session, m *discordgo.Message, admin bool) erro
 		return err
 	}
 
-	return nil
+	return NewError("Switch case failed", "player_commands.go")
 }
 
 // TODO - Comment
@@ -110,7 +113,7 @@ func KickMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Gui
 		return err
 	}
 
-	return nil
+	return NewError("If statement failed","player_commands.go")
 }
 
 // TODO - Fix Ban with reason functionality
@@ -135,7 +138,7 @@ func BanMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guil
 		return err
 	}
 
-	return nil
+	return NewError("If statement failed","player_commands.go")
 }
 
 // TODO - Comment
@@ -145,6 +148,10 @@ func NewBanTimer(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Gu
 		return err
 	}
 	args := ParceInput(m.Content)
+	if len(args) < 3 {
+		_, err = s.ChannelMessageSend(m.ChannelID, "You need to give an amount of time to change the ban time to.")
+		return err
+	}
 	time, err := strconv.Atoi(args[2])
 	if err != nil {
 		return err

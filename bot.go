@@ -1,19 +1,7 @@
 package CommanD_Bot
 
-/*
-Last Updated: 11/20/27
-Author: Dylan Blanchard
-
-bot.go
-
-Bot session info and functions related to bot functionality not directly related to commands.
-*/
-
 import (
-	// Golang imports //
 	"log"
-
-	// External imports //
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -48,14 +36,13 @@ func CheckBotRole(s *discordgo.Session, g *discordgo.Guild) error {
 	// - Returns an error if role add errors (nil if non)
 	for _, member := range g.Members {
 		if member.User.Username == "Bot-Bot" {
-			err := s.GuildMemberRoleAdd(g.ID, member.User.ID, role.ID)
+			err = s.GuildMemberRoleAdd(g.ID, member.User.ID, role.ID)
 			return err
 		}
 	}
 
 	// Bot-Bot was not found with in guild //
-	log.Println("Bot-Bot was not found with in server")
-	return nil
+	return NewError("Bot was not found with in server","bot.go")
 }
 
 // Check if terminal text channel exists //
@@ -144,7 +131,7 @@ func GuildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
 	// - If channel does not exist create it
 	// - err: Error if channel create errors (nil if non)
 	if err := ChannelCheck(s, g.Guild); err != nil {
-		log.Println(err)
+		PrintError(err)
 	}
 
 	// Check for the Bot role with in the server //
@@ -152,14 +139,14 @@ func GuildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
 	// - Give role to bot
 	// - err: Error if role create errors (nil if non)
 	if err := CheckBotRole(s, g.Guild); err != nil {
-		log.Println(err)
+		PrintError(err)
 	}
 
 	// Check if "Admin" role exist in guild //
 	// - If role does not exist create it
 	// - err: Error if role create errors (nil if non)
 	if _, err := RoleCheck(s, g.Guild); err != nil {
-		log.Println(err)
+		PrintError(err)
 	}
 
 	if _, ok := BanTime[g.Name]; ok != true {
@@ -192,7 +179,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// - err: error check (nil if non)
 	channel, err := GetChannel(s, m.Message)
 	if err != nil {
-		log.Println(err)
+		PrintError(err)
 	}
 
 	// Get guild channel is in //
@@ -200,7 +187,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// - err: error check (nil if non)
 	guild, err := GetGuild(s, channel)
 	if err != nil {
-		log.Println(err)
+		PrintError(err)
 	}
 
 	// Get member of guild who sent original message //
@@ -208,7 +195,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// - err: error check (nil if non)
 	member, err := GetMember(s, guild, m.Message)
 	if err != nil {
-		log.Println(err)
+		PrintError(err)
 	}
 
 	// Get admin role ID from guild //
@@ -216,7 +203,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// - Error if there was an issue in creation of the role
 	roleID, err := RoleCheck(s, guild)
 	if err != nil {
-		log.Println(err)
+		PrintError(err)
 	}
 	// Check members roles //
 	for _, memRole := range member.Roles {
@@ -232,7 +219,11 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// - Parces on a space
 	// - Returns []string
 	//args := ParceInput(m.Content)
-	arg := ToLower(ParceInput(m.Content), 0)
+	arg, err := ToLower(ParceInput(m.Content), 0)
+	if err != nil {
+		PrintError(err)
+		return
+	}
 
 	// Check if command exist with in command map //
 	// - ok: true or false if command exists
@@ -240,7 +231,8 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// -- false: command does not exist
 	if _, ok := BotCommands[*arg]; ok != true {
 		// Given command did not exist in map //
-		log.Println("Command does not exists: ", arg)
+		info := "Command does not exist: " + *arg
+		PrintError(NewError(info,"bot.go"))
 		return
 	}
 
@@ -251,7 +243,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// - admin: user permission level
 	err = BotCommands[*arg](s, m.Message, admin)
 	if err != nil {
-		log.Println(err)
+		PrintError(err)
 	}
 	return
 }
@@ -271,7 +263,7 @@ func New(token string) *discordgo.Session {
 	// Opens session connection //
 	err = session.Open()
 	if err != nil {
-		log.Println(err)
+		PrintError(err)
 	}
 
 	// Returns session //

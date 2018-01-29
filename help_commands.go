@@ -1,86 +1,23 @@
 package CommanD_Bot
 
-/*
-Last Updated: 11/20/27
-Author: Dylan Blanchard
+import "github.com/bwmarrin/discordgo"
 
-commands_functions.go
+// TODO - REDO !help with a database. (reserch best database for implementation)
+
+type helpInfo struct {
+	id string
+	args []string
+	info string
+}
+
+func (h *helpInfo) setID(id string){}
+func (h *helpInfo) getId()string{return h.id}
+
+func (h *helpInfo) setArgs(args []string){}
+func (h *helpInfo) getArgs()[]string{return h.args}
+
+func (h *helpInfo) setInfo(info string){}
+func (h *helpInfo) getInfo()string{return h.info}
 
 
-Command functions
-
-TODO - REDO !help with SQLight database
-
-TODO - Fix comments with in file
-*/
-
-import (
-	// Golang imports //
-	//"log"
-
-	// External imports //
-	//"github.com/bwmarrin/discordgo"
-	//"github.com/tsukinai/Bot-Bot/Bot"
-)
-
-/*
-// Returns all commands a user can use
-// - s: discord server info
-// - m: original discord message trigger
-func Help(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	args := Bot.ParceInput(m.Content)
-
-	if len(args) == 1 {
-		_, err := s.ChannelMessageSend(m.ChannelID, "fix help!!!")
-
-		return err
-	}
-
-	if info, ok := HelpCommands[args[1]]; ok != true {
-		log.Println("Command did not exist in HelpComamnds")
-		return nil
-	} else {
-		var output string
-		for _, help := range info {
-			output += help.name + " "
-			if len(help.args) != 0{
-				for _, arg := range help.args {
-					output += arg + " "
-				}
-			}
-
-			output += " - "
-
-			switch help.perm {
-			case 0:
-				if admin == true {
-					break
-				}
-				output += help.info[0]
-				break
-			case 1:
-				if admin != true {
-					break
-				}
-				output += help.info[0]
-				break
-			case 2:
-				if admin == true {
-					output += help.info[0]
-				} else {
-					output += help.info[1]
-				}
-				break
-			default:
-				log.Println("error in help perm")
-			}
-
-			output += "\n"
-		}
-		_, err := s.ChannelMessageSend(m.ChannelID, output)
-		return err
-
-	}
-	return nil
-}*/
-
+func Help(s *discordgo.Session, m *discordgo.Message)error {return nil}

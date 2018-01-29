@@ -5,32 +5,80 @@ package CommanD_Bot
 import (
 	"os"
 	"encoding/gob"
+	"path/filepath"
 )
 
-var filePath string = "/data/maps.gob"
+var file = "../tsukinai/CommanD-Bot/data/data.gob"
 
-func SaveGob()error{
-	file, err := os.Create(filePath)
-	defer file.Close()
-	if err != nil{
+type encdec struct {
+	file *os.File
+	enc *gob.Encoder
+	dec *gob.Decoder
+}
+
+func NewEncDec()*encdec{
+	return &encdec{}
+}
+
+func (ed *encdec)OpenFile()error{
+	filePath, err := filepath.Abs(file)
+	if err != nil {
 		return err
 	}
-	encoder := gob.NewEncoder(file)
-	encoder.Encode(BotCommands)
-	encoder.Encode(BanTime)
-	return nil
+	ed.file, err = os.Create(filePath)
+	return err
+}
+func (ed *encdec)CloseFile()error{
+	err := ed.file.Close()
+	return err
+}
+func (ed *encdec)getFile()*os.File{
+	return ed.file
+}
+
+func (ed *encdec)NewEncGob(){
+	ed.enc = gob.NewEncoder(ed.getFile())
+}
+func (ed *encdec)EncGob(val interface{})error{
+	err := ed.enc.Encode(val)
+	return err
+}
+
+func (ed *encdec)NewDecGob(){
+	ed.dec = gob.NewDecoder(ed.getFile())
+}
+func (ed *encdec)DecGob(val interface{})error{
+	err := ed.dec.Decode(val)
+	return err
+}
+
+/*
+func SaveGob()error{
+	newGob := encdec{}
+	err := newGob.openFile()
+	if err != nil {
+		return err
+	}
+
+	defer newGob.closeFile()
+	newGob.newEncGob()
+	err = newGob.encGob(BotCommands)
+	if err != nil {
+		return err
+	}
+	err = newGob.encGob(BanTime)
+	return err
 }
 
 func LoadGob()error{
-	file, err := os.Open(filePath)
-	defer file.Close()
+	newGob := encdec{}
+	err := newGob.openFile()
 	if err != nil {
-		file.Close()
 		return err
 	}
-	decoder := gob.NewDecoder(file)
-	decoder.Decode(BotCommands)
-	decoder.Decode(BanTime)
+	newGob.newDecGob()
+	newGob.decGob(BotCommands)
+	newGob.decGob(BanTime)
 	return nil
 
-}
+}*/
