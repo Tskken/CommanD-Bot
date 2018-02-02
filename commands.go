@@ -7,16 +7,6 @@ import (
 // Bot Command Dictionary //
 var BotCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool) error)
 
-// Load command maps with bot commands //
-// - BotCommands loaded with all commands
-func Load() {
-	// Load all commands in to botCommands map //
-	loadBotCommands()
-}
-
-func Save() {
-	//saveBotMaps()
-}
 
 // Loads commands in to botCommands map //
 // TODO - Fix comments
@@ -45,21 +35,8 @@ func loadBotCommands() {
 	BotCommands["!gl"] = GuildCommands
 	BotCommands["!utility"] = UtilityCommands
 	BotCommands["!util"] = UtilityCommands
+	BotCommands["!help"] = Help
 
 }
 
 
-func saveBotMaps()error{
-	encdec := NewEncDec()
-	err := encdec.OpenFile()
-	if err != nil {
-		return err
-	}
-	encdec.NewEncGob()
-	err = encdec.EncGob(BanTime)
-	if err != nil {
-		return err
-	}
-	err = encdec.CloseFile()
-	return err
-}

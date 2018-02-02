@@ -2,7 +2,6 @@ package CommanD_Bot
 
 import (
 	"strings"
-	"log"
 )
 
 // Parce given string on a space //
@@ -16,7 +15,6 @@ func ParceInput(input string) []string {
 // TODO - Comment
 func ToLower(input []string, i int) (*string, error) {
 	if len(input) <= i {
-		log.Println("ToLower:", "given location to ToLower is outside of bounds of given array.")
 		return nil, NewError("Given location to ToLower is outside of bounds of given array", "util.go")
 	}
 

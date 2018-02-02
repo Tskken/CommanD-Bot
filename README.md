@@ -11,12 +11,12 @@ A sudo command line for full control over your Discord server.  This bot is powe
 4. Run the CommanD.exe to start the bot.
 5. Fallow the instructions in the command line for initial startup. (these will only show up the first time you run the exe).
 
-[3]: https://discordapp.com/oauth2/authorize?client_id=357950177945976839&scope=bot&permissions=0
+[3]: https://discordapp.com/oauth2/authorize?client_id=357950177945976839&scope=bot&permissions=1
 
 ---
 
-# NOTE!!!: 
-##This is not a correct and up to date README.  All example commands are subject to change along with any given library's and code design.
+# NOTE!!!
+THIS IS NOT AN UP TO DATE README.  CONTENTS ARE SUBJECT TO CHANGE.
 
 ---
 
@@ -39,9 +39,6 @@ On first startup there will be some requirements that have to be filled when run
 
 ### Commands <a id="Commands"></a>
 Initial list of commands the bot will support
-
-**NOTE: Not implemented yet.**  
-**TODO**:  Finish initial command listing.  Implement basic functionality.
 
 ###### Admin Commands <a id="Admin_Commands"></a>
 

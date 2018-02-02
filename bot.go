@@ -7,6 +7,33 @@ import (
 
 var BanTime = make(map[string]int)
 
+// Load command maps with bot commands //
+// - BotCommands loaded with all commands
+func Load() {
+	// Load all commands in to botCommands map //
+	loadBotCommands()
+	LoadHelp()
+}
+
+func Save() {
+	//saveBotMaps()
+}
+
+func saveBotMaps()error{
+	encdec := NewEncDec()
+	err := encdec.OpenFile()
+	if err != nil {
+		return err
+	}
+	encdec.NewEncGob()
+	err = encdec.EncGob(BanTime)
+	if err != nil {
+		return err
+	}
+	err = encdec.CloseFile()
+	return err
+}
+
 // Checks if bot role exist //
 // - If it does not create it
 // -- Set bot role to Bot-Bot

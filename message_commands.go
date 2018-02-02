@@ -17,9 +17,13 @@ func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) err
 
 	switch *arg{
 	case "-delete":
-		return DeleteMessage(s, m, admin)
+		return deleteMessage(s, m, admin)
 	case "-del":
-		return DeleteMessage(s, m, admin)
+		return deleteMessage(s, m, admin)
+	case "-clear":
+		return clearMessages(s, m, admin)
+	case "-cl":
+		return clearMessages(s, m, admin)
 	default:
 		_, err := s.ChannelMessageSend(m.ChannelID, *arg + " is not an understood argument.  Type !help messages to get a list of commands.")
 		return err
@@ -31,7 +35,7 @@ func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) err
 // - s: discord server info
 // - m: original message trigger
 // - admin: user permission level
-func DeleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error {
+func deleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error {
 	// Parce message content in to a string array //
 	// - Parced on a space
 	// - Returns a string array
@@ -208,4 +212,17 @@ func getUserMessages(s *discordgo.Session, m *discordgo.Message, uName string, i
 
 	// Return list of messages to delete //
 	return toDelete, nil
+}
+
+// TODO - Comment
+func clearMessages(s *discordgo.Session, m *discordgo.Message, admin bool)error{
+	if admin != true {
+		_, err := s.ChannelMessageSend(m.ChannelID, "You do not have the permissions to use this command.")
+		return err
+	}
+	ms, err := toDelete(s, m, "", 99, true)
+	if err != nil {
+		return err
+	}
+	return s.ChannelMessagesBulkDelete(m.ChannelID, ms)
 }
