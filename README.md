@@ -19,7 +19,7 @@ THIS README IS SUBJECT TO CHANGE.  ALL GIVEN FUNCTIONALITY COULD BE CHANGED OR R
 
 ## Table Of Contents
 + [Introduction](#Introduction)
-+[<s>Initial Setup</s>](#Initial_Setup) Out of date
++ [<s>Initial Setup</s>](#Initial_Setup) Out of date
 + [Commands](#Commands)
 + [Sub Commands](#sub_commands)
    - [!message](#message)
@@ -40,9 +40,9 @@ WIP! May be redacted later
 Current supported commands
 
 |   Command Name |  Command Function |
-|---|---|
+| --- | --- |
 |   !help or !h | Gives info on the supported wrapper commands.  Add one of the rappers to !help as an argument and it will give you info on the supported sub commands that command supports. |
-|   [!message](#message) or [!ms](#message)|  !message is the wrapper command for all messages with in the server. |
+|   [!message](#message) or [!ms](#message) |  !message is the wrapper command for all messages with in the server. |
 |   [!player](#player) or [!pl](#player) |   !player is the wrapper function for all player based commands with in the server. |
 
 ### Sub commands <a id="sub_commands></a>
@@ -50,13 +50,13 @@ Currently supported sub commands that fall under there parent wrapper.
 
 #### !message <a id="message"></a>
 |   Command Name |  Arguments |  Command Function |
-|---|---|
+| --- | --- |
 |   -delete or -del |   <number of messages> <player name> |    Deleted messages from with in the channel the command is sent.  You can pass it any combinations of arguments.  No arguments passed with simply delete the last message sent in the channel.  **Note** Only admin users can delete messages created by other people.  Non admins can only delete messages that they sent. |
 |   -clear or -cl | no arguments    | This deletes all messages within a channel that can be deleted.  All messages older then two weeks will not be deleted as its is a limitation presented by the Discord API.  A work around may be possible but for the time being not planed. |
 
 #### !player <a id="player"></a>
 |   Command Name |  Arguments |  Command Function |
-|---|---|
+| --- | --- |
 |   -kick or -k |   <username> |    Kicks a user from the guild. |
 |   -ban or -b |    <username> |    Bands a user from the guild.  Ban time of the user is 30 days by default.  This can be changed with other commands. |
 |   -bantime or -bt |   <number of days> |   Sets the number of days for a user to be band.  If this is not called or changed after startup of the bot the default will be 30 days.  **Note** The time currently set to 30 days for every server the bot is in when the bot starts.  This will be changed in later versions to save the priset times for each server so that the information does not need to be re-entered every time the bot needs to be restarted. |
@@ -65,7 +65,7 @@ Currently supported sub commands that fall under there parent wrapper.
 All planned commands are subject to change.  There arguments, naming, and functionality could change based on feedback, limitations of the discord api and discordgo library, limitations of Golang, and any other variables that could change planned development.
 
 |   Command Name |  Arguments |  Command Function |
-|---|---|
+| --- | --- |
 |   !channel -create | <name> <type> | Created a new channel.  The name is mandatory but the type is optional.  If type is not given a text channel will be created by default. |
 |   !channel -delete | <name> | Deletes the given channel. **Note** This will only be able to be used by admins unless there is a way to determine the creator of the channel.  If this is possible then non admin users will be able to delete only channels they created.|
 |   !utility -dice | <lower bound> <upper bound> | Will role a dice.  The upper bound is mandatory.  The lower bound can be omitted and will default to 0.  If the lower bound is omitted then the dice will role from 0 to the upper bound that is given. |
