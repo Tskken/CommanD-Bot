@@ -1,26 +1,28 @@
-package CommanD_Bot
+package commands
 
 import (
 	"github.com/bwmarrin/discordgo"
 	"strconv"
+	"github.com/tsukinai/CommanD-Bot/utility"
+	"github.com/tsukinai/CommanD-Bot/servers"
+	"github.com/tsukinai/CommanD-Bot/botErrors"
 )
 
 // TODO - comment
 func PlayerCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	arg, err := ToLower(ParceInput(m.Content), 1)
+	arg, err := utility.ToLower(utility.ParceInput(m.Content), 1)
 	if err != nil {
 		return err
 	}
 
-	channel, err := GetChannel(s, m)
+	channel, err := servers.GetChannel(s, m)
 	if err != nil {
 		return err
 	}
-	guild, err := GetGuild(s, channel)
+	guild, err := servers.GetGuild(s, m)
 	if err != nil {
 		return err
 	}
-
 	switch *arg {
 	case "-kick":
 		if channel.Name != "terminal" {
@@ -87,14 +89,14 @@ func PlayerCommands(s *discordgo.Session, m *discordgo.Message, admin bool) erro
 		return err
 	}
 
-	return NewError("Switch case failed", "player_commands.go")
+	return botErrors.NewError("Switch case failed", "player_commands.go")
 }
 
 // TODO - Comment
 // TODO - Fix kick with reason functionality
 func KickMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guild) error {
 
-	args := ParceInput(m.Content)
+	args := utility.ParceInput(m.Content)
 
 	var guildMember *discordgo.Member
 
@@ -107,19 +109,19 @@ func KickMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Gui
 	if len(args) == 3 {
 		return s.GuildMemberDelete(guild.ID, guildMember.User.ID)
 	} else if len(args) >= 4 {
-		return s.GuildMemberDeleteWithReason(guild.ID, guildMember.User.ID, ToString(args[3:]))
+		return s.GuildMemberDeleteWithReason(guild.ID, guildMember.User.ID, utility.ToString(args[3:]))
 	} else {
 		_, err := s.ChannelMessageSend(m.ChannelID, "Incorect arguments with in -kick call. !help -kick for more info on the option.")
 		return err
 	}
 
-	return NewError("If statement failed","player_commands.go")
+	return botErrors.NewError("If statement failed","player_commands.go")
 }
 
 // TODO - Fix Ban with reason functionality
 // TODO - Comment
 func BanMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guild)error {
-	args := ParceInput(m.Content)
+	args := utility.ParceInput(m.Content)
 
 	if len(args) == 3 {
 		for _, member := range guild.Members {
@@ -130,7 +132,7 @@ func BanMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guil
 	} else if len(args) >= 4 {
 		for _, member := range guild.Members {
 			if member.Nick == args[2] || member.User.Username == args[2] {
-				return s.GuildBanCreateWithReason(guild.ID, member.User.ID, ToString(args[3:]), BanTime[guild.Name])
+				return s.GuildBanCreateWithReason(guild.ID, member.User.ID, utility.ToString(args[3:]), BanTime[guild.Name])
 			}
 		}
 	} else {
@@ -138,7 +140,7 @@ func BanMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guil
 		return err
 	}
 
-	return NewError("If statement failed","player_commands.go")
+	return botErrors.NewError("If statement failed","player_commands.go")
 }
 
 // TODO - Comment
@@ -147,7 +149,7 @@ func NewBanTimer(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Gu
 	if err != nil {
 		return err
 	}
-	args := ParceInput(m.Content)
+	args := utility.ParceInput(m.Content)
 	if len(args) < 3 {
 		_, err = s.ChannelMessageSend(m.ChannelID, "You need to give an amount of time to change the ban time to.")
 		return err

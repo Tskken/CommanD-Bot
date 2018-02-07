@@ -1,8 +1,11 @@
-package CommanD_Bot
+package commands
 
 import (
 	"github.com/bwmarrin/discordgo"
 	"strings"
+	"github.com/tsukinai/CommanD-Bot/utility"
+	"github.com/tsukinai/CommanD-Bot/botErrors"
+	"github.com/tsukinai/CommanD-Bot/servers"
 )
 
 // TODO - Implement
@@ -29,12 +32,12 @@ func addToMap(c *cmdInfo) error {
 	HelpMap[c.id] = *c
 	_, ok := HelpMap[c.id]
 	if ok != true {
-		return NewError(c.id+" was not added to the map correctly.", "help_commands.go")
+		return botErrors.NewError(c.id+" was not added to the map correctly.", "help_commands.go")
 	}
 	return nil
 }
 
-func LoadHelp() {
+func loadHelp() {
 	args := []string{"!player", "!message"}
 	NewCmd("!help", "All possible main wrapper commands.  Type !help -<command name> to see info on each sub set of commands.", args)
 
@@ -73,13 +76,12 @@ func (c *cmdInfo) getInfo()string{return c.info}
 */
 
 func Help(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	cmd, err := ToLower(ParceInput(m.Content), 1)
+	cmd, err := utility.ToLower(utility.ParceInput(m.Content), 1)
 	if err != nil {
-		cmd, err = ToLower(ParceInput(m.Content), 0)
+		cmd, err = utility.ToLower(utility.ParceInput(m.Content), 0)
 		if err != nil {
 			return err
 		}
-
 	}
 	cmdInfo, ok := HelpMap[*cmd]
 	if ok != true {
@@ -89,7 +91,7 @@ func Help(s *discordgo.Session, m *discordgo.Message, admin bool) error {
 			return err
 		}
 	}
-	chn, err := GetChannel(s, m)
+	chn, err := servers.GetChannel(s, m)
 	if err != nil {
 		return err
 	}

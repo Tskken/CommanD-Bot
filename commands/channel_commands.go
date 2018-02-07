@@ -1,10 +1,13 @@
-package CommanD_Bot
+package commands
 
-import "github.com/bwmarrin/discordgo"
+import (
+	"github.com/bwmarrin/discordgo"
+	"github.com/tsukinai/CommanD-Bot/utility"
+)
 
 // TODO - Comment
 func ChannelCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	arg, err := ToLower(ParceInput(m.Content),1)
+	arg, err := utility.ToLower(utility.ParceInput(m.Content),1)
 	if err != nil {
 		return err
 	}

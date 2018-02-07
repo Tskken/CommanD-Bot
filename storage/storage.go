@@ -1,4 +1,4 @@
-package CommanD_Bot
+package storage
 
 // TODO - Test and modify if necessary
 
@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-var file = "../tsukinai/CommanD-Bot/data/data.gob"
+var file = "../tsukinai/CommanD-Bot/source/data/data.gob"
 
 type encdec struct {
 	file *os.File

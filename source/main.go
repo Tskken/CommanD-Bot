@@ -6,14 +6,11 @@ Author: Dylan Blanchard
 */
 
 import (
-	// Golang imports //
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-
-	// External imports //
 	"github.com/bwmarrin/discordgo"
 	"github.com/tsukinai/CommanD-Bot"
 )
@@ -25,9 +22,6 @@ var botSession *discordgo.Session
 // - Loads maps
 // - Create new BotSession
 func init() {
-	// Load command maps //
-	CommanD_Bot.Load()
-
 	// Create new BotSession //
 	botSession = CommanD_Bot.New("Bot MzU3OTUwMTc3OTQ1OTc2ODM5.DOYtIQ.oa9Fqrl8RlhyunioLrmfItnpBkE")
 }
@@ -41,8 +35,6 @@ func main() {
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
-
-	CommanD_Bot.Save()
 
 	// Close bot session //
 	err := botSession.Close()

@@ -1,4 +1,4 @@
-package CommanD_Bot
+package botErrors
 
 import (
 	"time"
