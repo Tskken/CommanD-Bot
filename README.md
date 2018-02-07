@@ -45,7 +45,7 @@ Current supported commands
 |   [!message](#message) or [!ms](#message) |  !message is the wrapper command for all messages with in the server. |
 |   [!player](#player) or [!pl](#player) |   !player is the wrapper function for all player based commands with in the server. |
 
-### Sub commands <a id="sub_commands></a>
+### Sub commands <a id="sub_commands"></a>
 Currently supported sub commands that fall under there parent wrapper.
 
 #### !message <a id="message"></a>
