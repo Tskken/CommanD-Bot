@@ -6,7 +6,6 @@ Author: Dylan Blanchard
 */
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -23,7 +22,9 @@ var botSession *discordgo.Session
 // - Create new BotSession
 func init() {
 	// Create new BotSession //
+	log.Println("Init")
 	botSession = CommanD_Bot.New("Bot MzU3OTUwMTc3OTQ1OTc2ODM5.DOYtIQ.oa9Fqrl8RlhyunioLrmfItnpBkE")
+	log.Println("Bot started")
 }
 
 // Program entry point //
@@ -31,7 +32,7 @@ func init() {
 // - On terminate signal close bot session
 func main() {
 	// Wait until CTRL-C or other terminate signal is received. //
-	fmt.Println("Bot-Bot is now running.  Press CTRL-C to exit.")
+	log.Println("Bot-Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc

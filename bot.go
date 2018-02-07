@@ -104,19 +104,24 @@ func New(token string) *discordgo.Session {
 	if err != nil {
 		log.Println(err)
 	}
+	log.Println("Session created")
 
 	// Sets bot handlers //
 	session.AddHandler(GuildCreate)
 	session.AddHandler(MessageCreate)
 
+	log.Println("Handlers added")
+
 	// Load commands //
 	commands.Load()
+	log.Println("Commands loaded")
 
 	// Opens session connection //
 	err = session.Open()
 	if err != nil {
 		botErrors.PrintError(err)
 	}
+	log.Println("Session opened")
 
 	// Returns session //
 	return session

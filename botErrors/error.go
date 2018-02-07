@@ -13,7 +13,7 @@ type Error struct {
 }
 
 func (e *Error) Error()string{
-	return fmt.Sprintf("%v, Error: %s in %s", e.time, e.id, e.file)
+	return fmt.Sprintf("%s, Error: %s in %s", e.time.Format(time.UnixDate), e.id, e.file)
 }
 
 func NewError(id string, file string)*Error{
