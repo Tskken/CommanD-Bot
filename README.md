@@ -49,12 +49,14 @@ Current supported commands
 Currently supported sub commands that fall under there parent wrapper.
 
 #### !message <a id="message"></a>
+
 |   Command Name |  Arguments |  Command Function |
 | --- | --- |
 |   -delete or -del |   <number of messages> <player name> |    Deleted messages from with in the channel the command is sent.  You can pass it any combinations of arguments.  No arguments passed with simply delete the last message sent in the channel.  **Note** Only admin users can delete messages created by other people.  Non admins can only delete messages that they sent. |
 |   -clear or -cl | no arguments    | This deletes all messages within a channel that can be deleted.  All messages older then two weeks will not be deleted as its is a limitation presented by the Discord API.  A work around may be possible but for the time being not planed. |
 
 #### !player <a id="player"></a>
+
 |   Command Name |  Arguments |  Command Function |
 | --- | --- |
 |   -kick or -k |   <username> |    Kicks a user from the guild. |
@@ -67,7 +69,7 @@ All planned commands are subject to change.  There arguments, naming, and functi
 |   Command Name |  Arguments |  Command Function |
 | --- | --- |
 |   !channel -create | <name> <type> | Created a new channel.  The name is mandatory but the type is optional.  If type is not given a text channel will be created by default. |
-|   !channel -delete | <name> | Deletes the given channel. **Note** This will only be able to be used by admins unless there is a way to determine the creator of the channel.  If this is possible then non admin users will be able to delete only channels they created.|
+|   !channel -delete | <name> | Deletes the given channel. **Note** This will only be able to be used by admins unless there is a way to determine the creator of the channel.  If this is possible then non admin users will be able to delete only channels they created. |
 |   !utility -dice | <lower bound> <upper bound> | Will role a dice.  The upper bound is mandatory.  The lower bound can be omitted and will default to 0.  If the lower bound is omitted then the dice will role from 0 to the upper bound that is given. |
 |   !utility -trinity | <username> <trinity name> | Trinity lets you give "roles" to guild members.  The name is mandatory but the trinity name can be omitted.  If the trinity name is omitted it will by default return the current trinity values given to that user.  If the trinity name is given it will set that trinity name to the given user. |
 |   !utility -ign   | <username> <ign> | Ign lets you give a new name to a user outside of there normal discord names.  The user name is mandatory but the ign can be omitted.  If the ign is omitted then it will by default return the current ign's for that user.  If the ign is given it will add that ign to the users list of ign's. |
