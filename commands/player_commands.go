@@ -60,17 +60,21 @@ func kickMember(s *discordgo.Session, m *discordgo.Message, g *discordgo.Guild) 
 // TODO - Comment
 func banMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guild)error {
 	args := utility.ParceInput(m.Content)
+	time, ok := banTime[guild.Name]
+	if !ok {
+		return botErrors.NewError("ban time was not set on guild join", "player_commands.go")
+	}
 
 	if len(args) == 3 {
 		for _, member := range guild.Members {
 			if member.Nick == args[2] || member.User.Username == args[2] {
-				return s.GuildBanCreate(guild.ID, member.User.ID, BanTime[guild.Name])
+				return s.GuildBanCreate(guild.ID, member.User.ID, time)
 			}
 		}
 	} else if len(args) >= 4 {
 		for _, member := range guild.Members {
 			if member.Nick == args[2] || member.User.Username == args[2] {
-				return s.GuildBanCreateWithReason(guild.ID, member.User.ID, utility.ToString(args[3:]), BanTime[guild.Name])
+				return s.GuildBanCreateWithReason(guild.ID, member.User.ID, utility.ToString(args[3:]), time)
 			}
 		}
 	} else {
@@ -83,21 +87,25 @@ func banMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guil
 
 // TODO - Comment
 func newBanTimer(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guild)error{
-	_, err := s.ChannelMessageSend(m.ChannelID, "Ban time was " + strconv.Itoa(BanTime[guild.Name]))
-	if err != nil {
-		return err
+
+	if time, ok := banTime[guild.Name]; ok {
+		_, err := s.ChannelMessageSend(m.ChannelID, "Ban time was " + strconv.Itoa(time))
+		if err != nil {
+			return err
+		}
 	}
+
 	args := utility.ParceInput(m.Content)
 	if len(args) < 3 {
-		_, err = s.ChannelMessageSend(m.ChannelID, "You need to give an amount of time to change the ban time to.")
+		_, err := s.ChannelMessageSend(m.ChannelID, "You need to give an amount of time to change the ban time to.")
 		return err
 	}
 	time, err := strconv.Atoi(args[2])
 	if err != nil {
 		return err
 	}
-	BanTime[guild.Name] = time
+	banTime[guild.Name] = time
 
-	_, err = s.ChannelMessageSend(m.ChannelID, "Ban time has been set to " + strconv.Itoa(BanTime[guild.Name]))
+	_, err = s.ChannelMessageSend(m.ChannelID, "Ban time has been set to " + strconv.Itoa(banTime[guild.Name]))
 	return err
 }

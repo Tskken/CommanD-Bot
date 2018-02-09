@@ -12,7 +12,7 @@ var channelCommands = make(map[string]func(*discordgo.Session, *discordgo.Messag
 var guildommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool)error)
 var utilityCommands = make(map[string]func(*discordgo.Session, *discordgo.Message)error)
 var helpMap = make(map[string]cmdInfo)
-var BanTime = make(map[string]int)
+var banTime = make(map[string]int)
 
 // Load command maps with bot commands //
 func Load() {
