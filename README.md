@@ -8,7 +8,7 @@ A sudo command line for full control over your Discord server.  This bot is powe
 1. Go to [this link][3] and add the bot to your server
 2. That's it :)
 
-[3]: https://discordapp.com/oauth2/authorize?client_id=357950177945976839&scope=bot&permissions=1
+[3]: https://discordapp.com/oauth2/authorize?client_id=357950177945976839&scope=bot&permissions=8
 
 ---
 
