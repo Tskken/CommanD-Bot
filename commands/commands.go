@@ -6,12 +6,18 @@ import (
 
 // Bot Command Dictionary //
 var BotCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool) error)
+var messageCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool)error)
+var playerCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, *discordgo.Guild)error)
+var channelCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool)error)
+var guildommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool)error)
+var utilityCommands = make(map[string]func(*discordgo.Session, *discordgo.Message)error)
+var helpMap = make(map[string]cmdInfo)
 var BanTime = make(map[string]int)
 
 // Load command maps with bot commands //
 func Load() {
 	// Load all commands in to botCommands map //
-	loadBotCommands()
+	loadMaps()
 	loadHelp()
 }
 
@@ -37,7 +43,7 @@ func saveBotMaps()error{
 
 // Loads commands in to botCommands map //
 // TODO - Fix comments
-func loadBotCommands() {
+func loadMaps() {
 
 
 	/*
@@ -62,6 +68,29 @@ func loadBotCommands() {
 	BotCommands["!utility"] = UtilityCommands
 	BotCommands["!util"] = UtilityCommands
 	BotCommands["!help"] = Help
+
+	messageCommands["-delete"] = deleteMessage
+	messageCommands["-del"] = deleteMessage
+	messageCommands["-clear"] = clearMessages
+	messageCommands["-cl"] = clearMessages
+
+	playerCommands["-kick"] = kickMember
+	playerCommands["-k"] = kickMember
+	playerCommands["-ban"] = banMember
+	playerCommands["-b"] = banMember
+	playerCommands["-bantimer"] = newBanTimer
+	playerCommands["-bt"] = newBanTimer
+
+	channelCommands["-create"] = createChannel
+	channelCommands["-c"] = createChannel
+	channelCommands["-delete"] = deleteChannel
+	channelCommands["-d"] = deleteChannel
+
+	utilityCommands["-dice"] = diceRole
+	utilityCommands["-d"] = diceRole
+	utilityCommands["-ign"] = ign
+	utilityCommands["-trinity"] = trinity
+	utilityCommands["-t"] = trinity
 
 }
 

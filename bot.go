@@ -82,17 +82,16 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// Check if command exist with in command map //
-	if _, ok := commands.BotCommands[*arg]; ok != true {
+	if cmd, ok := commands.BotCommands[*arg]; !ok {
 		// Given command did not exist in map //
 		info := "Command does not exist: " + *arg
 		botErrors.PrintError(botErrors.NewError(info,"bot.go"))
 		return
-	}
-
-	// Run given command //
-	err = commands.BotCommands[*arg](s, m.Message, admin)
-	if err != nil {
-		botErrors.PrintError(err)
+	} else {
+		err := cmd(s, m.Message, admin)
+		if err != nil {
+			botErrors.PrintError(err)
+		}
 	}
 	return
 }

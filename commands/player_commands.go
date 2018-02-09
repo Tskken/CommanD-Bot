@@ -10,106 +10,44 @@ import (
 
 // TODO - comment
 func PlayerCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
+	if admin != true {
+		_, err := s.ChannelMessageSend(m.ChannelID, "You do not have the permission to kick someone.")
+		return err
+	}
+
+	guild, err := servers.GetGuild(s, m)
+
 	arg, err := utility.ToLower(utility.ParceInput(m.Content), 1)
 	if err != nil {
 		return err
 	}
 
-	channel, err := servers.GetChannel(s, m)
-	if err != nil {
-		return err
-	}
-	guild, err := servers.GetGuild(s, m)
-	if err != nil {
-		return err
-	}
-	switch *arg {
-	case "-kick":
-		if channel.Name != "terminal" {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You can not enter that command with in this channel.")
-			return err
-		}
-		if admin != true {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You do not have the permission to kick someone.")
-			return err
-		}
-		return KickMember(s, m, guild)
-	case "-k":
-		if channel.Name != "terminal" {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You can not enter that command with in this channel.")
-			return err
-		}
-		if admin != true {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You do not have the permission to kick someone.")
-			return err
-		}
-		return KickMember(s, m, guild)
-	case "-ban":
-		if channel.Name != "terminal" {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You can not enter that command with in this channel.")
-			return err
-		}
-		if admin != true {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You do not have the permission to kick someone.")
-			return err
-		}
-		return BanMember(s, m, guild)
-	case "-b":
-		if channel.Name != "terminal" {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You can not enter that command with in this channel.")
-			return err
-		}
-		if admin != true {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You do not have the permission to kick someone.")
-			return err
-		}
-		return BanMember(s, m, guild)
-	case "-bantime":
-		if channel.Name != "terminal" {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You can not enter that command with in this channel.")
-			return err
-		}
-		if admin != true {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You do not have the permission to kick someone.")
-			return err
-		}
-		return NewBanTimer(s, m, guild)
-	case "-bt":
-		if channel.Name != "terminal" {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You can not enter that command with in this channel.")
-			return err
-		}
-		if admin != true {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You do not have the permission to kick someone.")
-			return err
-		}
-		return NewBanTimer(s, m, guild)
-	default:
+	if cmd, ok := playerCommands[*arg]; !ok {
 		_, err := s.ChannelMessageSend(m.ChannelID, *arg + " is not a recognized option with in !player.  Type !help -player for a list of supported options.")
 		return err
+	} else {
+		return cmd(s, m, guild)
 	}
-
-	return botErrors.NewError("Switch case failed", "player_commands.go")
 }
 
 // TODO - Comment
 // TODO - Fix kick with reason functionality
-func KickMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guild) error {
+func kickMember(s *discordgo.Session, m *discordgo.Message, g *discordgo.Guild) error {
 
 	args := utility.ParceInput(m.Content)
 
 	var guildMember *discordgo.Member
 
-	for _, member := range guild.Members {
+	for _, member := range g.Members {
 		if member.Nick == args[2] || member.User.Username == args[2] {
 			guildMember = member
 		}
 	}
 
 	if len(args) == 3 {
-		return s.GuildMemberDelete(guild.ID, guildMember.User.ID)
+		return s.GuildMemberDelete(g.ID, guildMember.User.ID)
 	} else if len(args) >= 4 {
-		return s.GuildMemberDeleteWithReason(guild.ID, guildMember.User.ID, utility.ToString(args[3:]))
+		return s.GuildMemberDeleteWithReason(g.ID, guildMember.User.ID, utility.ToString(args[3:]))
 	} else {
 		_, err := s.ChannelMessageSend(m.ChannelID, "Incorect arguments with in -kick call. !help -kick for more info on the option.")
 		return err
@@ -120,7 +58,7 @@ func KickMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Gui
 
 // TODO - Fix Ban with reason functionality
 // TODO - Comment
-func BanMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guild)error {
+func banMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guild)error {
 	args := utility.ParceInput(m.Content)
 
 	if len(args) == 3 {
@@ -144,7 +82,7 @@ func BanMember(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guil
 }
 
 // TODO - Comment
-func NewBanTimer(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guild)error{
+func newBanTimer(s *discordgo.Session, m *discordgo.Message, guild *discordgo.Guild)error{
 	_, err := s.ChannelMessageSend(m.ChannelID, "Ban time was " + strconv.Itoa(BanTime[guild.Name]))
 	if err != nil {
 		return err

@@ -10,7 +10,7 @@ import (
 
 // TODO - Implement
 
-var HelpMap = make(map[string]cmdInfo)
+
 
 type cmdInfo struct {
 	id   string

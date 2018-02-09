@@ -2,14 +2,14 @@ package commands
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"strconv"
-	"github.com/tsukinai/CommanD-Bot/utility"
 	"github.com/tsukinai/CommanD-Bot/botErrors"
 	"github.com/tsukinai/CommanD-Bot/servers"
+	"github.com/tsukinai/CommanD-Bot/utility"
+	"strconv"
 )
 
 // TODO - Comment
-func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error{
+func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
 	arg, err := utility.ToLower(utility.ParceInput(m.Content), 1)
 	if err != nil {
 		return err
@@ -18,27 +18,18 @@ func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) err
 		return err
 	}
 
-	switch *arg{
-	case "-delete":
-		return deleteMessage(s, m, admin)
-	case "-del":
-		return deleteMessage(s, m, admin)
-	case "-clear":
-		return clearMessages(s, m, admin)
-	case "-cl":
-		return clearMessages(s, m, admin)
-	default:
-		_, err := s.ChannelMessageSend(m.ChannelID, *arg + " is not an understood argument.  Type !help messages to get a list of commands.")
+	if cmd, ok := messageCommands[*arg]; !ok {
+		_, err := s.ChannelMessageSend(m.ChannelID, *arg+" is not an understood argument.  Type !help messages to get a list of commands.")
 		return err
+	} else {
+		return cmd(s, m, admin)
 	}
-	return botErrors.NewError("Switch case failed", "message_commands.go")
 }
 
 // Deletes messages with in a channel //
 func deleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error {
 	// Parce message content in to a string array //
 	args := utility.ParceInput(m.Content)
-
 
 	// Delete Messages based on args[] //
 	if len(args) == 2 {
@@ -63,11 +54,11 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 		}
 		// TODO - Comment
 		if i >= 100 {
-			_, err  = s.ChannelMessageSend(m.ChannelID, "You can only delete up to 99 messages at a time.")
+			_, err = s.ChannelMessageSend(m.ChannelID, "You can only delete up to 99 messages at a time.")
 			return err
 		}
 		// args[1] was able to be converted to an int i //
-		messages, err := toDelete(s, m,"", i, admin)
+		messages, err := toDelete(s, m, "", i, admin)
 		if err != nil {
 			return err
 		}
@@ -84,7 +75,7 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 
 	// TODO - Comment
 	if i >= 100 {
-		_, err  = s.ChannelMessageSend(m.ChannelID, "You can only delete up to 99 messages at a time.")
+		_, err = s.ChannelMessageSend(m.ChannelID, "You can only delete up to 99 messages at a time.")
 		return err
 	}
 	// Delete messages //
@@ -96,7 +87,7 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 }
 
 // Wrapper for deleteUserMessages //
-func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, admin bool)([]string, error) {
+func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, admin bool) ([]string, error) {
 	// String array of message ID's to be deleted //
 	toDelete := make([]string, 0)
 
@@ -114,7 +105,7 @@ func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, a
 	// No uName was given //
 
 	// get list of i number of messages plus 1 for original delete call //
-	messages, err := s.ChannelMessages(m.ChannelID, i + 1, "", "", "")
+	messages, err := s.ChannelMessages(m.ChannelID, i+1, "", "", "")
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +120,7 @@ func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, a
 }
 
 // Find user messages to delete //
-func getUserMessages(s *discordgo.Session, m *discordgo.Message, uName string, i int)([]string, error){
+func getUserMessages(s *discordgo.Session, m *discordgo.Message, uName string, i int) ([]string, error) {
 	// String array of message ID's to be deleted //
 	toDelete := make([]string, 0)
 
@@ -178,13 +169,13 @@ func getUserMessages(s *discordgo.Session, m *discordgo.Message, uName string, i
 }
 
 // TODO - Comment
-func clearMessages(s *discordgo.Session, m *discordgo.Message, admin bool)error{
+func clearMessages(s *discordgo.Session, m *discordgo.Message, admin bool) error {
 	if admin != true {
 		_, err := s.ChannelMessageSend(m.ChannelID, "You do not have the permissions to use this command.")
 		return err
 	}
 
-	for ms, err := toDelete(s, m, "", 99, true); err == nil && len(ms) != 0; ms, err = toDelete(s, m, "", 99, true){
+	for ms, err := toDelete(s, m, "", 99, true); err == nil && len(ms) != 0; ms, err = toDelete(s, m, "", 99, true) {
 		err = s.ChannelMessagesBulkDelete(m.ChannelID, ms)
 		if err != nil {
 			return err
