@@ -1,8 +1,8 @@
 package filter
 
 import (
-"strings"
-"github.com/bwmarrin/discordgo"
+	"github.com/bwmarrin/discordgo"
+	"strings"
 )
 
 /*

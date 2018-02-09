@@ -1,10 +1,14 @@
 package storage
 
-// TODO - Test and modify if necessary
+/*
+WIP
+
+TODO - Test and modify if necessary
+*/
 
 import (
-	"os"
 	"encoding/gob"
+	"os"
 	"path/filepath"
 )
 
@@ -12,15 +16,15 @@ var file = "../tsukinai/CommanD-Bot/source/data/data.gob"
 
 type encdec struct {
 	file *os.File
-	enc *gob.Encoder
-	dec *gob.Decoder
+	enc  *gob.Encoder
+	dec  *gob.Decoder
 }
 
-func NewEncDec()*encdec{
+func NewEncDec() *encdec {
 	return &encdec{}
 }
 
-func (ed *encdec)OpenFile()error{
+func (ed *encdec) OpenFile() error {
 	filePath, err := filepath.Abs(file)
 	if err != nil {
 		return err
@@ -28,26 +32,26 @@ func (ed *encdec)OpenFile()error{
 	ed.file, err = os.Create(filePath)
 	return err
 }
-func (ed *encdec)CloseFile()error{
+func (ed *encdec) CloseFile() error {
 	err := ed.file.Close()
 	return err
 }
-func (ed *encdec)getFile()*os.File{
+func (ed *encdec) getFile() *os.File {
 	return ed.file
 }
 
-func (ed *encdec)NewEncGob(){
+func (ed *encdec) NewEncGob() {
 	ed.enc = gob.NewEncoder(ed.getFile())
 }
-func (ed *encdec)EncGob(val interface{})error{
+func (ed *encdec) EncGob(val interface{}) error {
 	err := ed.enc.Encode(val)
 	return err
 }
 
-func (ed *encdec)NewDecGob(){
+func (ed *encdec) NewDecGob() {
 	ed.dec = gob.NewDecoder(ed.getFile())
 }
-func (ed *encdec)DecGob(val interface{})error{
+func (ed *encdec) DecGob(val interface{}) error {
 	err := ed.dec.Decode(val)
 	return err
 }

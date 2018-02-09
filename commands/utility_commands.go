@@ -5,17 +5,22 @@ import (
 	"github.com/tsukinai/CommanD-Bot/utility"
 )
 
-// TODO - Comment
+// Wrapper function to call all Utility commands //
 func UtilityCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	arg, err := utility.ToLower(utility.ParceInput(m.ChannelID), 1)
-	if err != nil {
-		return err
-	}
-	if cmd, ok := utilityCommands[*arg]; !ok {
-		_, err := s.ChannelMessageSend(m.ChannelID, *arg+" is not a recognized option with in !utility.  Type !help -utility for a list of supported options.")
+	// Get the argument passed to !utility and make sure its lowercase //
+	// Returns an error if err is nil
+	if arg, err := utility.ToLower(utility.ParceInput(m.ChannelID), 1); err != nil {
 		return err
 	} else {
-		return cmd(s, m)
+		// Get the arguments command //
+		// Prints an error if the command does not exist //
+		if cmd, ok := utilityCommands[*arg]; !ok {
+			_, err := s.ChannelMessageSend(m.ChannelID, *arg+" is not a recognized option with in !utility.  Type !help -utility for a list of supported options.")
+			return err
+		} else {
+			// Run command //
+			return cmd(s, m)
+		}
 	}
 }
 

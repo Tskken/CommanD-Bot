@@ -6,44 +6,42 @@ Author: Dylan Blanchard
 */
 
 import (
+	"github.com/bwmarrin/discordgo"
+	"github.com/tsukinai/CommanD-Bot"
+	"github.com/tsukinai/CommanD-Bot/botErrors"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"github.com/bwmarrin/discordgo"
-	"github.com/tsukinai/CommanD-Bot"
 )
 
-// Current BotSession //
+// Bot session //
 var botSession *discordgo.Session
 
-// Pre-load and start bot //
-// - Loads maps
-// - Create new BotSession
+// On start //
 func init() {
-	// Create new BotSession //
-	log.Println("Init")
-	botSession = CommanD_Bot.New("Bot MzU3OTUwMTc3OTQ1OTc2ODM5.DOYtIQ.oa9Fqrl8RlhyunioLrmfItnpBkE")
-	log.Println("Bot started")
+	// Create and start a new bot session. //
+	// Log error if err is not nil
+	var err error
+	if botSession, err = CommanD_Bot.New("Bot MzU3OTUwMTc3OTQ1OTc2ODM5.DOYtIQ.oa9Fqrl8RlhyunioLrmfItnpBkE"); err != nil {
+		botErrors.PrintError(err)
+	}
 }
 
-// Program entry point //
-// - Waits for CTRL-C or terminate signal to close program
-// - On terminate signal close bot session
+// Entry point //
 func main() {
-	// Wait until CTRL-C or other terminate signal is received. //
+	// Bot is running //
 	log.Println("Bot-Bot is now running.  Press CTRL-C to exit.")
+	// Wait for user input to close program //
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 
 	// Close bot session //
-	err := botSession.Close()
-	if err != nil {
+	if err := botSession.Close(); err != nil {
 		log.Println(err)
 	}
 
-	// End of main //
-	log.Println("End of main.")
+	log.Println("Session ended.")
 	return
 }

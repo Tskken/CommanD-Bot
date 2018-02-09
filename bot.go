@@ -1,7 +1,6 @@
 package CommanD_Bot
 
 import (
-	"log"
 	"github.com/bwmarrin/discordgo"
 	"github.com/tsukinai/CommanD-Bot/botErrors"
 	"github.com/tsukinai/CommanD-Bot/commands"
@@ -9,119 +8,124 @@ import (
 	"github.com/tsukinai/CommanD-Bot/utility"
 )
 
-// Bot handler for GuildCreate Events //
+// GuildCreate event for when the bot joins a guild //
 func GuildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
-	// Check for "terminal" text channel with in guild //
+	// Checks if the terminal channel exist //
+	// Creates the text channel if it does not exist
+	// Logs error if err is not nil
 	if err := servers.ChannelCheck(s, g.Guild); err != nil {
 		botErrors.PrintError(err)
 	}
 
-	// Check for the Bot role with in the server //
+	// Checks if the Bot role exist in the guild //
+	// Creates the role if it does not exist
+	// Logs error if err is not nil
 	if err := servers.CheckBotRole(s, g.Guild); err != nil {
 		botErrors.PrintError(err)
 	}
 
-	// Check if "Admin" role exist in guild //
+	// Checks if the bot role exist in the guild //
+	// Creates the role if it does not exist
+	// Logs error if err is not nil
 	if _, err := servers.RoleCheck(s, g.Guild); err != nil {
 		botErrors.PrintError(err)
 	}
 
+	// Check if ban time is set for the server //
+	// If not set ban time to 30 days by default //
 	if _, ok := commands.BanTime[g.Name]; ok != true {
 		commands.BanTime[g.Name] = 30
 	}
 }
 
-// Bot handler for MessageCreate Events //
+// MessageCreate event for when a message is sent with in a channel //
 func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	// Check if its a bot message //
+	// Ignores all messages from the bot it self //
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 
-	// Checks if the command key was typed //
+	// Ignores all messages with out the ! key letter for commands //
 	if m.Content[0] != '!' {
 		return
 	}
 
-	// Check if the user is an admin //
+	// Sets admin to false by default //
 	admin := false
 
-
-	// Get guild channel is in //
+	// Get the guild the message was sent in //
+	// Logs an error if err is not nil
 	guild, err := servers.GetGuild(s, m.Message)
 	if err != nil {
 		botErrors.PrintError(err)
 	}
 
-	// Get member of guild who sent original message //
+	// Gets the member that created the message from the guild //
+	// Logs an error if err is not nil
 	member, err := servers.GetMember(s, m.Message)
 	if err != nil {
 		botErrors.PrintError(err)
 	}
 
-	// Get admin role ID from guild //
-	roleID, err := servers.RoleCheck(s, guild)
-	if err != nil {
+	// Gets the admin role ID from the guild //
+	// Creates the role and returns the new ID if it does not exist
+	// Logs an error if err is not nil
+	if roleID, err := servers.RoleCheck(s, guild); err != nil {
 		botErrors.PrintError(err)
-	}
-	// Check members roles //
-	for _, memRole := range member.Roles {
-		// Check if members role is admin //
-		if memRole == roleID {
-			admin = true
-			break
+	} else {
+		// Check members roles //
+		for _, memRole := range member.Roles {
+			// Member has admin role give them admin permissions //
+			if memRole == *roleID {
+				admin = true
+				break
+			}
 		}
 	}
 
-	// TODO - Fix comments
-	// Parce message //
-	arg, err := utility.ToLower(utility.ParceInput(m.Content), 0)
-	if err != nil {
+	// Parse the messages on a space and set the first argument to lowercase //
+	if arg, err := utility.ToLower(utility.ParceInput(m.Content), 0); err != nil {
 		botErrors.PrintError(err)
-		return
-	}
-
-	// Check if command exist with in command map //
-	if cmd, ok := commands.BotCommands[*arg]; !ok {
-		// Given command did not exist in map //
-		info := "Command does not exist: " + *arg
-		botErrors.PrintError(botErrors.NewError(info,"bot.go"))
 		return
 	} else {
-		err := cmd(s, m.Message, admin)
-		if err != nil {
-			botErrors.PrintError(err)
+		// Get the command from the command list for the first argument given //
+		// Logs an error if the command does not exist
+		if cmd, ok := commands.BotCommands[*arg]; !ok {
+			// Given command did not exist in map //
+			info := "Command does not exist: " + *arg
+			botErrors.PrintError(botErrors.NewError(info, "bot.go"))
+			return
+		} else {
+			// Run command //
+			// Logs error if err is not nil
+			if err := cmd(s, m.Message, admin); err != nil {
+				botErrors.PrintError(err)
+			}
 		}
 	}
-	return
 }
 
-// Create a new discordgo session //
-func New(token string) *discordgo.Session {
-	// Creates a new dicordgo session with token //
-	session, err := discordgo.New(token)
-	if err != nil {
-		log.Println(err)
+// Creates a new discordgo.Session and loads all maps //
+func New(token string) (*discordgo.Session, error) {
+	// Creates new bot session with given token //
+	// Logs an error if err is not nil
+	if session, err := discordgo.New(token); err != nil {
+		return nil, err
+	} else {
+		// Set event handlers //
+		session.AddHandler(GuildCreate)
+		session.AddHandler(MessageCreate)
+
+		// Load all bot maps //
+		commands.Load()
+
+		// Open session //
+		// Log error if err is not nil
+		if err = session.Open(); err != nil {
+			return nil, err
+		} else {
+			// Return a reference to the open session //
+			return session, nil
+		}
 	}
-	log.Println("Session created")
-
-	// Sets bot handlers //
-	session.AddHandler(GuildCreate)
-	session.AddHandler(MessageCreate)
-
-	log.Println("Handlers added")
-
-	// Load commands //
-	commands.Load()
-	log.Println("Commands loaded")
-
-	// Opens session connection //
-	err = session.Open()
-	if err != nil {
-		botErrors.PrintError(err)
-	}
-	log.Println("Session opened")
-
-	// Returns session //
-	return session
 }

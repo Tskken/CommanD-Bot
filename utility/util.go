@@ -1,31 +1,33 @@
 package utility
 
 import (
-	"strings"
 	"github.com/tsukinai/CommanD-Bot/botErrors"
+	"strings"
 )
 
-// Parce given string on a space //
-// input: Given input string to parce
-// Returns a string array of parced input
+// Parce user input on a space //
 func ParceInput(input string) []string {
-	// Return parced input //
+	// Return parced input as a list of strings //
 	return strings.Split(input, " ")
 }
 
-// TODO - Comment
+// Changes a given value from with in a given list of strings to lowercase //
 func ToLower(input []string, i int) (*string, error) {
+	// If the length of the list is less then or equal to i then return an error //
+	// Returns an error that the given value to set to lowercase is outside the bounds of the list
 	if len(input) <= i {
 		return nil, botErrors.NewError("Given location to ToLower is outside of bounds of given array", "util.go")
 	}
 
+	// Sets the specified value in the list to lowercase //
 	arg := strings.ToLower(input[i])
 
+	// Return a reference to the new lowercase string //
 	return &arg, nil
 }
 
-// TODO - Comment
+// Converts a list of strings to a string //
 func ToString(input []string) string {
+	// Convert the list to a string with a space separator //
 	return strings.Join(input, " ")
 }
-
