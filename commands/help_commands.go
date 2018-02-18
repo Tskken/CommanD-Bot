@@ -5,7 +5,6 @@ import (
 	"github.com/tsukinai/CommanD-Bot/botErrors"
 	"github.com/tsukinai/CommanD-Bot/servers"
 	"github.com/tsukinai/CommanD-Bot/utility"
-	"strings"
 )
 
 // Command info struct //
@@ -65,7 +64,7 @@ func loadHelp() {
 
 // Print the info of a command //
 func printMap(s *discordgo.Session, c *discordgo.Channel, cmd *cmdInfo) error {
-	outputString := cmd.info + " \n**Possible Arguments:** " + strings.Join(cmd.args, ", ")
+	outputString := cmd.info + " \n**Possible Arguments:** " + utility.ToString(cmd.args, ", ")
 	_, err := s.ChannelMessageSend(c.ID, outputString)
 	return err
 }

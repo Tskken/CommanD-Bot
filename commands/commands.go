@@ -5,11 +5,12 @@ import (
 )
 
 // Bot Command Dictionary //
-var BotCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool) error)
-var messageCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool) error)
-var playerCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, *discordgo.Guild) error)
-var channelCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool) error)
-var guildommands = make(map[string]func(*discordgo.Session, *discordgo.Message, bool) error)
+var BotCommands = make(map[string]map[string]func(*discordgo.Session, *discordgo.Message) error)
+
+var messageCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
+var playerCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
+var channelCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
+var guildCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 var utilityCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 var helpMap = make(map[string]cmdInfo)
 var BanTime = make(map[string]int)
@@ -55,23 +56,24 @@ func loadMaps() {
 		encdec.CloseFile()*/
 
 	// Bot Commands map //
-	BotCommands["!message"] = MessageCommands
-	BotCommands["!ms"] = MessageCommands
-	BotCommands["!player"] = PlayerCommands
-	BotCommands["!pl"] = PlayerCommands
-	BotCommands["!channel"] = ChannelCommands
-	BotCommands["!ch"] = ChannelCommands
-	BotCommands["!guild"] = GuildCommands
-	BotCommands["!gl"] = GuildCommands
-	BotCommands["!utility"] = UtilityCommands
-	BotCommands["!util"] = UtilityCommands
-	BotCommands["!help"] = Help
+	BotCommands["!message"] = messageCommands
+	BotCommands["!ms"] = messageCommands
+	BotCommands["!player"] = playerCommands
+	BotCommands["!pl"] = playerCommands
+	BotCommands["!channel"] = channelCommands
+	BotCommands["!ch"] = channelCommands
+	BotCommands["!guild"] = guildCommands
+	BotCommands["!gl"] = guildCommands
+	BotCommands["!utility"] = utilityCommands
+	BotCommands["!util"] = utilityCommands
+	//BotCommands["!help"] = Help
 
 	// Message Commands map //
 	messageCommands["-delete"] = deleteMessage
 	messageCommands["-del"] = deleteMessage
 	messageCommands["-clear"] = clearMessages
 	messageCommands["-cl"] = clearMessages
+
 
 	// Player Commands map //
 	playerCommands["-kick"] = kickMember
@@ -85,7 +87,7 @@ func loadMaps() {
 	channelCommands["-create"] = createChannel
 	channelCommands["-c"] = createChannel
 	channelCommands["-delete"] = deleteChannel
-	channelCommands["-d"] = deleteChannel
+	channelCommands["-del"] = deleteChannel
 
 	// Utility Commands map //
 	utilityCommands["-dice"] = diceRole

@@ -50,38 +50,6 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// Sets admin to false by default //
-	admin := false
-
-	// Get the guild the message was sent in //
-	// Logs an error if err is not nil
-	guild, err := servers.GetGuild(s, m.Message)
-	if err != nil {
-		botErrors.PrintError(err)
-	}
-
-	// Gets the member that created the message from the guild //
-	// Logs an error if err is not nil
-	member, err := servers.GetMember(s, m.Message)
-	if err != nil {
-		botErrors.PrintError(err)
-	}
-
-	// Gets the admin role ID from the guild //
-	// Creates the role and returns the new ID if it does not exist
-	// Logs an error if err is not nil
-	if roleID, err := servers.RoleCheck(s, guild); err != nil {
-		botErrors.PrintError(err)
-	} else {
-		// Check members roles //
-		for _, memRole := range member.Roles {
-			// Member has admin role give them admin permissions //
-			if memRole == *roleID {
-				admin = true
-				break
-			}
-		}
-	}
 
 	// Parse the messages on a space and set the first argument to lowercase //
 	if arg, err := utility.ToLower(utility.ParceInput(m.Content), 0); err != nil {
@@ -96,11 +64,24 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			botErrors.PrintError(botErrors.NewError(info, "bot.go"))
 			return
 		} else {
-			// Run command //
-			// Logs error if err is not nil
-			if err := cmd(s, m.Message, admin); err != nil {
+			if arg, err := utility.ToLower(utility.ParceInput(m.Content), 1); err != nil {
 				botErrors.PrintError(err)
+				return
+			} else {
+				if cmd, ok := cmd[*arg]; !ok {
+					// Given command did not exist in map //
+					info := "Command does not exist: " + *arg
+					botErrors.PrintError(botErrors.NewError(info, "bot.go"))
+					return
+				} else {
+					// Run command //
+					// Logs error if err is not nil
+					if err := cmd(s, m.Message); err != nil {
+						botErrors.PrintError(err)
+					}
+				}
 			}
+
 		}
 	}
 }

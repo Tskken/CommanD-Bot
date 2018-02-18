@@ -8,7 +8,6 @@ Author: Dylan Blanchard
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/tsukinai/CommanD-Bot"
-	"github.com/tsukinai/CommanD-Bot/botErrors"
 	"log"
 	"os"
 	"os/signal"
@@ -22,16 +21,17 @@ var botSession *discordgo.Session
 func init() {
 	// Create and start a new bot session. //
 	// Log error if err is not nil
-	var err error
-	if botSession, err = CommanD_Bot.New("Bot MzU3OTUwMTc3OTQ1OTc2ODM5.DOYtIQ.oa9Fqrl8RlhyunioLrmfItnpBkE"); err != nil {
-		botErrors.PrintError(err)
+	if newSession, err := CommanD_Bot.New("Bot MzU3OTUwMTc3OTQ1OTc2ODM5.DOYtIQ.oa9Fqrl8RlhyunioLrmfItnpBkE"); err != nil {
+		panic(err)
+	} else {
+		botSession = newSession
 	}
 }
 
 // Entry point //
 func main() {
 	// Bot is running //
-	log.Println("Bot-Bot is now running.  Press CTRL-C to exit.")
+	log.Println("Bot is now running.  Press CTRL-C to exit.")
 	// Wait for user input to close program //
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)

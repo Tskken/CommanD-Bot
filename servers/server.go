@@ -80,6 +80,43 @@ func RoleCheck(s *discordgo.Session, g *discordgo.Guild) (*string, error) {
 	}
 }
 
+// TODO - Comment
+func IsAdmin(s *discordgo.Session, m *discordgo.Message)(bool, error){
+	// Sets admin to false by default //
+	admin := false
+
+	// Get the guild the message was sent in //
+	// Logs an error if err is not nil
+	guild, err := GetGuild(s, m)
+	if err != nil {
+		return admin, err
+	}
+
+	// Gets the member that created the message from the guild //
+	// Logs an error if err is not nil
+	member, err := GetMember(s, m)
+	if err != nil {
+		return admin, err
+	}
+
+	// Gets the admin role ID from the guild //
+	// Creates the role and returns the new ID if it does not exist
+	// Logs an error if err is not nil
+	if roleID, err := RoleCheck(s, guild); err != nil {
+		return admin, err
+	} else {
+		// Check members roles //
+		for _, memRole := range member.Roles {
+			// Member has admin role give them admin permissions //
+			if memRole == *roleID {
+				admin = true
+				return admin, err
+			}
+		}
+		return admin, err
+	}
+}
+
 // Gets a channel from with in a guild //
 func GetChannel(s *discordgo.Session, m *discordgo.Message) (*discordgo.Channel, error) {
 	// Returns a channel //

@@ -5,10 +5,11 @@ import (
 	"github.com/tsukinai/CommanD-Bot/botErrors"
 	"github.com/tsukinai/CommanD-Bot/servers"
 	"github.com/tsukinai/CommanD-Bot/utility"
-	"strconv"
+	"time"
+	"log"
 )
 
-// Wrapper to run all message commands through the messageCommands map //
+/*// Wrapper to run all message commands through the messageCommands map //
 func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
 	// Parces message content and gives the argument passed to !message set to lowercase //
 	// Prints an error to the server if there was no argument passed to !message
@@ -26,10 +27,15 @@ func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) err
 			return cmd(s, m, admin)
 		}
 	}
-}
+}*/
 
 // Main message delete function //
-func deleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error {
+func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {
+	admin, err := servers.IsAdmin(s, m)
+	if err != nil {
+		return err
+	}
+
 	// Parce message content on a space //
 	args := utility.ParceInput(m.Content)
 
@@ -51,7 +57,7 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 	// If its a name it deletes the last message by that given user name
 	case 3:
 		// Try's to convert second argument to an integer //
-		if i, err := strconv.Atoi(args[2]); err != nil {
+		if i, err := utility.StrToInt(args[2]); err != nil {
 			// Argument two was a username //
 			// Get last message sent by given user to delete //
 			// Returns an error if err is not nil
@@ -91,7 +97,7 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message, admin bool) error
 
 		// Try and convert the second argument to an integer //
 		// Returns an error is err is not nil
-		if i, err := strconv.Atoi(args[2]); err != nil {
+		if i, err := utility.StrToInt(args[2]); err != nil {
 			return err
 		} else {
 			// Checks to make sure the given number is not less then or equal to 0 and not greater then 99 //
@@ -138,6 +144,20 @@ func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, a
 	} else {
 		// Adds each message ID's to toDelete list //
 		for _, message := range messages {
+			if t, err := message.Timestamp.Parse(); err != nil {
+				return nil, err
+			}else {
+				log.Println("Entered Time check")
+				time := time.Now()
+				if t.Year() != time.Year() || (t.YearDay() + 14) <= time.YearDay() {
+					log.Println("Entered year day check")
+					_, err := s.ChannelMessageSend(m.ChannelID, "No more messages to delete in this channel newer then 14 days.")
+					if err != nil {
+						return nil, err
+					}
+					return toDelete, botErrors.NewError("No more messages newer then 14 days.", "messages_commands.go")
+				}
+			}
 			toDelete = append(toDelete, message.ID)
 		}
 
@@ -178,6 +198,19 @@ func getUserMessages(s *discordgo.Session, m *discordgo.Message, uName string, i
 
 			// Loop through messages and add each message ID to toDelete list if uName matches the username or nick name of the messages creator //
 			for _, message := range messages {
+				if t, err := message.Timestamp.Parse(); err != nil {
+					return nil, err
+				}else {
+					time := time.Now()
+					if t.Year() == time.Year() && (t.YearDay() + 14) <= time.YearDay() {
+						ms, err := s.ChannelMessageSend(m.ChannelID, "No more messages to delete in this channel newer then 14 days.")
+						if err != nil {
+							return nil, err
+						}
+						toDelete = append(toDelete, ms.ID)
+						return toDelete, botErrors.NewError("No more messages newer then 14 days.", "messages_commands.go")
+					}
+				}
 				// Gets the user info of the message //
 				// Returns an error if err is nil
 				if user, err := servers.GetMember(s, message); err != nil {
@@ -201,7 +234,12 @@ func getUserMessages(s *discordgo.Session, m *discordgo.Message, uName string, i
 }
 
 // Clear all messages newer then 2 weeks from a channel //
-func clearMessages(s *discordgo.Session, m *discordgo.Message, admin bool) error {
+func clearMessages(s *discordgo.Session, m *discordgo.Message) error {
+	admin, err := servers.IsAdmin(s, m)
+	if err != nil {
+		return err
+	}
+
 	// This command can only be used by admin users //
 	// If a non-admin calls the function it prints an error stating you do not have the permissions to use this command
 	if admin != true {
@@ -212,10 +250,10 @@ func clearMessages(s *discordgo.Session, m *discordgo.Message, admin bool) error
 	// Clear message Loop //
 	// Runs toDelete to get the list of messages to delete in batches of 99
 	// Loop ends if the list of messages returned from toDelete is 0 or it returns an error
-	for ms, err := toDelete(s, m, "", 99, true); err == nil && len(ms) != 0; ms, err = toDelete(s, m, "", 99, true) {
+	for ms, _ := toDelete(s, m, "", 99, true); len(ms) != 0 ; ms, _ = toDelete(s, m, "", 99, true) {
 		// Deletes the current batch of 99 messages //
 		// Returns an error if err is not nil
-		if err = s.ChannelMessagesBulkDelete(m.ChannelID, ms); err != nil {
+		if err := s.ChannelMessagesBulkDelete(m.ChannelID, ms); err != nil {
 			return err
 		}
 	}

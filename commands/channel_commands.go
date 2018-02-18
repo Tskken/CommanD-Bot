@@ -2,11 +2,16 @@ package commands
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/tsukinai/CommanD-Bot/utility"
 )
 
+/*
 // Wrapper function called by BotCommands to run channelCommands //
-func ChannelCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
+func ChannelCommands(s *discordgo.Session, m *discordgo.Message) error {
+	admin, err := servers.IsAdmin(s, m)
+	if err != nil {
+		return err
+	}
+
 	// Get argument passed to !channel //
 	// returns error if err != nil
 	if arg, err := utility.ToLower(utility.ParceInput(m.Content), 1); err != nil {
@@ -22,10 +27,10 @@ func ChannelCommands(s *discordgo.Session, m *discordgo.Message, admin bool) err
 			return cmd(s, m, admin)
 		}
 	}
-}
+}*/
 
 // TODO - Implement CreateChannel
-func createChannel(s *discordgo.Session, m *discordgo.Message, admin bool) error { return nil }
+func createChannel(s *discordgo.Session, m *discordgo.Message) error { return nil }
 
 // TODO - Implement DeleteChannel
-func deleteChannel(s *discordgo.Session, m *discordgo.Message, admin bool) error { return nil }
+func deleteChannel(s *discordgo.Session, m *discordgo.Message) error { return nil }

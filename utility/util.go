@@ -2,6 +2,7 @@ package utility
 
 import (
 	"github.com/tsukinai/CommanD-Bot/botErrors"
+	"strconv"
 	"strings"
 )
 
@@ -27,7 +28,18 @@ func ToLower(input []string, i int) (*string, error) {
 }
 
 // Converts a list of strings to a string //
-func ToString(input []string) string {
-	// Convert the list to a string with a space separator //
-	return strings.Join(input, " ")
+func ToString(input []string, sep string) string {
+	// Convert the list to a string with a given separator //
+	return strings.Join(input, sep)
+}
+
+// Convert string to int //
+// Returns an error if conversion fails
+func StrToInt(input string) (int, error) {
+	return strconv.Atoi(input)
+}
+
+// Convert int to string //
+func IntToStr(input int) string {
+	return strconv.Itoa(input)
 }

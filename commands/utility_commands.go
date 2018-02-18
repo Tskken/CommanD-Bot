@@ -2,10 +2,9 @@ package commands
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/tsukinai/CommanD-Bot/utility"
 )
 
-// Wrapper function to call all Utility commands //
+/*// Wrapper function to call all Utility commands //
 func UtilityCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
 	// Get the argument passed to !utility and make sure its lowercase //
 	// Returns an error if err is nil
@@ -22,7 +21,7 @@ func UtilityCommands(s *discordgo.Session, m *discordgo.Message, admin bool) err
 			return cmd(s, m)
 		}
 	}
-}
+}*/
 
 // TODO - Implement DiceRole
 func diceRole(s *discordgo.Session, m *discordgo.Message) error {
