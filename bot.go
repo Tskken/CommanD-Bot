@@ -10,12 +10,13 @@ import (
 
 // GuildCreate event for when the bot joins a guild //
 func GuildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
+	/*
 	// Checks if the terminal channel exist //
 	// Creates the text channel if it does not exist
 	// Logs error if err is not nil
 	if err := servers.ChannelCheck(s, g.Guild); err != nil {
 		botErrors.PrintError(err)
-	}
+	}*/
 
 	// Checks if the Bot role exist in the guild //
 	// Creates the role if it does not exist

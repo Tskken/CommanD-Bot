@@ -70,7 +70,7 @@ func printMap(s *discordgo.Session, c *discordgo.Channel, cmd *cmdInfo) error {
 }
 
 // Wrapper for calling help command info //
-func Help(s *discordgo.Session, m *discordgo.Message, admin bool) error {
+func Help(s *discordgo.Session, m *discordgo.Message) error {
 	// Parce message content on a space //
 	args := utility.ParceInput(m.Content)
 

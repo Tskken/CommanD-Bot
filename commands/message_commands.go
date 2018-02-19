@@ -6,7 +6,6 @@ import (
 	"github.com/tsukinai/CommanD-Bot/servers"
 	"github.com/tsukinai/CommanD-Bot/utility"
 	"time"
-	"log"
 )
 
 /*// Wrapper to run all message commands through the messageCommands map //
@@ -72,7 +71,8 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {
 			// Checks to make sure the given number is not less then or equal to 0 and not greater then 99 //
 			// Prints an error if not true
 			if i >= 100 || i <= 0 {
-				_, err := s.ChannelMessageSend(m.ChannelID, "You entered a number that I don't understand. Please enter a number between 1-99.")
+				_, err := s.ChannelMessageSend(m.ChannelID, "You entered a number that I don't understand. " +
+					"Please enter a number between 1-99.")
 				return err
 			}
 
@@ -91,7 +91,8 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {
 		// Check if the user is an admin //
 		// if not print an error and return
 		if admin == false {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You can not use this command.  If you want to multipal of your own messagse just type !ms -del <number of messages>.")
+			_, err := s.ChannelMessageSend(m.ChannelID, "You can not use this command.  " +
+				"If you want to multiple of your own messages just type !ms -del <number of messages>.")
 			return err
 		}
 
@@ -103,7 +104,8 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {
 			// Checks to make sure the given number is not less then or equal to 0 and not greater then 99 //
 			// Prints an error if not true
 			if i >= 100 || i <= 0 {
-				_, err := s.ChannelMessageSend(m.ChannelID, "You entered a number that I don't understand. Please enter a number between 1-99.")
+				_, err := s.ChannelMessageSend(m.ChannelID, "You entered a number that I don't understand. " +
+					"Please enter a number between 1-99.")
 				return err
 			}
 			// Gets messages by user to be deleted //
@@ -147,15 +149,9 @@ func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, a
 			if t, err := message.Timestamp.Parse(); err != nil {
 				return nil, err
 			}else {
-				log.Println("Entered Time check")
 				time := time.Now()
 				if t.Year() != time.Year() || (t.YearDay() + 14) <= time.YearDay() {
-					log.Println("Entered year day check")
-					_, err := s.ChannelMessageSend(m.ChannelID, "No more messages to delete in this channel newer then 14 days.")
-					if err != nil {
-						return nil, err
-					}
-					return toDelete, botErrors.NewError("No more messages newer then 14 days.", "messages_commands.go")
+					return toDelete, nil
 				}
 			}
 			toDelete = append(toDelete, message.ID)
@@ -250,7 +246,7 @@ func clearMessages(s *discordgo.Session, m *discordgo.Message) error {
 	// Clear message Loop //
 	// Runs toDelete to get the list of messages to delete in batches of 99
 	// Loop ends if the list of messages returned from toDelete is 0 or it returns an error
-	for ms, _ := toDelete(s, m, "", 99, true); len(ms) != 0 ; ms, _ = toDelete(s, m, "", 99, true) {
+	for ms, err := toDelete(s, m, "", 99, true); err == nil && len(ms) != 0 ; ms, err = toDelete(s, m, "", 99, true) {
 		// Deletes the current batch of 99 messages //
 		// Returns an error if err is not nil
 		if err := s.ChannelMessagesBulkDelete(m.ChannelID, ms); err != nil {
