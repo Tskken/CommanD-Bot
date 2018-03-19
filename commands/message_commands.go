@@ -45,7 +45,7 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {
 	case 2:
 		// Get messages to delete //
 		// Returns an error if err is not nil
-		if messages, err := toDelete(s, m, "", 1, admin); err != nil {
+		if messages, err := ToDelete(s, m, "", 1, admin); err != nil {
 			return err
 		} else {
 			// Delete messages //
@@ -60,7 +60,7 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {
 			// Argument two was a username //
 			// Get last message sent by given user to delete //
 			// Returns an error if err is not nil
-			if messages, err := toDelete(s, m, args[2], 1, admin); err != nil {
+			if messages, err := ToDelete(s, m, args[2], 1, admin); err != nil {
 				return err
 			} else {
 				// Delete given messages //
@@ -71,14 +71,14 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {
 			// Checks to make sure the given number is not less then or equal to 0 and not greater then 99 //
 			// Prints an error if not true
 			if i >= 100 || i <= 0 {
-				_, err := s.ChannelMessageSend(m.ChannelID, "You entered a number that I don't understand. " +
+				_, err := s.ChannelMessageSend(m.ChannelID, "You entered a number that I don't understand. "+
 					"Please enter a number between 1-99.")
 				return err
 			}
 
 			// Gets last given number of messages to delete.  Gets messages by user if not admin //
 			// Returns an error if err is not nil
-			if messages, err := toDelete(s, m, "", i, admin); err != nil {
+			if messages, err := ToDelete(s, m, "", i, admin); err != nil {
 				return err
 			} else {
 				// Delete given messages //
@@ -91,7 +91,7 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {
 		// Check if the user is an admin //
 		// if not print an error and return
 		if admin == false {
-			_, err := s.ChannelMessageSend(m.ChannelID, "You can not use this command.  " +
+			_, err := s.ChannelMessageSend(m.ChannelID, "You can not use this command.  "+
 				"If you want to multiple of your own messages just type !ms -del <number of messages>.")
 			return err
 		}
@@ -104,13 +104,13 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {
 			// Checks to make sure the given number is not less then or equal to 0 and not greater then 99 //
 			// Prints an error if not true
 			if i >= 100 || i <= 0 {
-				_, err := s.ChannelMessageSend(m.ChannelID, "You entered a number that I don't understand. " +
+				_, err := s.ChannelMessageSend(m.ChannelID, "You entered a number that I don't understand. "+
 					"Please enter a number between 1-99.")
 				return err
 			}
 			// Gets messages by user to be deleted //
 			// Returns an error if err is not nil
-			if messages, err := toDelete(s, m, args[3], i, true); err != nil {
+			if messages, err := ToDelete(s, m, args[3], i, true); err != nil {
 				return err
 			} else {
 				// Deletes messages //
@@ -121,7 +121,7 @@ func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {
 }
 
 // Get messages from channel to delete //
-func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, admin bool) ([]string, error) {
+func ToDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, admin bool) ([]string, error) {
 	// List of message ID's to delete //
 	toDelete := make([]string, 0)
 
@@ -146,11 +146,10 @@ func toDelete(s *discordgo.Session, m *discordgo.Message, uName string, i int, a
 	} else {
 		// Adds each message ID's to toDelete list //
 		for _, message := range messages {
-			if t, err := message.Timestamp.Parse(); err != nil {
+			if msTime, err := message.Timestamp.Parse(); err != nil {
 				return nil, err
-			}else {
-				time := time.Now()
-				if t.Year() != time.Year() || (t.YearDay() + 14) <= time.YearDay() {
+			} else {
+				if utility.IsTime(msTime, time.Now()) {
 					return toDelete, nil
 				}
 			}
@@ -194,17 +193,11 @@ func getUserMessages(s *discordgo.Session, m *discordgo.Message, uName string, i
 
 			// Loop through messages and add each message ID to toDelete list if uName matches the username or nick name of the messages creator //
 			for _, message := range messages {
-				if t, err := message.Timestamp.Parse(); err != nil {
+				if msTime, err := message.Timestamp.Parse(); err != nil {
 					return nil, err
-				}else {
-					time := time.Now()
-					if t.Year() == time.Year() && (t.YearDay() + 14) <= time.YearDay() {
-						ms, err := s.ChannelMessageSend(m.ChannelID, "No more messages to delete in this channel newer then 14 days.")
-						if err != nil {
-							return nil, err
-						}
-						toDelete = append(toDelete, ms.ID)
-						return toDelete, botErrors.NewError("No more messages newer then 14 days.", "messages_commands.go")
+				} else {
+					if utility.IsTime(msTime, time.Now()) {
+						return toDelete, nil
 					}
 				}
 				// Gets the user info of the message //
@@ -231,29 +224,29 @@ func getUserMessages(s *discordgo.Session, m *discordgo.Message, uName string, i
 
 // Clear all messages newer then 2 weeks from a channel //
 func clearMessages(s *discordgo.Session, m *discordgo.Message) error {
-	admin, err := servers.IsAdmin(s, m)
-	if err != nil {
+	if admin, err := servers.IsAdmin(s, m); err != nil {
 		return err
-	}
-
-	// This command can only be used by admin users //
-	// If a non-admin calls the function it prints an error stating you do not have the permissions to use this command
-	if admin != true {
+	} else if !admin {
+		// This command can only be used by admin users //
+		// If a non-admin calls the function it prints an error stating you do not have the permissions to use this command
 		_, err := s.ChannelMessageSend(m.ChannelID, "You do not have the permissions to use this command.")
 		return err
-	}
-
-	// Clear message Loop //
-	// Runs toDelete to get the list of messages to delete in batches of 99
-	// Loop ends if the list of messages returned from toDelete is 0 or it returns an error
-	for ms, err := toDelete(s, m, "", 99, true); err == nil && len(ms) != 0 ; ms, err = toDelete(s, m, "", 99, true) {
-		// Deletes the current batch of 99 messages //
-		// Returns an error if err is not nil
-		if err := s.ChannelMessagesBulkDelete(m.ChannelID, ms); err != nil {
-			return err
+	} else {
+		// Clear message Loop //
+		// Runs toDelete to get the list of messages to delete in batches of 99
+		// Loop ends if the list of messages returned from toDelete is 0 or it returns an error
+		for ms, err := ToDelete(s, m, "", 99, true); len(ms) != 0; ms, err = ToDelete(s, m, "", 99, true) {
+			if err != nil {
+				return err
+			}
+			// Deletes the current batch of 99 messages //
+			// Returns an error if err is not nil
+			if err := s.ChannelMessagesBulkDelete(m.ChannelID, ms); err != nil {
+				return err
+			}
 		}
-	}
 
-	// Clear was successful //
-	return nil
+		// Clear was successful //
+		return nil
+	}
 }

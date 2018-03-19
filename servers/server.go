@@ -81,7 +81,7 @@ func RoleCheck(s *discordgo.Session, g *discordgo.Guild) (*string, error) {
 }
 
 // TODO - Comment
-func IsAdmin(s *discordgo.Session, m *discordgo.Message)(bool, error){
+func IsAdmin(s *discordgo.Session, m *discordgo.Message) (bool, error) {
 	// Sets admin to false by default //
 	admin := false
 

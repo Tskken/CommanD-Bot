@@ -7,24 +7,30 @@ import (
 // Bot Command Dictionary //
 var BotCommands = make(map[string]map[string]func(*discordgo.Session, *discordgo.Message) error)
 
+// Sub Commands //
 var messageCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 var playerCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 var channelCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 var guildCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 var utilityCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
-var helpMap = make(map[string]cmdInfo)
-var BanTime = make(map[string]int)
+
+// TODO - Fix helpMap
+// var helpMap = make(map[string]cmdInfo)
+
+// Utility Maps //
+var banTime = make(map[string]int)
 
 // Load command maps with bot commands //
 func Load() {
 	// Load all commands in to botCommands map //
 	loadMaps()
-	loadHelp()
+	//loadHelp()
 }
 
+/*
 func Save() {
 	//saveBotMaps()
-}
+}*/
 
 /*
 func saveBotMaps()error{
@@ -74,7 +80,6 @@ func loadMaps() {
 	messageCommands["-clear"] = clearMessages
 	messageCommands["-cl"] = clearMessages
 
-
 	// Player Commands map //
 	playerCommands["-kick"] = kickMember
 	playerCommands["-k"] = kickMember
@@ -92,8 +97,8 @@ func loadMaps() {
 	// Utility Commands map //
 	utilityCommands["-dice"] = diceRole
 	utilityCommands["-d"] = diceRole
-	utilityCommands["-ign"] = ign
+	/*utilityCommands["-ign"] = ign
 	utilityCommands["-trinity"] = trinity
-	utilityCommands["-t"] = trinity
+	utilityCommands["-t"] = trinity*/
 
 }

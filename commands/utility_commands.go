@@ -2,6 +2,8 @@ package commands
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/tsukinai/CommanD-Bot/utility"
+	"math/rand"
 )
 
 /*// Wrapper function to call all Utility commands //
@@ -23,8 +25,17 @@ func UtilityCommands(s *discordgo.Session, m *discordgo.Message, admin bool) err
 	}
 }*/
 
-// TODO - Implement DiceRole
+// TODO - Comment
 func diceRole(s *discordgo.Session, m *discordgo.Message) error {
+	args := utility.ParceInput(m.Content)
+	if val, err := utility.StrToInt(args[2]); err != nil {
+		return err
+	} else {
+		rnd := rand.Intn(val)
+		if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Username+" got "+utility.IntToStr(rnd)); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

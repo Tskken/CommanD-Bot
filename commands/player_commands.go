@@ -3,8 +3,8 @@ package commands
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/tsukinai/CommanD-Bot/botErrors"
-	"github.com/tsukinai/CommanD-Bot/utility"
 	"github.com/tsukinai/CommanD-Bot/servers"
+	"github.com/tsukinai/CommanD-Bot/utility"
 )
 
 /*// Wrapper function to run all !player commands //
@@ -88,7 +88,6 @@ func kickMember(s *discordgo.Session, m *discordgo.Message) error {
 		}
 	}
 
-
 	// Return an error as the entered username or nick name was not found in the guild //
 	return botErrors.NewError("Username or nick name was not found in guild.", "player_commands.go")
 }
@@ -118,7 +117,7 @@ func banMember(s *discordgo.Session, m *discordgo.Message) error {
 
 		// Get the ban time for a server //
 		// Prints an error if the servers ban time as not been set
-		if time, ok := BanTime[guild.Name]; !ok {
+		if time, ok := banTime[guild.Name]; !ok {
 			_, err := s.ChannelMessageSend(m.ChannelID, "The ban time for the server has not been set.  Type !help -bantime for more info.")
 			return err
 		} else {
@@ -153,6 +152,17 @@ func banMember(s *discordgo.Session, m *discordgo.Message) error {
 	return botErrors.NewError("If statement failed", "player_commands.go")
 }
 
+// TODO - Comment
+func SetBanTimer(g *discordgo.Guild) error {
+	// Check if ban time is set for the server //
+	// If not set ban time to 30 days by default //
+	if _, ok := banTime[g.Name]; ok != true {
+		banTime[g.Name] = 30
+		return nil
+	}
+	return nil
+}
+
 // Sets the servers ban time duration //
 func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
 	admin, err := servers.IsAdmin(s, m)
@@ -174,7 +184,7 @@ func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
 	} else {
 		// Check if the server already as a time set //
 		// If it does print it to the channel
-		if time, ok := BanTime[guild.Name]; ok {
+		if time, ok := banTime[guild.Name]; ok {
 			if _, err := s.ChannelMessageSend(m.ChannelID, "Ban time was "+utility.IntToStr(time)); err != nil {
 				return err
 			}
@@ -195,14 +205,13 @@ func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
 				return err
 			} else {
 				// Set the ban time for the new time given //
-				BanTime[guild.Name] = time
+				banTime[guild.Name] = time
 
 				// Print the new ban time to the server //
-				_, err = s.ChannelMessageSend(m.ChannelID, "Ban time has been set to "+utility.IntToStr(BanTime[guild.Name]))
+				_, err = s.ChannelMessageSend(m.ChannelID, "Ban time has been set to "+utility.IntToStr(banTime[guild.Name]))
 				return err
 			}
 		}
 	}
-
 
 }

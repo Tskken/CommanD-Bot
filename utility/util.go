@@ -1,30 +1,39 @@
 package utility
 
 import (
-	"github.com/tsukinai/CommanD-Bot/botErrors"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Parce user input on a space //
 func ParceInput(input string) []string {
 	// Return parced input as a list of strings //
-	return strings.Split(input, " ")
+	return Parce(input, " ")
+}
+
+// TODO - Comment
+func Parce(input, sep string) []string {
+	return strings.Split(input, sep)
+}
+
+func ToLower(input []string) []string {
+	output := make([]string, 0)
+	for _, v := range input {
+		s := StrToLower(v)
+		output = append(output, s)
+	}
+
+	return output
 }
 
 // Changes a given value from with in a given list of strings to lowercase //
-func ToLower(input []string, i int) (*string, error) {
-	// If the length of the list is less then or equal to i then return an error //
-	// Returns an error that the given value to set to lowercase is outside the bounds of the list
-	if len(input) <= i {
-		return nil, botErrors.NewError("Given location to ToLower is outside of bounds of given array", "util.go")
-	}
-
+func StrToLower(input string) string {
 	// Sets the specified value in the list to lowercase //
-	arg := strings.ToLower(input[i])
+	arg := strings.ToLower(input)
 
 	// Return a reference to the new lowercase string //
-	return &arg, nil
+	return arg
 }
 
 // Converts a list of strings to a string //
@@ -42,4 +51,13 @@ func StrToInt(input string) (int, error) {
 // Convert int to string //
 func IntToStr(input int) string {
 	return strconv.Itoa(input)
+}
+
+// TODO - Comment
+func IsTime(t1 time.Time, t2 time.Time) bool {
+	if t1.Year() != t2.Year() || (t1.YearDay()+14) <= t2.YearDay() {
+		return true
+	} else {
+		return false
+	}
 }

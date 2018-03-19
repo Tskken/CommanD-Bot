@@ -1,47 +1,48 @@
 package main
 
 /*
-Bot-Bot V0.7
+CommanD-Bot V0.8
 Author: Dylan Blanchard
 */
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"github.com/tsukinai/CommanD-Bot"
+	"github.com/tsukinai/CommanD-Bot/filter"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-// Bot session //
-var botSession *discordgo.Session
-
 // On start //
 func init() {
-	// Create and start a new bot session. //
-	// Log error if err is not nil
-	if newSession, err := CommanD_Bot.New("Bot MzU3OTUwMTc3OTQ1OTc2ODM5.DOYtIQ.oa9Fqrl8RlhyunioLrmfItnpBkE"); err != nil {
-		panic(err)
+	// Create new Bot session //
+	if b, err := CommanD_Bot.NewBot(); err != nil {
+		log.Panic(err)
 	} else {
-		botSession = newSession
+		CommanD_Bot.Bot = b
 	}
 }
 
 // Entry point //
 func main() {
 	// Bot is running //
-	log.Println("Bot is now running.  Press CTRL-C to exit.")
+	log.Println("Bot is now running...")
 	// Wait for user input to close program //
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 
+	// Save filter classifiers when closing //
+	err := filter.Save(CommanD_Bot.Bot.GetClassifiers())
+	if err != nil {
+		log.Panic(err)
+	}
+
 	// Close bot session //
-	if err := botSession.Close(); err != nil {
-		log.Println(err)
+	if err := CommanD_Bot.Bot.GetSession().Close(); err != nil {
+		log.Panic(err)
 	}
 
 	log.Println("Session ended.")
-	return
 }

@@ -1,12 +1,8 @@
 package commands
 
-import (
-	"github.com/bwmarrin/discordgo"
-	"github.com/tsukinai/CommanD-Bot/botErrors"
-	"github.com/tsukinai/CommanD-Bot/servers"
-	"github.com/tsukinai/CommanD-Bot/utility"
-)
+// TODO - Reformat !help... again...
 
+/*
 // Command info struct //
 type cmdInfo struct {
 	id   string   // name
@@ -27,6 +23,7 @@ func newCmdInfo(id, info string, args []string) *cmdInfo {
 	return &cmdInfo{id, args, info}
 }
 
+/*
 // Adds given struct to helpMap //
 func addToMap(c *cmdInfo) error {
 	// Sets map key to command name and value to cmdInfo struct //
@@ -122,3 +119,4 @@ func getHelp(s *discordgo.Session, m *discordgo.Message, cmd string) error {
 		}
 	}
 }
+*/
