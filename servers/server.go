@@ -5,6 +5,9 @@ import (
 	"github.com/tsukinai/CommanD-Bot/botErrors"
 )
 
+// Utility Maps //
+var BanTime = make(map[string]int)
+
 // Checks the server to make sure it has the Bot role with in it and sets it to the bot //
 func CheckBotRole(s *discordgo.Session, g *discordgo.Guild) error {
 	// Check all roles in the server //
@@ -80,7 +83,23 @@ func RoleCheck(s *discordgo.Session, g *discordgo.Guild) (*string, error) {
 	}
 }
 
-// TODO - Comment
+/*
+func BanTimerCheck(g *discordgo.Guild) error {
+	if _, ok := BanTime[g.Name]; !ok {
+		BanTime[g.Name] = 30
+	}
+	return nil
+}*/
+
+func RemoveBanTimer(g *discordgo.Guild) error {
+	delete(BanTime, g.Name)
+	if _, ok := BanTime[g.Name]; ok {
+		return botErrors.NewError("banTime was not removed when leaving guild.", "player_commands.go")
+	}
+	return nil
+}
+
+// Check if a user is an admin //
 func IsAdmin(s *discordgo.Session, m *discordgo.Message) (bool, error) {
 	// Sets admin to false by default //
 	admin := false

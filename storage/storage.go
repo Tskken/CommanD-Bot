@@ -1,35 +1,65 @@
 package storage
 
-/*
-WIP
-
-TODO - Test and modify if necessary
-*/
-
 import (
 	"encoding/gob"
+	"github.com/tsukinai/CommanD-Bot/servers"
+	"log"
 	"os"
 	"path/filepath"
 )
 
-var file = "../tsukinai/CommanD-Bot/source/data/data.gob"
+/*
+WIP
 
-type encdec struct {
-	file *os.File
-	enc  *gob.Encoder
-	dec  *gob.Decoder
+TODO - Fix save and load
+*/
+
+const rootPath = "../CommanD-Bot/source/data/"
+
+func Save() error {
+	return SaveData("data")
 }
 
-func NewEncDec() *encdec {
-	return &encdec{}
+func Load() error {
+	return LoadData("data")
 }
 
-func (ed *encdec) OpenFile() error {
+func SaveData(fName string) error {
+	log.Println("Saving data..")
+	path := filepath.Join(rootPath, fName)
+	if file, err := os.Create(path); err != nil {
+		return err
+	} else {
+		enc := gob.NewEncoder(file)
+		if err := enc.Encode(servers.BanTime); err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+func LoadData(fName string) error {
+	log.Println("Loading data...")
+	path := filepath.Join(rootPath, fName)
+	if file, err := os.Open(path); err != nil {
+		return err
+	} else {
+		dec := gob.NewDecoder(file)
+		if err := dec.Decode(servers.BanTime); err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+/*
+
+func OpenFile() error {
 	filePath, err := filepath.Abs(file)
 	if err != nil {
 		return err
 	}
-	ed.file, err = os.Create(filePath)
+	file, err = os.Create(filePath)
 	return err
 }
 func (ed *encdec) CloseFile() error {
@@ -55,6 +85,7 @@ func (ed *encdec) DecGob(val interface{}) error {
 	err := ed.dec.Decode(val)
 	return err
 }
+
 
 /*
 func SaveGob()error{

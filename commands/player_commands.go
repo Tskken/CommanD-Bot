@@ -7,42 +7,50 @@ import (
 	"github.com/tsukinai/CommanD-Bot/utility"
 )
 
-/*// Wrapper function to run all !player commands //
-// Can only be run by admin users
-func PlayerCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	// Check caller is an admin //
-	// Prints an error saying you do not have permission if you are not an admin
-	if admin != true {
-		_, err := s.ChannelMessageSend(m.ChannelID, "You do not have the permission to kick someone.")
-		return err
-	}
+// CommandInfo for PlayerCommands //
+var PlayerCommandInfo *CommandInfo
 
-	// Gets the guild the messages was created in //
-	// Returns an error if err is not nil
-	if guild, err := servers.GetGuild(s, m); err != nil {
+// Set PlayerCommand info to struct //
+func setPCInfo() {
+	PlayerCommandInfo = &CommandInfo{}
+	PlayerCommandInfo.detail = "**-player** or **-pl** : All commands that pertain to manipulating players with in a server."
+	PlayerCommandInfo.commands = make(map[string]string)
+	PlayerCommandInfo.commands["-kick"] = "**-kick** or **-k**.\n**Info**: Kicks a given member from the server.\n" +
+		"**Arguments:**\n		**<Member name>**: The member given will be kicked from the server. (only admins can use this command)."
+	PlayerCommandInfo.commands["-ban"] = "**-ban** or **-b**\n**Info**: Bans a given user from the server for a preset amount of time. (default is 30 days)." +
+		"**Arguments:**\n	**<Member name>**: The member given will be baned from the server. (only admins can use this)."
+}
+
+// Get help for Player Commands //
+// - Returns an error (nil if non)
+func playerHelp(s *discordgo.Session, m *discordgo.Message) error {
+	// Parce message on a space //
+	ms := utility.ParceInput(m.Content)
+
+	// Check the number of arguments //
+	// To few arguments given //
+	if len(ms) < 2 {
+		_, err := s.ChannelMessageSend(m.ChannelID, "Please enter a type of command you want help with.")
+		return err
+	// Get help for command //
+	} else if len(ms) == 2 {
+		_, err := s.ChannelMessageSend(m.ChannelID, PlayerCommandInfo.Help())
+		return err
+	// Get help for sub-command //
+	} else if len(ms) == 3 {
+		_, err := s.ChannelMessageSend(m.ChannelID, PlayerCommandInfo.HelpCommand(ms[2]))
 		return err
 	} else {
-		// gets the argument passed to !player and makes sure its lowercase //
-		// Returns an error if err is nil
-		if arg, err := utility.ToLower(utility.ParceInput(m.Content), 1); err != nil {
-			return err
-		} else {
-			// Runs the !player argument //
-			// Prints an error if the argument does not exist with in the list of supported arguments //
-			if cmd, ok := playerCommands[*arg]; !ok {
-				_, err := s.ChannelMessageSend(m.ChannelID, *arg+" is not a recognized option with in !player.  Type !help -player for a list of supported options.")
-				return err
-			} else {
-				// Runs command //
-				return cmd(s, m, guild)
-			}
-		}
+		_, err := s.ChannelMessageSend(m.ChannelID, "You gave to many arguments.")
+		return err
 	}
-}*/
+}
 
 // Function to kick a user from the server //
 // TODO - Fix kick with reason functionality
 func kickMember(s *discordgo.Session, m *discordgo.Message) error {
+	// Check for admin permitions //
+	// Return an error if err is not nil
 	admin, err := servers.IsAdmin(s, m)
 	if err != nil {
 		return err
@@ -95,6 +103,8 @@ func kickMember(s *discordgo.Session, m *discordgo.Message) error {
 // Function to ban a user from the server for a given amount of time //
 // TODO - Fix Ban with reason functionality
 func banMember(s *discordgo.Session, m *discordgo.Message) error {
+	// Check if user is an admin //
+	// - Returns an error if err is not nil
 	admin, err := servers.IsAdmin(s, m)
 	if err != nil {
 		return err
@@ -117,7 +127,7 @@ func banMember(s *discordgo.Session, m *discordgo.Message) error {
 
 		// Get the ban time for a server //
 		// Prints an error if the servers ban time as not been set
-		if time, ok := banTime[guild.Name]; !ok {
+		if time, ok := servers.BanTime[guild.Name]; !ok {
 			_, err := s.ChannelMessageSend(m.ChannelID, "The ban time for the server has not been set.  Type !help -bantime for more info.")
 			return err
 		} else {
@@ -152,19 +162,10 @@ func banMember(s *discordgo.Session, m *discordgo.Message) error {
 	return botErrors.NewError("If statement failed", "player_commands.go")
 }
 
-// TODO - Comment
-func SetBanTimer(g *discordgo.Guild) error {
-	// Check if ban time is set for the server //
-	// If not set ban time to 30 days by default //
-	if _, ok := banTime[g.Name]; ok != true {
-		banTime[g.Name] = 30
-		return nil
-	}
-	return nil
-}
-
 // Sets the servers ban time duration //
 func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
+	// Checks if user is an admin //
+	// - Returns an error if err is not nil
 	admin, err := servers.IsAdmin(s, m)
 	if err != nil {
 		return err
@@ -184,7 +185,7 @@ func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
 	} else {
 		// Check if the server already as a time set //
 		// If it does print it to the channel
-		if time, ok := banTime[guild.Name]; ok {
+		if time, ok := servers.BanTime[guild.Name]; ok {
 			if _, err := s.ChannelMessageSend(m.ChannelID, "Ban time was "+utility.IntToStr(time)); err != nil {
 				return err
 			}
@@ -205,10 +206,10 @@ func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
 				return err
 			} else {
 				// Set the ban time for the new time given //
-				banTime[guild.Name] = time
+				servers.BanTime[guild.Name] = time
 
 				// Print the new ban time to the server //
-				_, err = s.ChannelMessageSend(m.ChannelID, "Ban time has been set to "+utility.IntToStr(banTime[guild.Name]))
+				_, err = s.ChannelMessageSend(m.ChannelID, "Ban time has been set to "+utility.IntToStr(servers.BanTime[guild.Name]))
 				return err
 			}
 		}

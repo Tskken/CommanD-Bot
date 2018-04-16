@@ -8,25 +8,45 @@ import (
 	"time"
 )
 
-/*// Wrapper to run all message commands through the messageCommands map //
-func MessageCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	// Parces message content and gives the argument passed to !message set to lowercase //
-	// Prints an error to the server if there was no argument passed to !message
-	if arg, err := utility.ToLower(utility.ParceInput(m.Content), 1); err != nil {
-		_, err := s.ChannelMessageSend(m.ChannelID, "There was no argument passed with !message.  Type !help -message to see supported options.")
-		return err
-	} else {
-		// Get command from messageCommands map //
-		// Prints an error to the server if the argument is not in the map
-		if cmd, ok := messageCommands[*arg]; !ok {
-			_, err := s.ChannelMessageSend(m.ChannelID, *arg+" is not an understood argument.  Type !help messages to get a list of commands.")
-			return err
-		} else {
-			// Run command //
-			return cmd(s, m, admin)
+// Command Info struct for MessageCommands //
+var MessageCommandInfo *CommandInfo
+
+// Create CommandInfo struct data //
+func setMCInfo() {
+	MessageCommandInfo = &CommandInfo{}
+	MessageCommandInfo.detail = "**!message** or **!ms** : All commands that pertain to manipulating messages with in a server."
+	MessageCommandInfo.commands = make(map[string]string)
+	MessageCommandInfo.commands["-delete"] = "**-delete** or **-del**.\n**Info**: Deletes a given messages with in a server.\n" +
+		"**Arguments:**\n		**none**: Deletes the last messages in the chanel by you.\n		**<Number between 1 - 99>:**" +
+		" Deletes the last given number of messages by you. \n		**<User Name>:** Deletes the last message by that user (only can be used by admin)." +
+		"\n		**<Number between 1 - 99> <User Name>:** Deletes the last given number of messages by the given user (only can be used by admin)."
 		}
+
+// Get help info for given message //
+// Returns an error (nil if non)
+func messageHelp(s *discordgo.Session, m *discordgo.Message) error {
+	// parce message on a space //
+	ms := utility.ParceInput(m.Content)
+
+	// Check the number of arguments //
+	// To few arguments passed //
+	if len(ms) < 2 {
+		_, err := s.ChannelMessageSend(m.ChannelID, "Please enter a type of command you want help with.")
+		return err
+	// Get help for given command //
+	} else if len(ms) == 2 {
+		_, err := s.ChannelMessageSend(m.ChannelID, MessageCommandInfo.Help())
+		return err
+	// Get help for given sub-command //
+	} else if len(ms) == 3 {
+		_, err := s.ChannelMessageSend(m.ChannelID, MessageCommandInfo.HelpCommand(ms[2]))
+		return err
+	// Number of arguments was to large //
+	} else {
+		_, err := s.ChannelMessageSend(m.ChannelID, "You gave to many arguments.")
+		return err
 	}
-}*/
+}
 
 // Main message delete function //
 func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {

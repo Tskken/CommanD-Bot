@@ -1,13 +1,14 @@
 package main
 
 /*
-CommanD-Bot V0.8
+CommanD-Bot Beta V1.0
 Author: Dylan Blanchard
 */
 
 import (
 	"github.com/tsukinai/CommanD-Bot"
 	"github.com/tsukinai/CommanD-Bot/filter"
+	//"github.com/tsukinai/CommanD-Bot/storage"
 	"log"
 	"os"
 	"os/signal"
@@ -38,6 +39,8 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	//storage.Save()
 
 	// Close bot session //
 	if err := CommanD_Bot.Bot.GetSession().Close(); err != nil {

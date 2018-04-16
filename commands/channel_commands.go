@@ -7,52 +7,39 @@ import (
 	"github.com/tsukinai/CommanD-Bot/utility"
 )
 
-/*
-// Wrapper function called by BotCommands to run channelCommands //
-func ChannelCommands(s *discordgo.Session, m *discordgo.Message) error {
-	admin, err := servers.IsAdmin(s, m)
-	if err != nil {
-		return err
-	}
-
-	// Get argument passed to !channel //
-	// returns error if err != nil
-	if arg, err := utility.ToLower(utility.ParceInput(m.Content), 1); err != nil {
-		return err
-	} else {
-		// Get command from channelCommands //
-		// Prints errors to server if argument passed did not exist in map
-		if cmd, ok := channelCommands[*arg]; !ok {
-			_, err := s.ChannelMessageSend(m.ChannelID, *arg+" is not a recognized option with in !channel.  Type !help -channel for a list of supported options.")
-			return err
-		} else {
-			// Run command //
-			return cmd(s, m, admin)
-		}
-	}
-}*/
-
-// TODO - Test and refine code
-
-// TODO - Cleanup code
+// Create new channel function //
+// - Returns an error (nil if non)
 func createChannel(s *discordgo.Session, m *discordgo.Message) error {
+	// Parce message on a space //
 	args := utility.ParceInput(m.Content)
+
+	// Check the number of args passed //
+	// - 3 = Create a channel with out giving a type (default text)
+	// - 4 = Create a channel with a given type
 	switch len(args) {
 	case 3:
-		newChannel(s, m, args[2], "")
+		// Create channel with default type //
+		newChannel(s, m, args[2], "text")
 	case 4:
+		// Create channel with a given type //
 		newChannel(s, m, args[2], args[3])
 	default:
+		// Error if the number of arguments is anything above 4 or below 3 //
 		return botErrors.NewError("Length of args was not correct. Length: "+utility.IntToStr(len(args)), "channel_commands.go")
 	}
 	return nil
 }
 
-// TODO - Cleanup code
+// Create channel with given name an type //
+// - Returns an error (nil if non)
 func newChannel(s *discordgo.Session, m *discordgo.Message, name, cType string) error {
+	// Get guild to create channel in //
+	// - Returns an error if err is not nil
 	if g, err := servers.GetGuild(s, m); err != nil {
 		return err
 	} else {
+		// Create channel with given name and type in guild //
+		// - Returns an error if err is not nil
 		if _, err := s.GuildChannelCreate(g.ID, name, cType); err != nil {
 			return err
 		}
@@ -60,29 +47,47 @@ func newChannel(s *discordgo.Session, m *discordgo.Message, name, cType string) 
 	return nil
 }
 
-// TODO - Finish code
+// Delete a channel function //
+// - Returns an error (nil if non)
 func deleteChannel(s *discordgo.Session, m *discordgo.Message) error {
+	// Parce massage on a space //
 	args := utility.ParceInput(m.Content)
+
+	// Check length of message //
 	switch len(args) {
 	case 3:
-		c, _ := getChannelToDel(s, m)
+		// Get channel to delete //
+		c, _ := getChannelToDel(s, m, args[2])
 		s.ChannelDelete(c.ID)
 	default:
-
+		return botErrors.NewError("Length of arguments passed to delete message is "+utility.IntToStr(len(args)), "channel_commands.go")
 	}
 
 	return nil
 }
 
-// TODO - Cleanup code
-func getChannelToDel(s *discordgo.Session, m *discordgo.Message) (*discordgo.Channel, error) {
-	g, _ := servers.GetGuild(s, m)
-	args := utility.ParceInput(m.Content)
-	chs, _ := s.GuildChannels(g.ID)
-	for _, c := range chs {
-		if c.Name == args[2] {
-			return c, nil
+// Get the channel to delete //
+// - Returns a reference to a channel and an error (nil if non)
+func getChannelToDel(s *discordgo.Session, m *discordgo.Message, name string) (*discordgo.Channel, error) {
+	// Gets guild to delete channel with in //
+	// - Returns an error if err is not nil
+	if g, err := servers.GetGuild(s, m); err != nil {
+		return nil, err
+	} else {
+		// Gets all channels with in the guild //
+		// - Returns an error if err is not nil
+		if chs, err := s.GuildChannels(g.ID); err != nil {
+			return nil, err
+		} else {
+			// Check list of channels for given name to delete //
+			for _, c := range chs {
+				// Return channel if channel name = given name //
+				if c.Name == name {
+					return c, nil
+				}
+			}
 		}
 	}
-	return nil, nil
+	// Something broke if this ever happens ... //
+	return nil, botErrors.NewError("GetChannelToDel failed", "channel_commands.go")
 }

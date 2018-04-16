@@ -4,62 +4,33 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+/*
+ - TODO : Refactor command structure with interfaces
+*/
+
 // Bot Command Dictionary //
 var BotCommands = make(map[string]map[string]func(*discordgo.Session, *discordgo.Message) error)
 
 // Sub Commands //
 var messageCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
+var helpCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 var playerCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 var channelCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 var guildCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 var utilityCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
+var filterCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 
-// TODO - Fix helpMap
-// var helpMap = make(map[string]cmdInfo)
-
-// Utility Maps //
-var banTime = make(map[string]int)
+// KeyWord filter map //
+var KeyWordMap map[string]bool
 
 // Load command maps with bot commands //
 func Load() {
 	// Load all commands in to botCommands map //
 	loadMaps()
-	//loadHelp()
 }
-
-/*
-func Save() {
-	//saveBotMaps()
-}*/
-
-/*
-func saveBotMaps()error{
-	encdec := NewEncDec()
-	err := encdec.OpenFile()
-	if err != nil {
-		return err
-	}
-	encdec.NewEncGob()
-	err = encdec.EncGob(BanTime)
-	if err != nil {
-		return err
-	}
-	err = encdec.CloseFile()
-	return err
-}*/
 
 // Loads all maps with in commands.go //
 func loadMaps() {
-
-	/*
-		encdec := EncDec{}
-		encdec.OpenFile()
-		encdec.NewDecGob()
-		err := encdec.DecGob(&BanTime)
-		if err != nil {
-			log.Println(err)
-		}
-		encdec.CloseFile()*/
 
 	// Bot Commands map //
 	BotCommands["!message"] = messageCommands
@@ -72,7 +43,9 @@ func loadMaps() {
 	BotCommands["!gl"] = guildCommands
 	BotCommands["!utility"] = utilityCommands
 	BotCommands["!util"] = utilityCommands
-	//BotCommands["!help"] = Help
+	BotCommands["!filter"] = filterCommands
+	BotCommands["!fl"] = filterCommands
+	BotCommands["!help"] = helpCommands
 
 	// Message Commands map //
 	messageCommands["-delete"] = deleteMessage
@@ -101,4 +74,17 @@ func loadMaps() {
 	utilityCommands["-trinity"] = trinity
 	utilityCommands["-t"] = trinity*/
 
+	// Filter Commands map //
+	filterCommands["-bad"] = setBad
+	filterCommands["-b"] = setBad
+	filterCommands["-good"] = setGood
+	filterCommands["-g"] = setGood
+
+	// Help Commands //
+	setMCInfo()
+	setPCInfo()
+	helpCommands["-messages"] = messageHelp
+	helpCommands["-ms"] = messageHelp
+	helpCommands["-player"] = playerHelp
+	helpCommands["-pl"] = playerHelp
 }

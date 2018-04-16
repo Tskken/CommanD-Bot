@@ -8,44 +8,61 @@ import (
 	"github.com/tsukinai/CommanD-Bot/filter"
 	"github.com/tsukinai/CommanD-Bot/servers"
 	"github.com/tsukinai/CommanD-Bot/utility"
+	"bufio"
+	"os"
+	"log"
 )
 
 var Bot *botInfo
 
+// Bot info struct //
 type botInfo struct {
-	botSession       *discordgo.Session
-	filterClassifier *bayesian.Classifier
-	token            string
+	botSession       *discordgo.Session // DiscordGo Session
+	filterClassifier *bayesian.Classifier // Bayesian Classifiers
+	token            string // Bot Token
 }
 
+// Create Bot info //
+// - Returns error (nil if non)
 func NewBot() (*botInfo, error) {
-	b := botInfo{nil, nil, "Bot MzU3OTUwMTc3OTQ1OTc2ODM5.DOYtIQ.oa9Fqrl8RlhyunioLrmfItnpBkE"}
+
+	r := bufio.NewReader(os.Stdin)
+	log.Println("Enter Token: ")
+	token, err := r.ReadString('\n')
+	if err != nil {
+		return nil, err
+	}
+
+	// Create botInfo struct with given token //
+	b := botInfo{nil, nil, "Bot "+token[:len(token)-1]}
+	// Create new sessin with bot token //
+	// - Returns an error if err is not nil
 	if s, c, err := New(b.token); err != nil {
 		return nil, err
 	} else {
+		// Set returned session to botSession //
 		b.botSession = s
+		// Set returned classifiers to filterClassifier //
 		b.filterClassifier = c
+		// Return botInfo reference //
 		return &b, nil
 	}
 }
 
+// Get discord session //
+// - Returns a reference to the discordgo session
 func (b *botInfo) GetSession() *discordgo.Session {
 	return b.botSession
 }
 
+// Get filter classifiers ///
+// - Return a reference to the bayesian classifiers
 func (b *botInfo) GetClassifiers() *bayesian.Classifier {
 	return b.filterClassifier
 }
 
 // GuildCreate event for when the bot joins a guild //
 func GuildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
-	/*
-		// Checks if the terminal channel exist //
-		// Creates the text channel if it does not exist
-		// Logs error if err is not nil
-		if err := servers.ChannelCheck(s, g.Guild); err != nil {
-			botErrors.PrintError(err)
-		}*/
 
 	// Checks if the Bot role exist in the guild //
 	// Creates the role if it does not exist
@@ -60,9 +77,10 @@ func GuildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
 	if _, err := servers.RoleCheck(s, g.Guild); err != nil {
 		botErrors.PrintError(err)
 	}
+}
 
-	// TODO - Comment
-	if err := commands.SetBanTimer(g.Guild); err != nil {
+func GuildDelete(s *discordgo.Session, g *discordgo.GuildDelete) {
+	if err := servers.RemoveBanTimer(g.Guild); err != nil {
 		botErrors.PrintError(err)
 	}
 }
@@ -78,13 +96,6 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if err := filter.MScan(s, m.Message, Bot.GetClassifiers()); err != nil {
 		botErrors.PrintError(err)
 	}
-
-	/*
-		if !Bot.filterClassifier.DidConvertTfIdf {
-			if err := filter.CvTFIDF(Bot.filterClassifier); err != nil {
-				botErrors.PrintError(err)
-			}
-		}*/
 
 	// Ignores all messages with out the ! key letter for commands //
 	if m.Content[0] != '!' {
@@ -128,15 +139,22 @@ func New(token string) (*discordgo.Session, *bayesian.Classifier, error) {
 	} else {
 		// Set event handlers //
 		session.AddHandler(GuildCreate)
+		//session.AddHandler(GuildDelete)
 		session.AddHandler(MessageCreate)
 
 		// Load all bot maps //
 		commands.Load()
+
+		// Create classifiers //
 		classifier, err := filter.NewFilter()
 		if err != nil {
 			return nil, nil, err
 		}
-		filter.Load(classifier)
+
+		// Load classifier data from file //
+		if err := filter.Load(classifier); err != nil {
+			return nil, nil, err
+		}
 
 		// Open session //
 		// Log error if err is not nil

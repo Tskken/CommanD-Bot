@@ -6,32 +6,22 @@ import (
 	"math/rand"
 )
 
-/*// Wrapper function to call all Utility commands //
-func UtilityCommands(s *discordgo.Session, m *discordgo.Message, admin bool) error {
-	// Get the argument passed to !utility and make sure its lowercase //
-	// Returns an error if err is nil
-	if arg, err := utility.ToLower(utility.ParceInput(m.ChannelID), 1); err != nil {
-		return err
-	} else {
-		// Get the arguments command //
-		// Prints an error if the command does not exist //
-		if cmd, ok := utilityCommands[*arg]; !ok {
-			_, err := s.ChannelMessageSend(m.ChannelID, *arg+" is not a recognized option with in !utility.  Type !help -utility for a list of supported options.")
-			return err
-		} else {
-			// Run command //
-			return cmd(s, m)
-		}
-	}
-}*/
-
-// TODO - Comment
+// Roles a dice and prints the results //
+// Returns an error (nil if non)
 func diceRole(s *discordgo.Session, m *discordgo.Message) error {
+	// Parce messages on a space //
 	args := utility.ParceInput(m.Content)
+
+	// Convert the third argument to an int //
+	// - Returns an error if err is not nil
 	if val, err := utility.StrToInt(args[2]); err != nil {
 		return err
 	} else {
+		// Get a random number from 0 to the given value //s
 		rnd := rand.Intn(val)
+
+		// Print random number to channel //
+		// - Returns an error if err is not nil
 		if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Username+" got "+utility.IntToStr(rnd)); err != nil {
 			return err
 		}

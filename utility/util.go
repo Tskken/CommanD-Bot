@@ -12,28 +12,31 @@ func ParceInput(input string) []string {
 	return Parce(input, " ")
 }
 
-// TODO - Comment
+// Parce given string on the given separator //
 func Parce(input, sep string) []string {
 	return strings.Split(input, sep)
 }
 
+// Converts given string array to lower case //
 func ToLower(input []string) []string {
+	// Create output string array //
 	output := make([]string, 0)
+	// loop through list of input strings //
 	for _, v := range input {
+		// Convert string to lower case //
 		s := StrToLower(v)
+		// Add new string to output array //
 		output = append(output, s)
 	}
 
+	// Return output array //
 	return output
 }
 
-// Changes a given value from with in a given list of strings to lowercase //
+// Converts given string to lowercase //
 func StrToLower(input string) string {
-	// Sets the specified value in the list to lowercase //
-	arg := strings.ToLower(input)
-
-	// Return a reference to the new lowercase string //
-	return arg
+	// Sets the specified value to lowercase and return it //
+	return strings.ToLower(input)
 }
 
 // Converts a list of strings to a string //
@@ -53,11 +56,16 @@ func IntToStr(input int) string {
 	return strconv.Itoa(input)
 }
 
-// TODO - Comment
-func IsTime(t1 time.Time, t2 time.Time) bool {
-	if t1.Year() != t2.Year() || (t1.YearDay()+14) <= t2.YearDay() {
+// Checks if the given two times have a 14 day or greater deference //
+// - True = is greater then 14 days
+// - False = is less then 14 days
+func IsTime(then time.Time, now time.Time) bool {
+	// Check if time is greater then 14 days old //
+	if then.Year() != now.Year() || (then.YearDay()+14) <= now.YearDay() {
+		// time was greater then 14 days //
 		return true
 	} else {
+		// time was less then 14 days old //
 		return false
 	}
 }
