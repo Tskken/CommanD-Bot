@@ -102,7 +102,8 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	//str := utility.ParceInput(m.Content)
-	arg := utility.StrToLower(utility.ParceInput(m.Content)[0])
+	args := utility.ParceInput(m.Content)
+	arg := utility.StrToLower(args[0])
 
 	// Get the command from the command list for the first argument given //
 	// Logs an error if the command does not exist
@@ -113,11 +114,17 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	} else {
 		//str := utility.ParceInput(m.Content)
-		arg := utility.StrToLower(utility.ParceInput(m.Content)[1])
 
-		if cmd, ok := cmd[arg]; !ok {
+		if len(args) < 2 {
+			botErrors.PrintError(botErrors.NewError("To few arguments in command call", "bot.go"))
+			return
+		}
+
+		sArg := utility.StrToLower(args[1])
+
+		if cmd, ok := cmd[sArg]; !ok {
 			// Given command did not exist in map //
-			info := "Command does not exist: " + arg
+			info := "Command does not exist: " + sArg
 			botErrors.PrintError(botErrors.NewError(info, "bot.go"))
 			return
 		} else {

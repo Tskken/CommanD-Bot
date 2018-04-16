@@ -2,3 +2,4 @@
 *.xml
 source/.DS_Store
 source/data/.DS_Store
+.idea/workspace.xml
