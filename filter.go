@@ -1,5 +1,17 @@
-package filter
+package CommanD_Bot
 
+import (
+	"github.com/jbrukh/bayesian"
+	"log"
+	"path/filepath"
+	"os"
+	"bufio"
+	"io"
+	"strings"
+	"github.com/bwmarrin/discordgo"
+)
+
+/*
 import (
 	"bufio"
 	"github.com/bwmarrin/discordgo"
@@ -33,22 +45,25 @@ const (
 	FilePath = "../CommanD-Bot/source/data/"
 )
 
+var filterClassifier *bayesian.Classifier // Bayesian Classifiers
+var filterMap map[string]bool
+
 // Create Classifier filter //
 // Returns a reference to a new Classifier.
 // - nil Classifier if error
-func NewFilter() (*bayesian.Classifier, error) {
-	commands.KeyWordMap = make(map[string]bool)
+func NewFilter() error {
+	filterMap = make(map[string]bool)
 
-	c := bayesian.NewClassifier(Good, Spam)
-	c.ConvertTermsFreqToTfIdf()
-	if !c.DidConvertTfIdf {
-		return nil, botErrors.NewError("Could not convert to TfIdf.", "filter.go")
+	filterClassifier = bayesian.NewClassifier(Good, Spam)
+	filterClassifier.ConvertTermsFreqToTfIdf()
+	if !filterClassifier.DidConvertTfIdf {
+		return NewError("Could not convert to TfIdf.", "filter.go")
 	}
-	return c, nil
+	return nil
 }
 
 // Loads Classifier data from pri-trained data file //
-func Load(classes *bayesian.Classifier) error {
+func LoadFilter() error {
 	log.Println("loading classifiers...")
 	// Get file from file path //
 	// - Returns an error if err is not nil
@@ -58,12 +73,12 @@ func Load(classes *bayesian.Classifier) error {
 		// Reads class data from file //
 		// - Saves data to Good class
 		// - Returns an error if err is not nil
-		if err := classes.ReadClassFromFile(Good, path); err != nil {
+		if err := filterClassifier.ReadClassFromFile(Good, path); err != nil {
 			return err
 		}
 		// - Saves data to Spam class
 		// - Returns an error if err is not nil
-		if err := classes.ReadClassFromFile(Spam, path); err != nil {
+		if err := filterClassifier.ReadClassFromFile(Spam, path); err != nil {
 			return err
 		}
 	}
@@ -96,7 +111,7 @@ func Load(classes *bayesian.Classifier) error {
 					// Default is all words are bad //
 					// - True = bad
 					// - False = good
-					commands.KeyWordMap[strings.TrimSuffix(v, "\n")] = true
+					filterMap[strings.TrimSuffix(v, "\n")] = true
 					// Read next line //
 					v, err = r.ReadString('\n')
 
@@ -119,13 +134,13 @@ func Load(classes *bayesian.Classifier) error {
 // -- False = Good
 func editKeyWordMap(val bool, words []string) {
 	for _, word := range words {
-		commands.KeyWordMap[word] = val
+		filterMap[word] = val
 	}
 }
 
 // Save Classifier data to file //
 // - Returns an error if err is not nil
-func Save(classes *bayesian.Classifier) error {
+func SaveFilter() error {
 	log.Println("Saving Classifiers...")
 	// Get files to save to from path //
 	// - Returns an error if err is not nil
@@ -134,7 +149,7 @@ func Save(classes *bayesian.Classifier) error {
 	} else {
 		// Save class to file //
 		// - Returns an error if err is not nil
-		if err := classes.WriteClassesToFile(path); err != nil {
+		if err := filterClassifier.WriteClassesToFile(path); err != nil {
 			return err
 		}
 		return nil
@@ -143,21 +158,21 @@ func Save(classes *bayesian.Classifier) error {
 
 // Scan a message to classify its content //
 // - Returns an error if err is not nil
-func MScan(s *discordgo.Session, m *discordgo.Message, classes *bayesian.Classifier) error {
+func MScan(s *discordgo.Session, m *discordgo.Message) error {
 	// Parce the messages on a | //
 	// - If successful don't run scan on message.
 	// -- Run learning on given message (Can only be used by users with the "Admin" tag)
 	// - If not successful run scan on message
-	if msg := utility.Parce(m.Content, "|"); len(msg) < 2 {
+	if msg := Parce(m.Content, "|"); len(msg) < 2 {
 		// Parce returned only one item //
 		// - Run scan on message
 		// - Returns an error (nil if no error)
-		return scan(s, m, classes)
+		return scan(s, m)
 	} else {
 		// Parce returned more then one item //
 		// Check for Admin privilege //
 		// - Returns an error if err is not nil
-		if admin, err := servers.IsAdmin(s, m); err != nil {
+		if admin, err := IsAdmin(s, m); err != nil {
 			return err
 		} else if !admin {
 			// If not admin return //
@@ -169,15 +184,15 @@ func MScan(s *discordgo.Session, m *discordgo.Message, classes *bayesian.Classif
 			switch msg[1] {
 			case "Good":
 				// Add words to the key map that you want to be good //
-				editKeyWordMap(false, utility.ToLower(utility.ParceInput(msg[0])))
+				editKeyWordMap(false, ToLower(ParceInput(msg[0])))
 			case "Bad":
 				// Add word to the key map that you want to be bad //
-				editKeyWordMap(true, utility.ToLower(utility.ParceInput(msg[0])))
+				editKeyWordMap(true, ToLower(ParceInput(msg[0])))
 			case "Spam":
-				classes.Learn(utility.ToLower(utility.ParceInput(msg[0])), Spam)
+				filterClassifier.Learn(ToLower(ParceInput(msg[0])), Spam)
 			default:
 				// Returns an error if the value after the | is not "Good", "Bad", or "Spam" //
-				return botErrors.NewError("Classifier not correct: "+msg[1], "filter.go")
+				return NewError("Classifier not correct: "+msg[1], "filter.go")
 			}
 
 			return nil
@@ -187,9 +202,9 @@ func MScan(s *discordgo.Session, m *discordgo.Message, classes *bayesian.Classif
 
 // Scan a message and to classify it //
 // - Returns an error if err is not nil
-func scan(s *discordgo.Session, m *discordgo.Message, classes *bayesian.Classifier) error {
+func scan(s *discordgo.Session, m *discordgo.Message) error {
 	// Parce message on a space //
-	msg := utility.ToLower(utility.ParceInput(m.Content))
+	msg := ToLower(ParceInput(m.Content))
 
 	// Check for bad words //
 	// Count of number of bad words with in sentence //
@@ -197,7 +212,7 @@ func scan(s *discordgo.Session, m *discordgo.Message, classes *bayesian.Classifi
 	// Check each word with in KeyWordMap //
 	// - Increment BWordCount if word value is true
 	for _, ms := range msg {
-		if key, _ := commands.KeyWordMap[ms]; key {
+		if key, _ := filterMap[ms]; key {
 			bWordCount++
 		}
 	}
@@ -207,7 +222,7 @@ func scan(s *discordgo.Session, m *discordgo.Message, classes *bayesian.Classifi
 	if avr := float64(bWordCount) / float64(len(msg)); avr >= KeyWordThresh {
 		// Get the message to delete //
 		// - Returns an error if err is not nil
-		if a, err := commands.ToDelete(s, m, "", 0, true); err != nil {
+		if a, err := ToDelete(s, m, "", 0, true); err != nil {
 			return err
 		} else {
 			// Delete message //
@@ -227,7 +242,7 @@ func scan(s *discordgo.Session, m *discordgo.Message, classes *bayesian.Classifi
 	} else {
 		// Find the score of the message with in the Good and Spam categories //
 		// - Returns an error if err is not nil
-		if scores, inx, strict, err := classes.SafeProbScores(msg); err != nil {
+		if scores, inx, strict, err := filterClassifier.SafeProbScores(msg); err != nil {
 			return err
 		} else {
 			// If score of both classes are the same check with threshold //
@@ -245,7 +260,7 @@ func scan(s *discordgo.Session, m *discordgo.Message, classes *bayesian.Classifi
 						if score >= Thresh {
 							// Get message to delete //
 							// - Returns an error if err is not nil
-							if a, err := commands.ToDelete(s, m, "", 0, true); err != nil {
+							if a, err := ToDelete(s, m, "", 0, true); err != nil {
 								return err
 							} else {
 								// Delete message //
@@ -274,7 +289,7 @@ func scan(s *discordgo.Session, m *discordgo.Message, classes *bayesian.Classifi
 				case 1:
 					// Get message to delete //
 					// - Return an error if err is not nil
-					if a, err := commands.ToDelete(s, m, "", 0, true); err != nil {
+					if a, err := ToDelete(s, m, "", 0, true); err != nil {
 						return err
 					} else {
 						// Delete message //
@@ -290,7 +305,7 @@ func scan(s *discordgo.Session, m *discordgo.Message, classes *bayesian.Classifi
 					}
 				// Returns an error if inx was anything but 0 or 1 //
 				default:
-					return botErrors.NewError("inx was a value other then 0,1, or 2", "filter.go")
+					return NewError("inx was a value other then 0,1, or 2", "filter.go")
 				}
 			}
 		}
@@ -298,3 +313,4 @@ func scan(s *discordgo.Session, m *discordgo.Message, classes *bayesian.Classifi
 
 	return nil
 }
+

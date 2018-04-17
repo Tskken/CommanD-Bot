@@ -1,8 +1,7 @@
-package servers
+package CommanD_Bot
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/tsukinai/CommanD-Bot/botErrors"
 )
 
 // Utility Maps //
@@ -39,7 +38,7 @@ func CheckBotRole(s *discordgo.Session, g *discordgo.Guild) error {
 				}
 			}
 			// Returns an error as the bot was not found with in the server ... some how ... //
-			return botErrors.NewError("Bot was not found with in server", "bot.go")
+			return NewError("Bot was not found with in server", "bot.go")
 		}
 	}
 }
@@ -94,7 +93,7 @@ func BanTimerCheck(g *discordgo.Guild) error {
 func RemoveBanTimer(g *discordgo.Guild) error {
 	delete(BanTime, g.Name)
 	if _, ok := BanTime[g.Name]; ok {
-		return botErrors.NewError("banTime was not removed when leaving guild.", "player_commands.go")
+		return NewError("banTime was not removed when leaving guild.", "player_commands.go")
 	}
 	return nil
 }

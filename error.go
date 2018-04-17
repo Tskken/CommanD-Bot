@@ -1,4 +1,4 @@
-package botErrors
+package CommanD_Bot
 
 import (
 	"fmt"

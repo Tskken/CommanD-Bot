@@ -1,8 +1,7 @@
-package storage
+package CommanD_Bot
 
 import (
 	"encoding/gob"
-	"github.com/tsukinai/CommanD-Bot/servers"
 	"log"
 	"os"
 	"path/filepath"
@@ -31,7 +30,7 @@ func SaveData(fName string) error {
 		return err
 	} else {
 		enc := gob.NewEncoder(file)
-		if err := enc.Encode(servers.BanTime); err != nil {
+		if err := enc.Encode(BanTime); err != nil {
 			return err
 		}
 		return nil
@@ -45,7 +44,7 @@ func LoadData(fName string) error {
 		return err
 	} else {
 		dec := gob.NewDecoder(file)
-		if err := dec.Decode(servers.BanTime); err != nil {
+		if err := dec.Decode(BanTime); err != nil {
 			return err
 		}
 		return nil
