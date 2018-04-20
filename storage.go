@@ -1,12 +1,4 @@
-package storage
-
-import (
-	"encoding/gob"
-	"github.com/tsukinai/CommanD-Bot/servers"
-	"log"
-	"os"
-	"path/filepath"
-)
+package CommanD_Bot
 
 /*
 WIP
@@ -14,6 +6,7 @@ WIP
 TODO - Fix save and load
 */
 
+/*
 const rootPath = "../CommanD-Bot/source/data/"
 
 func Save() error {
@@ -31,13 +24,14 @@ func SaveData(fName string) error {
 		return err
 	} else {
 		enc := gob.NewEncoder(file)
-		if err := enc.Encode(servers.BanTime); err != nil {
+		if err := enc.Encode(BanTime); err != nil {
 			return err
 		}
 		return nil
 	}
 }
 
+/*
 func LoadData(fName string) error {
 	log.Println("Loading data...")
 	path := filepath.Join(rootPath, fName)
@@ -45,7 +39,7 @@ func LoadData(fName string) error {
 		return err
 	} else {
 		dec := gob.NewDecoder(file)
-		if err := dec.Decode(servers.BanTime); err != nil {
+		if err := dec.Decode(BanTime); err != nil {
 			return err
 		}
 		return nil

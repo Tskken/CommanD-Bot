@@ -1,4 +1,4 @@
-package commands
+package CommanD_Bot
 
 // Command info struct //
 type CommandInfo struct {

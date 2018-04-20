@@ -1,5 +1,6 @@
-package commands
+package CommanD_Bot
 
+/*
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/tsukinai/CommanD-Bot/utility"
@@ -46,3 +47,4 @@ func setGood(s *discordgo.Session, m *discordgo.Message) error {
 	}
 	return nil
 }
+*/

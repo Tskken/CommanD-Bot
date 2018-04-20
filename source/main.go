@@ -1,27 +1,33 @@
 package main
 
 /*
-CommanD-Bot Beta V1.0
+CommanD-Bot Beta V1.1.1
 Author: Dylan Blanchard
 */
 
 import (
 	"github.com/tsukinai/CommanD-Bot"
-	"github.com/tsukinai/CommanD-Bot/filter"
+	//"github.com/tsukinai/CommanD-Bot/filter"
 	//"github.com/tsukinai/CommanD-Bot/storage"
+	//"github.com/tsukinai/CommanD-Bot/commands"
+	"github.com/bwmarrin/discordgo"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
+var Bot *discordgo.Session
+
 // On start //
 func init() {
+	//commands.Test()
+
 	// Create new Bot session //
 	if b, err := CommanD_Bot.NewBot(); err != nil {
 		log.Panic(err)
 	} else {
-		CommanD_Bot.Bot = b
+		Bot = b
 	}
 }
 
@@ -35,7 +41,7 @@ func main() {
 	<-sc
 
 	// Save filter classifiers when closing //
-	err := filter.Save(CommanD_Bot.Bot.GetClassifiers())
+	err := CommanD_Bot.SaveFilter()
 	if err != nil {
 		log.Panic(err)
 	}
@@ -43,7 +49,7 @@ func main() {
 	//storage.Save()
 
 	// Close bot session //
-	if err := CommanD_Bot.Bot.GetSession().Close(); err != nil {
+	if err := Bot.Close(); err != nil {
 		log.Panic(err)
 	}
 

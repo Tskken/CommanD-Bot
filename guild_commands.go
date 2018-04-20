@@ -1,4 +1,4 @@
-package commands
+package CommanD_Bot
 
 /*
 // TODO - Implement GuildCommands
