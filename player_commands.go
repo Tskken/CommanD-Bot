@@ -4,26 +4,16 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-type playerCommand commands
-
-func (pc *playerCommand) command(s *discordgo.Session, m *discordgo.Message) error {
-	args := ParceInput(m.Content)
-	if len(args) < 2 {
-		_, err := s.ChannelMessageSend(m.ChannelID, pc.commandInfo.Help())
-		return err
-	} else {
-		return pc.subCommands[args[1]](s, m)
-	}
-}
-
-func LoadPlayerCommand() *playerCommand {
-	p := playerCommand{}
+func loadPlayerCommand() *commands {
+	p := commands{}
 	p.commandInfo = loadPlayerCommandInfo()
 	p.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 	p.subCommands["-kick"] = kickMember
 	p.subCommands["-k"] = kickMember
 	p.subCommands["-ban"] = banMember
 	p.subCommands["-b"] = banMember
+	p.subCommands["-bantimer"] = newBanTimer
+	p.subCommands["-bt"] = newBanTimer
 
 	return &p
 }
@@ -36,52 +26,12 @@ func loadPlayerCommandInfo() *CommandInfo {
 	p.commands = make(map[string]string)
 	p.commands["-kick"] = "**-kick** or **-k**.\n**Info**: Kicks a given member from the server.\n" +
 		"**Arguments:**\n		**<Member name>**: The member given will be kicked from the server. (only admins can use this command)."
-	p.commands["-ban"] = "**-ban** or **-b**\n**Info**: Bans a given user from the server for a preset amount of time. (default is 30 days)." +
+	p.commands["-ban"] = "**-ban** or **-b**\n**Info**: Bans a given user from the server for a preset amount of time. (default is 30 days).\n" +
 		"**Arguments:**\n	**<Member name>**: The member given will be baned from the server. (only admins can use this)."
-
-	 return p
+	p.commands["-bantimer"] = "**-bantimer** or **-bt**\n**Info**: Sets the current time for banning a user.  Default is 30 days." +
+		"**Arguments:**\n		**<Number to set time to>**: The number of days the ban time will be set to."
+	return p
 }
-
-
-/*
-// CommandInfo for PlayerCommands //
-var PlayerCommandInfo *CommandInfo
-
-// Set PlayerCommand info to struct //
-func setPCInfo() {
-	PlayerCommandInfo = &CommandInfo{}
-	PlayerCommandInfo.detail = "**-player** or **-pl** : All commands that pertain to manipulating players with in a server."
-	PlayerCommandInfo.commands = make(map[string]string)
-	PlayerCommandInfo.commands["-kick"] = "**-kick** or **-k**.\n**Info**: Kicks a given member from the server.\n" +
-		"**Arguments:**\n		**<Member name>**: The member given will be kicked from the server. (only admins can use this command)."
-	PlayerCommandInfo.commands["-ban"] = "**-ban** or **-b**\n**Info**: Bans a given user from the server for a preset amount of time. (default is 30 days)." +
-		"**Arguments:**\n	**<Member name>**: The member given will be baned from the server. (only admins can use this)."
-}
-
-// Get help for Player Commands //
-// - Returns an error (nil if non)
-func playerHelp(s *discordgo.Session, m *discordgo.Message) error {
-	// Parce message on a space //
-	ms := ParceInput(m.Content)
-
-	// Check the number of arguments //
-	// To few arguments given //
-	if len(ms) < 2 {
-		_, err := s.ChannelMessageSend(m.ChannelID, "Please enter a type of command you want help with.")
-		return err
-		// Get help for command //
-	} else if len(ms) == 2 {
-		_, err := s.ChannelMessageSend(m.ChannelID, PlayerCommandInfo.Help())
-		return err
-		// Get help for sub-command //
-	} else if len(ms) == 3 {
-		_, err := s.ChannelMessageSend(m.ChannelID, PlayerCommandInfo.HelpCommand(ms[2]))
-		return err
-	} else {
-		_, err := s.ChannelMessageSend(m.ChannelID, "You gave to many arguments.")
-		return err
-	}
-}*/
 
 // Function to kick a user from the server //
 // TODO - Fix kick with reason functionality
@@ -164,7 +114,7 @@ func banMember(s *discordgo.Session, m *discordgo.Message) error {
 
 		// Get the ban time for a server //
 		// Prints an error if the servers ban time as not been set
-		if time, ok := BanTime[guild.Name]; !ok {
+		if time, ok := banTime[guild.Name]; !ok {
 			_, err := s.ChannelMessageSend(m.ChannelID, "The ban time for the server has not been set.  Type !help -bantime for more info.")
 			return err
 		} else {
@@ -222,7 +172,7 @@ func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
 	} else {
 		// Check if the server already as a time set //
 		// If it does print it to the channel
-		if time, ok := BanTime[guild.Name]; ok {
+		if time, ok := banTime[guild.Name]; ok {
 			if _, err := s.ChannelMessageSend(m.ChannelID, "Ban time was "+IntToStr(time)); err != nil {
 				return err
 			}
@@ -243,10 +193,10 @@ func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
 				return err
 			} else {
 				// Set the ban time for the new time given //
-				BanTime[guild.Name] = time
+				banTime[guild.Name] = time
 
 				// Print the new ban time to the server //
-				_, err = s.ChannelMessageSend(m.ChannelID, "Ban time has been set to "+IntToStr(BanTime[guild.Name]))
+				_, err = s.ChannelMessageSend(m.ChannelID, "Ban time has been set to "+IntToStr(banTime[guild.Name]))
 				return err
 			}
 		}

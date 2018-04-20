@@ -1,14 +1,14 @@
 package CommanD_Bot
 
 import (
-	"github.com/jbrukh/bayesian"
-	"log"
-	"path/filepath"
-	"os"
 	"bufio"
-	"io"
-	"strings"
 	"github.com/bwmarrin/discordgo"
+	"github.com/jbrukh/bayesian"
+	"io"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 /*
@@ -51,7 +51,7 @@ var filterMap map[string]bool
 // Create Classifier filter //
 // Returns a reference to a new Classifier.
 // - nil Classifier if error
-func NewFilter() error {
+func newFilter() error {
 	filterMap = make(map[string]bool)
 
 	filterClassifier = bayesian.NewClassifier(Good, Spam)
@@ -63,8 +63,13 @@ func NewFilter() error {
 }
 
 // Loads Classifier data from pri-trained data file //
-func LoadFilter() error {
+func loadFilter() error {
 	log.Println("loading classifiers...")
+
+	if err := newFilter(); err != nil {
+		return err
+	}
+
 	// Get file from file path //
 	// - Returns an error if err is not nil
 	if path, err := filepath.Abs(FilePath); err != nil {
@@ -245,6 +250,8 @@ func scan(s *discordgo.Session, m *discordgo.Message) error {
 		if scores, inx, strict, err := filterClassifier.SafeProbScores(msg); err != nil {
 			return err
 		} else {
+			//log.Println(scores)
+
 			// If score of both classes are the same check with threshold //
 			if !strict {
 				// Goes through scores of each class //
@@ -313,4 +320,3 @@ func scan(s *discordgo.Session, m *discordgo.Message) error {
 
 	return nil
 }
-

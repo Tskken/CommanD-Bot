@@ -1,7 +1,7 @@
 package main
 
 /*
-CommanD-Bot Beta V1.1
+CommanD-Bot Beta V1.1.1
 Author: Dylan Blanchard
 */
 
@@ -10,11 +10,11 @@ import (
 	//"github.com/tsukinai/CommanD-Bot/filter"
 	//"github.com/tsukinai/CommanD-Bot/storage"
 	//"github.com/tsukinai/CommanD-Bot/commands"
+	"github.com/bwmarrin/discordgo"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"github.com/bwmarrin/discordgo"
 )
 
 var Bot *discordgo.Session

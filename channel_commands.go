@@ -4,21 +4,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-type channelCommand commands
-
-func (cc *channelCommand) command(s *discordgo.Session, m *discordgo.Message) error {
-	args := ParceInput(m.Content)
-	if len(args) < 2 {
-		_, err := s.ChannelMessageSend(m.ChannelID, cc.commandInfo.Help())
-		return err
-	} else {
-		return cc.subCommands[args[1]](s, m)
-	}
-	return nil
-}
-
-func LoadChannelCommand() *channelCommand {
-	c := channelCommand{}
+func loadChannelCommand() *commands {
+	c := commands{}
 	c.commandInfo = loadChannelCommandInfo()
 	c.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 	c.subCommands["-new"] = createChannel

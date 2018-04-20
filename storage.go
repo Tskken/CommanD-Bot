@@ -1,18 +1,12 @@
 package CommanD_Bot
 
-import (
-	"encoding/gob"
-	"log"
-	"os"
-	"path/filepath"
-)
-
 /*
 WIP
 
 TODO - Fix save and load
 */
 
+/*
 const rootPath = "../CommanD-Bot/source/data/"
 
 func Save() error {
@@ -37,6 +31,7 @@ func SaveData(fName string) error {
 	}
 }
 
+/*
 func LoadData(fName string) error {
 	log.Println("Loading data...")
 	path := filepath.Join(rootPath, fName)

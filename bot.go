@@ -7,13 +7,11 @@ import (
 	"os"
 )
 
-var token            string // Bot Token
-
-
 // Create Bot info //
 // - Returns error (nil if non)
-func NewBot()(*discordgo.Session, error) {
+func NewBot() (*discordgo.Session, error) {
 
+	// Read in for bot token //
 	r := bufio.NewReader(os.Stdin)
 	log.Println("Enter Token: ")
 	t, err := r.ReadString('\n')
@@ -21,7 +19,9 @@ func NewBot()(*discordgo.Session, error) {
 		return nil, err
 	}
 
-	token = "Bot " + t[:len(t)-1]
+	// Set token as given input //
+	// - Ignores \n char ar the end of readline
+	token := "Bot " + t[:len(t)-1]
 	// Create new sessin with bot token //
 	// - Returns an error if err is not nil
 	if b, err := New(token); err != nil {
@@ -41,16 +41,10 @@ func GuildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
 		PrintError(err)
 	}
 
-	// Checks if the bot role exist in the guild //
+	// Checks if the admin role exist in the guild //
 	// Creates the role if it does not exist
 	// Logs error if err is not nil
 	if _, err := RoleCheck(s, g.Guild); err != nil {
-		PrintError(err)
-	}
-}
-
-func GuildDelete(s *discordgo.Session, g *discordgo.GuildDelete) {
-	if err := RemoveBanTimer(g.Guild); err != nil {
 		PrintError(err)
 	}
 }
@@ -71,27 +65,22 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content[0] != '!' {
 		return
 	}
-	//str := utility.ParceInput(m.Content)
+
 	args := ParceInput(m.Content)
 	arg := StrToLower(args[0])
 
-	switch v := botCommands[arg].(type) {
-	case *messageCommand:
-		RunCommand(s, m.Message, v)
-	case *channelCommand:
-		RunCommand(s, m.Message, v)
-	case *playerCommand:
-		RunCommand(s, m.Message, v)
-	case *utilityCommand:
-		RunCommand(s, m.Message, v)
-	default:
-		log.Println("Error in new Command setup")
-
+	if cmd, ok := botCommands[arg]; !ok {
+		PrintError(NewError("Could not understand given command", "bot.go"))
+	} else {
+		err := RunCommand(s, m.Message, cmd)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
 
 // Creates a new discordgo.Session and loads all maps //
-func New(token string) (*discordgo.Session, error)  {
+func New(token string) (*discordgo.Session, error) {
 	// Creates new bot session with given token //
 	// Logs an error if err is not nil
 	if session, err := discordgo.New(token); err != nil {
@@ -99,27 +88,20 @@ func New(token string) (*discordgo.Session, error)  {
 	} else {
 		// Set event handlers //
 		session.AddHandler(GuildCreate)
-		//session.AddHandler(GuildDelete)
 		session.AddHandler(MessageCreate)
 
-		// Load all bot maps //
-		botCommands = LoadCommands()
-
-		// Create classifiers //
-		err := NewFilter()
-		if err != nil {
-			return nil, err
-		}
+		// Load commands //
+		loadCommands()
 
 		// Load classifier data from file //
-		if err := LoadFilter(); err != nil {
+		if err := loadFilter(); err != nil {
 			return nil, err
 		}
 
 		// Open session //
 		// Log error if err is not nil
 		if err = session.Open(); err != nil {
-			return  nil, err
+			return nil, err
 		}
 		return session, nil
 	}

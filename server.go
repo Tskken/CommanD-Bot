@@ -5,7 +5,7 @@ import (
 )
 
 // Utility Maps //
-var BanTime = make(map[string]int)
+var banTime = make(map[string]int)
 
 // Checks the server to make sure it has the Bot role with in it and sets it to the bot //
 func CheckBotRole(s *discordgo.Session, g *discordgo.Guild) error {
@@ -43,22 +43,6 @@ func CheckBotRole(s *discordgo.Session, g *discordgo.Guild) error {
 	}
 }
 
-// Check to make sure the terminal channel exist with in the guild //
-func ChannelCheck(s *discordgo.Session, g *discordgo.Guild) error {
-	// Look though guilds channels //
-	for _, channel := range g.Channels {
-		// If the terminal exist return //
-		if channel.Name == "terminal" {
-			return nil
-		}
-	}
-
-	// terminal did not exist.  Create the terminal channel as a text channel //
-	// Returns an error if err is not nil
-	_, err := s.GuildChannelCreate(g.ID, "terminal", "text")
-	return err
-}
-
 // Check if the Admin role is with in the guild and create it if not //
 func RoleCheck(s *discordgo.Session, g *discordgo.Guild) (*string, error) {
 	// Look though guild roles //
@@ -80,22 +64,6 @@ func RoleCheck(s *discordgo.Session, g *discordgo.Guild) (*string, error) {
 		_, err = s.GuildRoleEdit(g.ID, role.ID, "Admin", 16724736, true, 8, true)
 		return &role.ID, err
 	}
-}
-
-/*
-func BanTimerCheck(g *discordgo.Guild) error {
-	if _, ok := BanTime[g.Name]; !ok {
-		BanTime[g.Name] = 30
-	}
-	return nil
-}*/
-
-func RemoveBanTimer(g *discordgo.Guild) error {
-	delete(BanTime, g.Name)
-	if _, ok := BanTime[g.Name]; ok {
-		return NewError("banTime was not removed when leaving guild.", "player_commands.go")
-	}
-	return nil
 }
 
 // Check if a user is an admin //
@@ -133,13 +101,6 @@ func IsAdmin(s *discordgo.Session, m *discordgo.Message) (bool, error) {
 		}
 		return admin, err
 	}
-}
-
-// Gets a channel from with in a guild //
-func GetChannel(s *discordgo.Session, m *discordgo.Message) (*discordgo.Channel, error) {
-	// Returns a channel //
-	// Returns error (nil if non | not nil if error) //
-	return s.State.Channel(m.ChannelID)
 }
 
 // Gets guild info for the given guild //

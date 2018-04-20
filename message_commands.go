@@ -5,23 +5,8 @@ import (
 	"time"
 )
 
-// Command Info struct for MessageCommands //
-//var MessageCommandInfo *CommandInfo
-
-type messageCommand commands
-
-func (mc *messageCommand) command(s *discordgo.Session, m *discordgo.Message) error {
-	args := ParceInput(m.Content)
-	if len(args) < 2 {
-		_, err := s.ChannelMessageSend(m.ChannelID, mc.commandInfo.Help())
-		return err
-	} else {
-		return mc.subCommands[args[1]](s, m)
-	}
-}
-
-func LoadMessageCommand() *messageCommand {
-	m := messageCommand{}
+func loadMessageCommand() *commands{
+	m := commands{}
 	m.commandInfo = loadMessageCommandInfo()
 	m.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 	m.subCommands["-delete"] = deleteMessage
@@ -43,33 +28,6 @@ func loadMessageCommandInfo() *CommandInfo {
 		"\n		**<Number between 1 - 99> <User Name>:** Deletes the last given number of messages by the given user (only can be used by admin)."
 	return m
 }
-
-/*
-// Get help info for given message //
-// Returns an error (nil if non)
-func messageHelp(s *discordgo.Session, m *discordgo.Message) error {
-	// parce message on a space //
-	ms := utility.ParceInput(m.Content)
-
-	// Check the number of arguments //
-	// To few arguments passed //
-	if len(ms) < 2 {
-		_, err := s.ChannelMessageSend(m.ChannelID, "Please enter a type of command you want help with.")
-		return err
-	// Get help for given command //
-	} else if len(ms) == 2 {
-		_, err := s.ChannelMessageSend(m.ChannelID, MessageCommandInfo.Help())
-		return err
-	// Get help for given sub-command //
-	} else if len(ms) == 3 {
-		_, err := s.ChannelMessageSend(m.ChannelID, MessageCommandInfo.HelpCommand(ms[2]))
-		return err
-	// Number of arguments was to large //
-	} else {
-		_, err := s.ChannelMessageSend(m.ChannelID, "You gave to many arguments.")
-		return err
-	}
-}*/
 
 // Main message delete function //
 func deleteMessage(s *discordgo.Session, m *discordgo.Message) error {

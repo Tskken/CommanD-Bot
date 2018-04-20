@@ -6,8 +6,9 @@ import (
 	"time"
 )
 
-type utilityCommand commands
+//type utilityCommand *commands
 
+/*
 func (uc *utilityCommand) command(s *discordgo.Session, m *discordgo.Message) error {
 	args := ParceInput(m.Content)
 	if len(args) < 2 {
@@ -16,10 +17,10 @@ func (uc *utilityCommand) command(s *discordgo.Session, m *discordgo.Message) er
 	} else {
 		return uc.subCommands[args[1]](s, m)
 	}
-}
+}*/
 
-func LoadUtilityCommand() *utilityCommand {
-	u := utilityCommand{}
+func loadUtilityCommand() *commands {
+	u := commands{}
 	u.commandInfo = loadUtilityCommandInfo()
 	u.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 	u.subCommands["-dice"] = diceRole
@@ -36,9 +37,8 @@ func loadUtilityCommandInfo() *CommandInfo {
 	u.commands = make(map[string]string)
 	u.commands["-dice"] = "**-dice** or **-d**.\n**Info**: Roles a dice.\n" +
 		"**Arguments:**\n		**<Number of sides>**: Roles a dice for the given number of sides (number will be between 1 and the number you gave)."
-	 return u
+	return u
 }
-
 
 // Roles a dice and prints the results //
 // Returns an error (nil if non)
@@ -53,7 +53,7 @@ func diceRole(s *discordgo.Session, m *discordgo.Message) error {
 	} else {
 		// Get a random number from 0 to the given value //
 		rand.Seed(time.Now().Unix())
-		rng := rand.Intn(val-1)
+		rng := rand.Intn(val - 1)
 		rng++
 
 		// Print random number to channel //

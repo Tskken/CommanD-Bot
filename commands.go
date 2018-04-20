@@ -5,10 +5,10 @@ import (
 )
 
 /*
- - TODO : Refactor command structure with interfaces
-*/
+TODO - Comment
+ */
 
-var botCommands map[string]interface{}
+var botCommands map[string]*commands
 
 type command interface {
 	command(s *discordgo.Session, m *discordgo.Message) error
@@ -19,25 +19,41 @@ type commands struct {
 	subCommands map[string]func(*discordgo.Session, *discordgo.Message) error
 }
 
+func (c *commands) command(s *discordgo.Session, m *discordgo.Message) error {
+	args := ParceInput(m.Content)
+	if len(args) < 2 {
+		_, err := s.ChannelMessageSend(m.ChannelID, c.commandInfo.Help())
+		return err
+	} else {
+		if cmd, ok := c.subCommands[args[1]]; !ok {
+			return NewError("Could not understand given command", "command.go")
+		} else {
+			return cmd(s, m)
+		}
+	}
+}
+
 func RunCommand(s *discordgo.Session, m *discordgo.Message, c command) error {
 	return c.command(s, m)
 }
 
-func LoadCommands() map[string]interface{} {
-	cmd := make(map[string]interface{})
+func loadCommands() {
+	 botCommands = make(map[string]*commands)
 
-	MessageCommands := LoadMessageCommand()
-	ChannelCommands := LoadChannelCommand()
-	PlayerCommands := LoadPlayerCommand()
-	UtilityCommands := LoadUtilityCommand()
+	messageCommands := loadMessageCommand()
+	channelCommands := loadChannelCommand()
+	playerCommands := loadPlayerCommand()
+	utilityCommands := loadUtilityCommand()
+	helpCommands := loadHelpCommand()
 
-	cmd["!message"] = MessageCommands
-	cmd["!ms"] = MessageCommands
-	cmd["!channel"] = ChannelCommands
-	cmd["!ch"] = ChannelCommands
-	cmd["!player"] = PlayerCommands
-	cmd["!pl"] = PlayerCommands
-	cmd["!utility"] = UtilityCommands
-	cmd["!util"] = UtilityCommands
-	return cmd
+	botCommands["!message"] = messageCommands
+	botCommands["!ms"] = messageCommands
+	botCommands["!channel"] = channelCommands
+	botCommands["!ch"] = channelCommands
+	botCommands["!player"] = playerCommands
+	botCommands["!pl"] = playerCommands
+	botCommands["!utility"] = utilityCommands
+	botCommands["!util"] = utilityCommands
+	botCommands["!help"] = helpCommands
+	botCommands["!h"] = helpCommands
 }
