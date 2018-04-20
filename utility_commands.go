@@ -6,19 +6,6 @@ import (
 	"time"
 )
 
-//type utilityCommand *commands
-
-/*
-func (uc *utilityCommand) command(s *discordgo.Session, m *discordgo.Message) error {
-	args := ParceInput(m.Content)
-	if len(args) < 2 {
-		_, err := s.ChannelMessageSend(m.ChannelID, uc.commandInfo.Help())
-		return err
-	} else {
-		return uc.subCommands[args[1]](s, m)
-	}
-}*/
-
 func loadUtilityCommand() *commands {
 	u := commands{}
 	u.commandInfo = loadUtilityCommandInfo()
