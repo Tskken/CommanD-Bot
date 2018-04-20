@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func loadMessageCommand() *commands{
+func loadMessageCommand() *commands {
 	m := commands{}
 	m.commandInfo = loadMessageCommandInfo()
 	m.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)

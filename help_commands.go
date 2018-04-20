@@ -4,12 +4,12 @@ import "github.com/bwmarrin/discordgo"
 
 /*
 TODO - Fix help commands
- */
+*/
 
-func loadHelpCommand() *commands{
+func loadHelpCommand() *commands {
 	h := commands{}
 	h.commandInfo = loadHelpCommandInfo()
-	h.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message)error)
+	h.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
 	h.subCommands["!messages"] = helpMessages
 	h.subCommands["!ms"] = helpMessages
 	h.subCommands["!player"] = helpMessages
@@ -25,10 +25,10 @@ func loadHelpCommandInfo() *CommandInfo {
 	h := CommandInfo{}
 	h.detail = "type !help and a command to get more info on each command.\n" +
 		"**Commands:**\n" +
-			"	**!message:** Commands for messages\n" +
-				"	**!player:** Commands for Players\n" +
-					"	**!channel:** Commands for channels\n" +
-						"	**!utility:** Utility commands"
+		"	**!message:** Commands for messages\n" +
+		"	**!player:** Commands for Players\n" +
+		"	**!channel:** Commands for channels\n" +
+		"	**!utility:** Utility commands"
 	return &h
 }
 

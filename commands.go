@@ -6,7 +6,7 @@ import (
 
 /*
 TODO - Comment
- */
+*/
 
 var botCommands map[string]*commands
 
@@ -38,7 +38,7 @@ func RunCommand(s *discordgo.Session, m *discordgo.Message, c command) error {
 }
 
 func loadCommands() {
-	 botCommands = make(map[string]*commands)
+	botCommands = make(map[string]*commands)
 
 	messageCommands := loadMessageCommand()
 	channelCommands := loadChannelCommand()
