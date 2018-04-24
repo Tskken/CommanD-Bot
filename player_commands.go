@@ -58,13 +58,11 @@ func kickMember(s *discordgo.Session, m *discordgo.Message) error {
 		// Parce the content of the message on a space //
 		args := ParceInput(m.Content)
 
-		// Get Username or Nick name //
-		uName := ToString(args[2:], " ")
 
 		// Find the user with in the guild //
 		for _, member := range guild.Members {
 			// If members nick name or username is the same  as the name passed in as the username argument kick them from the server //
-			if member.Nick == uName || member.User.Username == uName {
+			if args[2] == member.User.Mention() {
 				// Kick the user with out a reason //
 				if len(args) == 3 {
 					// Kick user //
@@ -123,7 +121,7 @@ func banMember(s *discordgo.Session, m *discordgo.Message) error {
 				// Find the user to ban with in the guild //
 				for _, member := range guild.Members {
 					// If members nick name or username is the same  as the name passed in as the username argument kick them from the server //
-					if member.Nick == args[2] || member.User.Username == args[2] {
+					if args[2] == member.User.Mention() {
 						// Ban the user for the servers set amount of time //
 						return s.GuildBanCreate(guild.ID, member.User.ID, time)
 					}
@@ -172,8 +170,12 @@ func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
 	} else {
 		// Check if the server already as a time set //
 		// If it does print it to the channel
-		if time, ok := banTime[guild.Name]; ok {
+		if time, ok := banTime[guild.ID]; ok {
 			if _, err := s.ChannelMessageSend(m.ChannelID, "Ban time was "+IntToStr(time)); err != nil {
+				return err
+			}
+		} else {
+			if _, err := s.ChannelMessageSend(m.ChannelID, "There was no ban time set prior."); err != nil {
 				return err
 			}
 		}
@@ -193,7 +195,7 @@ func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
 				return err
 			} else {
 				// Set the ban time for the new time given //
-				banTime[guild.Name] = time
+				banTime[guild.ID] = time
 
 				// Print the new ban time to the server //
 				_, err = s.ChannelMessageSend(m.ChannelID, "Ban time has been set to "+IntToStr(banTime[guild.Name]))

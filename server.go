@@ -43,6 +43,10 @@ func CheckBotRole(s *discordgo.Session, g *discordgo.Guild) error {
 	}
 }
 
+func SetDefaultBanTimer(g *discordgo.Guild, time int) {
+	banTime[g.ID] = time
+}
+
 // Check if the Admin role is with in the guild and create it if not //
 func RoleCheck(s *discordgo.Session, g *discordgo.Guild) (*string, error) {
 	// Look though guild roles //

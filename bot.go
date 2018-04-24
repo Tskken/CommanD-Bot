@@ -47,6 +47,8 @@ func GuildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
 	if _, err := RoleCheck(s, g.Guild); err != nil {
 		PrintError(err)
 	}
+
+	SetDefaultBanTimer(g.Guild, 30)
 }
 
 // MessageCreate event for when a message is sent with in a channel //
