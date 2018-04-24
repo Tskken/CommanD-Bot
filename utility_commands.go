@@ -38,14 +38,15 @@ func diceRole(s *discordgo.Session, m *discordgo.Message) error {
 	if val, err := StrToInt(args[2]); err != nil {
 		return err
 	} else {
+		rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+
 		// Get a random number from 0 to the given value //
-		rand.Seed(time.Now().Unix())
-		rng := rand.Intn(val - 1)
-		rng++
+		val := rng.Intn(val)
+		val++
 
 		// Print random number to channel //
 		// - Returns an error if err is not nil
-		if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" got "+IntToStr(rng)); err != nil {
+		if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" got "+IntToStr(val)); err != nil {
 			return err
 		}
 	}
