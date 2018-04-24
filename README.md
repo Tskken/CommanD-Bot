@@ -5,8 +5,7 @@ A sudo command line for full control over your Discord server.  This bot is powe
 [2]: https://github.com/bwmarrin/discordgo
 
 ### How to install/run
-1. Go to [this link][3] and add the bot to your server
-2. That's it :)
+#### Note: Current version must be compiled as no exe is given.  Install Go and compile to run on your own computer. Later verisons will be easier to run.  This code is only currently in a beta state for testing.
 
 [3]: https://discordapp.com/oauth2/authorize?client_id=357950177945976839&scope=bot&permissions=8
 

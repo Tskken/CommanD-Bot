@@ -12,22 +12,6 @@ import (
 )
 
 /*
-import (
-	"bufio"
-	"github.com/bwmarrin/discordgo"
-	"github.com/jbrukh/bayesian"
-	"github.com/tsukinai/CommanD-Bot/botErrors"
-	"github.com/tsukinai/CommanD-Bot/commands"
-	"github.com/tsukinai/CommanD-Bot/servers"
-	"github.com/tsukinai/CommanD-Bot/utility"
-	"io"
-	"log"
-	"os"
-	"path/filepath"
-	"strings"
-)
-
-/*
 TODO - Add saving KeyWordMap to a file
 */
 
@@ -39,7 +23,7 @@ const (
 
 	// Algorithm thresholds //
 	Thresh        = 0.75
-	KeyWordThresh = 0.50
+	KeyWordThresh = 0.25
 
 	// Data file root path //
 	FilePath = "../CommanD-Bot/source/data/"
@@ -222,6 +206,8 @@ func scan(s *discordgo.Session, m *discordgo.Message) error {
 		}
 	}
 
+	//log.Println(float64(bWordCount) / float64(len(msg)))
+
 	// Check average occurrence of bad words with in the message //
 	// - Remove the message if average is over threshold
 	if avr := float64(bWordCount) / float64(len(msg)); avr >= KeyWordThresh {
@@ -277,7 +263,7 @@ func scan(s *discordgo.Session, m *discordgo.Message) error {
 								}
 								// Notify member of there mistake //
 								// - Returns an error if err is not nil
-								if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" don't say that... that's not nice... bad! :point_up: "); err != nil {
+								if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" Why must you spam... No spamming... bad! :point_up:"); err != nil {
 									return err
 								}
 							}
@@ -306,7 +292,7 @@ func scan(s *discordgo.Session, m *discordgo.Message) error {
 						}
 						// Notify member of there mistake //
 						// - Returns an error if err is not nil
-						if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" don't say that... that's not nice... bad! :point_up: "); err != nil {
+						if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" Why must you spam... No spamming... bad! :point_up:"); err != nil {
 							return err
 						}
 					}

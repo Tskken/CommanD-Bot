@@ -79,13 +79,16 @@ func deleteChannel(s *discordgo.Session, m *discordgo.Message) error {
 	switch len(args) {
 	case 3:
 		// Get channel to delete //
-		c, _ := getChannelToDel(s, m, args[2])
-		s.ChannelDelete(c.ID)
+		if c, err := getChannelToDel(s, m, args[2]); err != nil {
+			return err
+		} else {
+			_, err := s.ChannelDelete(c.ID)
+			return err
+		}
+
 	default:
 		return NewError("Length of arguments passed to delete message is "+IntToStr(len(args)), "channel_commands.go")
 	}
-
-	return nil
 }
 
 // Get the channel to delete //
