@@ -15,17 +15,17 @@ type command interface {
 }
 
 type commands struct {
-	commandInfo *CommandInfo
-	subCommands map[string]func(*discordgo.Session, *discordgo.Message) error
+	CommandInfo *CommandInfo
+	SubCommands map[string]func(*discordgo.Session, *discordgo.Message) error
 }
 
 func (c *commands) command(s *discordgo.Session, m *discordgo.Message) error {
 	args := ParceInput(m.Content)
 	if len(args) < 2 {
-		_, err := s.ChannelMessageSend(m.ChannelID, c.commandInfo.Help())
+		_, err := s.ChannelMessageSend(m.ChannelID, c.CommandInfo.Help())
 		return err
 	} else {
-		if cmd, ok := c.subCommands[args[1]]; !ok {
+		if cmd, ok := c.SubCommands[args[1]]; !ok {
 			return NewError("Could not understand given command", "command.go")
 		} else {
 			return cmd(s, m)

@@ -1,11 +1,51 @@
 package CommanD_Bot
 
-import (
-	"github.com/bwmarrin/discordgo"
-)
+import "github.com/bwmarrin/discordgo"
 
-// Utility Maps //
-var banTime = make(map[string]int)
+type server struct {
+	Id string
+	WordFilter     map[string]bool
+	BanTime        uint
+	//CustomCommands *commands
+}
+
+var serverList  = make(map[string]*server)
+
+func newServer(g *discordgo.Guild)(*server, error){
+	s := server{}
+
+	s.Id = g.ID
+
+	s.WordFilter = make(map[string]bool)
+
+	err := s.loadWordsFromFile()
+	if err != nil {
+		return nil, err
+	}
+
+	s.BanTime = banTime
+
+	//s.CustomCommands = &commands{&CommandInfo{g.Name + " custom commands.", make(map[string]string)},
+	//make(map[string]func(*discordgo.Session, *discordgo.Message)error)}
+
+	return &s, nil
+}
+
+func (s *server)editWordFilter(word string, val bool) error {
+	if !val {
+		if _, ok := s.WordFilter[word]; !ok {
+			return NewError("Can not delete a from the filter if the word does not exist", "server.go")
+		} else {
+			delete(s.WordFilter, word)
+		}
+	} else {
+		s.WordFilter[word] = val
+		if _, ok := s.WordFilter[word]; !ok {
+			return NewError("was not able to add word to map", "server.go")
+		}
+	}
+	return nil
+}
 
 // Checks the server to make sure it has the Bot role with in it and sets it to the bot //
 func CheckBotRole(s *discordgo.Session, g *discordgo.Guild) error {
@@ -43,8 +83,13 @@ func CheckBotRole(s *discordgo.Session, g *discordgo.Guild) error {
 	}
 }
 
-func SetDefaultBanTimer(g *discordgo.Guild, time int) {
-	banTime[g.ID] = time
+func SetBanTimer(g *discordgo.Guild, time uint) error {
+	if s, ok := serverList[g.ID]; !ok {
+		return NewError("Server did not exist in side of serverList", "server.go")
+	} else {
+		s.BanTime = time
+	}
+	return nil
 }
 
 // Check if the Admin role is with in the guild and create it if not //

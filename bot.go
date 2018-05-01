@@ -48,7 +48,15 @@ func GuildCreate(s *discordgo.Session, g *discordgo.GuildCreate) {
 		PrintError(err)
 	}
 
-	SetDefaultBanTimer(g.Guild, 30)
+	if _, ok := serverList[g.Guild.ID]; !ok {
+		log.Println("running serverList add")
+		s, err := newServer(g.Guild)
+		if err != nil {
+			PrintError(err)
+		} else {
+			serverList[g.Guild.ID] = s
+		}
+	}
 }
 
 // MessageCreate event for when a message is sent with in a channel //
@@ -97,6 +105,10 @@ func New(token string) (*discordgo.Session, error) {
 
 		// Load classifier data from file //
 		if err := loadFilter(); err != nil {
+			return nil, err
+		}
+
+		if err := LoadServer(); err != nil {
 			return nil, err
 		}
 

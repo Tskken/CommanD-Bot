@@ -48,6 +48,11 @@ func main() {
 
 	//storage.Save()
 
+	err = CommanD_Bot.SaveServer()
+	if err != nil {
+		log.Panic(err)
+	}
+
 	// Close bot session //
 	if err := Bot.Close(); err != nil {
 		log.Panic(err)

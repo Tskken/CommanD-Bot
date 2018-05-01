@@ -30,14 +30,11 @@ const (
 )
 
 var filterClassifier *bayesian.Classifier // Bayesian Classifiers
-var filterMap map[string]bool
 
 // Create Classifier filter //
 // Returns a reference to a new Classifier.
 // - nil Classifier if error
 func newFilter() error {
-	filterMap = make(map[string]bool)
-
 	filterClassifier = bayesian.NewClassifier(Good, Spam)
 	filterClassifier.ConvertTermsFreqToTfIdf()
 	if !filterClassifier.DidConvertTfIdf {
@@ -71,8 +68,11 @@ func loadFilter() error {
 			return err
 		}
 	}
+	return nil
+}
 
-	log.Println("loading key word filters...")
+func (s *server)loadWordsFromFile()error{
+	log.Println("loading key word filter default for server...")
 	// Gets list of file paths from path //
 	// - Returns an error if err is not nil
 	if paths, err := filepath.Glob(FilePath + "word_filter/*"); err != nil {
@@ -100,7 +100,7 @@ func loadFilter() error {
 					// Default is all words are bad //
 					// - True = bad
 					// - False = good
-					filterMap[strings.TrimSuffix(v, "\n")] = true
+					s.WordFilter[strings.TrimSuffix(v, "\n")] = true
 					// Read next line //
 					v, err = r.ReadString('\n')
 
@@ -112,19 +112,7 @@ func loadFilter() error {
 			}
 		}
 	}
-
 	return nil
-}
-
-// Update given words with in the KeyWordMap //
-// - Word: The word to updated
-// - val: The new value of the word
-// -- True = Bad
-// -- False = Good
-func editKeyWordMap(val bool, words []string) {
-	for _, word := range words {
-		filterMap[word] = val
-	}
 }
 
 // Save Classifier data to file //
@@ -172,11 +160,19 @@ func MScan(s *discordgo.Session, m *discordgo.Message) error {
 			// Check second value for options //
 			switch msg[1] {
 			case "Good":
-				// Add words to the key map that you want to be good //
-				editKeyWordMap(false, ToLower(ParceInput(msg[0])))
+				g, err := GetGuild(s, m)
+				if err != nil {
+					return err
+				}
+				server := serverList[g.ID]
+				server.editWordFilter(msg[0], false)
 			case "Bad":
-				// Add word to the key map that you want to be bad //
-				editKeyWordMap(true, ToLower(ParceInput(msg[0])))
+				g, err := GetGuild(s, m)
+				if err != nil {
+					return err
+				}
+				server := serverList[g.ID]
+				server.editWordFilter(msg[0], true)
 			case "Spam":
 				filterClassifier.Learn(ToLower(ParceInput(msg[0])), Spam)
 			default:
@@ -195,13 +191,19 @@ func scan(s *discordgo.Session, m *discordgo.Message) error {
 	// Parce message on a space //
 	msg := ToLower(ParceInput(m.Content))
 
+	g, err := GetGuild(s, m)
+	if err != nil {
+		return err
+	}
+	server := serverList[g.ID]
+
 	// Check for bad words //
 	// Count of number of bad words with in sentence //
 	bWordCount := 0
 	// Check each word with in KeyWordMap //
 	// - Increment BWordCount if word value is true
 	for _, ms := range msg {
-		if key, _ := filterMap[ms]; key {
+		if _, ok := server.WordFilter[ms]; ok {
 			bWordCount++
 		}
 	}
@@ -224,7 +226,7 @@ func scan(s *discordgo.Session, m *discordgo.Message) error {
 
 			// Notify user of there mistake //
 			// - Returns an error if err is not nil
-			if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" don't say that... that's not nice... bad! :point_up: "); err != nil {
+			if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" don't say that... that's not nice... bad! :point_up:"); err != nil {
 				return err
 			}
 

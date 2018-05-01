@@ -8,16 +8,16 @@ TODO - Fix help commands
 
 func loadHelpCommand() *commands {
 	h := commands{}
-	h.commandInfo = loadHelpCommandInfo()
-	h.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
-	h.subCommands["!messages"] = helpMessages
-	h.subCommands["!ms"] = helpMessages
-	h.subCommands["!player"] = helpMessages
-	h.subCommands["!pl"] = helpMessages
-	h.subCommands["!channel"] = helpMessages
-	h.subCommands["!ch"] = helpMessages
-	h.subCommands["!utility"] = helpMessages
-	h.subCommands["!util"] = helpMessages
+	h.CommandInfo = loadHelpCommandInfo()
+	h.SubCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
+	h.SubCommands["!messages"] = helpMessages
+	h.SubCommands["!ms"] = helpMessages
+	h.SubCommands["!player"] = helpMessages
+	h.SubCommands["!pl"] = helpMessages
+	h.SubCommands["!channel"] = helpMessages
+	h.SubCommands["!ch"] = helpMessages
+	h.SubCommands["!utility"] = helpMessages
+	h.SubCommands["!util"] = helpMessages
 	return &h
 }
 
@@ -37,10 +37,10 @@ func helpMessages(s *discordgo.Session, m *discordgo.Message) error {
 
 	if len(args) == 2 {
 		c := botCommands[args[1]]
-		s.ChannelMessageSend(m.ChannelID, c.commandInfo.Help())
+		s.ChannelMessageSend(m.ChannelID, c.CommandInfo.Help())
 	} else if len(args) == 3 {
 		c := botCommands[args[1]]
-		s.ChannelMessageSend(m.ChannelID, c.commandInfo.HelpCommand(args[2]))
+		s.ChannelMessageSend(m.ChannelID, c.CommandInfo.HelpCommand(args[2]))
 	} else {
 		return NewError("Not the right number of arguments in help commnad call", "help_commands.go")
 	}

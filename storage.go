@@ -1,22 +1,59 @@
 package CommanD_Bot
 
+import (
+	"log"
+	"path/filepath"
+	"os"
+	"encoding/gob"
+)
+
 /*
 WIP
 
 TODO - Fix save and load
 */
 
+const dataPath = "../CommanD-Bot/source/data"
+
+func SaveServer()error{
+	log.Println("Saving server data...")
+	path, err := filepath.Abs(dataPath)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(filepath.Join(path + "/serverData"))
+	if err != nil {
+		return err
+	}
+	enc := gob.NewEncoder(file)
+	err = enc.Encode(serverList)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func LoadServer()error{
+	log.Println("Loading server data...")
+	path, err := filepath.Abs(dataPath)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Open(filepath.Join(path + "/serverData"))
+	if err != nil {
+		return err
+	}
+	dec := gob.NewDecoder(file)
+	err = dec.Decode(&serverList)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 /*
-const rootPath = "../CommanD-Bot/source/data/"
-
-func Save() error {
-	return SaveData("data")
-}
-
-func Load() error {
-	return LoadData("data")
-}
-
 func SaveData(fName string) error {
 	log.Println("Saving data..")
 	path := filepath.Join(rootPath, fName)

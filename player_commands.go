@@ -4,16 +4,20 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+const (
+	banTime = 30
+)
+
 func loadPlayerCommand() *commands {
 	p := commands{}
-	p.commandInfo = loadPlayerCommandInfo()
-	p.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
-	p.subCommands["-kick"] = kickMember
-	p.subCommands["-k"] = kickMember
-	p.subCommands["-ban"] = banMember
-	p.subCommands["-b"] = banMember
-	p.subCommands["-bantimer"] = newBanTimer
-	p.subCommands["-bt"] = newBanTimer
+	p.CommandInfo = loadPlayerCommandInfo()
+	p.SubCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
+	p.SubCommands["-kick"] = kickMember
+	p.SubCommands["-k"] = kickMember
+	p.SubCommands["-ban"] = banMember
+	p.SubCommands["-b"] = banMember
+	p.SubCommands["-bantimer"] = newBanTimer
+	p.SubCommands["-bt"] = newBanTimer
 
 	return &p
 }
@@ -110,39 +114,39 @@ func banMember(s *discordgo.Session, m *discordgo.Message) error {
 		// Parce the content of the message on a space //
 		args := ParceInput(m.Content)
 
+
+
 		// Get the ban time for a server //
 		// Prints an error if the servers ban time as not been set
-		if time, ok := banTime[guild.Name]; !ok {
-			_, err := s.ChannelMessageSend(m.ChannelID, "The ban time for the server has not been set.  Type !help -bantime for more info.")
-			return err
-		} else {
-			// Ban the user with out a reason //
-			if len(args) == 3 {
-				// Find the user to ban with in the guild //
-				for _, member := range guild.Members {
-					// If members nick name or username is the same  as the name passed in as the username argument kick them from the server //
-					if args[2] == member.User.Mention() {
-						// Ban the user for the servers set amount of time //
-						return s.GuildBanCreate(guild.ID, member.User.ID, time)
-					}
+		server := serverList[guild.ID]
+
+		// Ban the user with out a reason //
+		if len(args) == 3 {
+			// Find the user to ban with in the guild //
+			for _, member := range guild.Members {
+				// If members nick name or username is the same  as the name passed in as the username argument kick them from the server //
+				if args[2] == member.User.Mention() {
+					// Ban the user for the servers set amount of time //
+					return s.GuildBanCreate(guild.ID, member.User.ID, int(server.BanTime))
 				}
-				// Ban the user with a reason //
-			} else if len(args) >= 4 {
-				// Find the user to ban with in the guild //
-				for _, member := range guild.Members {
-					// If members nick name or username is the same  as the name passed in as the username argument kick them from the server //
-					if member.Nick == args[2] || member.User.Username == args[2] {
-						// Ban the user for the servers set amount of time with a reason //
-						return s.GuildBanCreateWithReason(guild.ID, member.User.ID, ToString(args[3:], " "), time)
-					}
-				}
-				// User did not enter a username or nick name to kick //
-				// Print an error to the channel
-			} else {
-				_, err := s.ChannelMessageSend(m.ChannelID, "You did not enter a user to ban.  Type !help -ban for more info.")
-				return err
 			}
+			// Ban the user with a reason //
+		} else if len(args) >= 4 {
+			// Find the user to ban with in the guild //
+			for _, member := range guild.Members {
+				// If members nick name or username is the same  as the name passed in as the username argument kick them from the server //
+				if member.Nick == args[2] || member.User.Username == args[2] {
+					// Ban the user for the servers set amount of time with a reason //
+					return s.GuildBanCreateWithReason(guild.ID, member.User.ID, ToString(args[3:], " "), int(server.BanTime))
+				}
+			}
+			// User did not enter a username or nick name to kick //
+			// Print an error to the channel
+		} else {
+			_, err := s.ChannelMessageSend(m.ChannelID, "You did not enter a user to ban.  Type !help -ban for more info.")
+			return err
 		}
+
 	}
 	return NewError("If statement failed", "player_commands.go")
 }
@@ -168,16 +172,11 @@ func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
 	if guild, err := GetGuild(s, m); err != nil {
 		return err
 	} else {
+		server := serverList[guild.ID]
 		// Check if the server already as a time set //
 		// If it does print it to the channel
-		if time, ok := banTime[guild.ID]; ok {
-			if _, err := s.ChannelMessageSend(m.ChannelID, "Ban time was "+IntToStr(time)); err != nil {
-				return err
-			}
-		} else {
-			if _, err := s.ChannelMessageSend(m.ChannelID, "There was no ban time set prior."); err != nil {
-				return err
-			}
+		if _, err := s.ChannelMessageSend(m.ChannelID, "Ban time was "+IntToStr(int(server.BanTime))); err != nil {
+			return err
 		}
 
 		// Parce the contents of the messages on a space //
@@ -195,10 +194,17 @@ func newBanTimer(s *discordgo.Session, m *discordgo.Message) error {
 				return err
 			} else {
 				// Set the ban time for the new time given //
-				banTime[guild.ID] = time
+				if time <= 0 {
+					return NewError("Time was under 0 days", "player_commands.go")
+				}
+
+				err := SetBanTimer(guild, uint(time))
+				if err != nil {
+					return err
+				}
 
 				// Print the new ban time to the server //
-				_, err = s.ChannelMessageSend(m.ChannelID, "Ban time has been set to "+IntToStr(banTime[guild.Name]))
+				_, err = s.ChannelMessageSend(m.ChannelID, "Ban time has been set to "+IntToStr(int(server.BanTime)))
 				return err
 			}
 		}

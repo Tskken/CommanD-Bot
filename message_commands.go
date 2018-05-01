@@ -7,12 +7,12 @@ import (
 
 func loadMessageCommand() *commands {
 	m := commands{}
-	m.commandInfo = loadMessageCommandInfo()
-	m.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
-	m.subCommands["-delete"] = deleteMessage
-	m.subCommands["-del"] = deleteMessage
-	m.subCommands["-clear"] = clearMessages
-	m.subCommands["-cl"] = clearMessages
+	m.CommandInfo = loadMessageCommandInfo()
+	m.SubCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
+	m.SubCommands["-delete"] = deleteMessage
+	m.SubCommands["-del"] = deleteMessage
+	m.SubCommands["-clear"] = clearMessages
+	m.SubCommands["-cl"] = clearMessages
 
 	return &m
 }

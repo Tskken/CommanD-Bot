@@ -6,12 +6,12 @@ import (
 
 func loadChannelCommand() *commands {
 	c := commands{}
-	c.commandInfo = loadChannelCommandInfo()
-	c.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
-	c.subCommands["-new"] = createChannel
-	c.subCommands["-c"] = createChannel
-	c.subCommands["-delete"] = deleteChannel
-	c.subCommands["-del"] = deleteChannel
+	c.CommandInfo = loadChannelCommandInfo()
+	c.SubCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
+	c.SubCommands["-new"] = createChannel
+	c.SubCommands["-c"] = createChannel
+	c.SubCommands["-delete"] = deleteChannel
+	c.SubCommands["-del"] = deleteChannel
 
 	return &c
 }

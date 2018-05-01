@@ -8,10 +8,10 @@ import (
 
 func loadUtilityCommand() *commands {
 	u := commands{}
-	u.commandInfo = loadUtilityCommandInfo()
-	u.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
-	u.subCommands["-dice"] = diceRole
-	u.subCommands["-d"] = diceRole
+	u.CommandInfo = loadUtilityCommandInfo()
+	u.SubCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
+	u.SubCommands["-dice"] = diceRole
+	u.SubCommands["-d"] = diceRole
 
 	return &u
 }
