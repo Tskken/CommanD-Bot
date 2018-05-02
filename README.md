@@ -1,8 +1,9 @@
  # **CommanD-Bot**
-A sudo command line for full control over your Discord server.  This bot is powered by [Go][1] and the [Discordgo][2] library.  Please support them, this bot would not be possible without them.
+A sudo command line for full control over your Discord server.  This bot is powered by [Go][1], [Discordgo][2], and [jbrukh/bayesian][3] library's.  Please support them, this bot would not be possible without them.
 
 [1]: https://golang.org/
 [2]: https://github.com/bwmarrin/discordgo
+[3]: https://github.com/jbrukh/bayesian
 
 ### How to install/run
 #### Note: Current version must be compiled as no exe is given.  Install Go and compile to run on your own computer. Later verisons will be easier to run.  This code is only currently in a beta state for testing.
@@ -17,44 +18,49 @@ THIS README IS SUBJECT TO CHANGE.  ALL GIVEN FUNCTIONALITY COULD BE CHANGED OR R
 ---
 
 ## Table Of Contents
-+ [Introduction](#Introduction)
-+ [<s>Initial Setup</s>](#Initial_Setup) Out of date
-+ [Commands](#Commands)
++ [What is CommanD-Bot?](#Introduction)
++ [How to use](#HowTo)
++ [Primary Commands](#Commands)
+    - [!help](#help)
+    - [!message](#message)
+    - [!player](#player)
+    - [!channel](#channel)
 + [Sub Commands](#sub_commands)
-   - [!message](#message)
-   - [!player](#player)
-+ [Planned Commands](#planned_commands)
+    - [message commands](#subMessage)
+    - [player commands](#subPlayer)
+    - [channel commands](#subChannel)
+    - [utility commands](#subUtility)
++ [Whats Planned?](#planned)
 
 ### Introduction <a id="Introduction"></a>
-After using a few other bots that give general control over a server.  I always found the bot ether had issues with speed, consistency, or would crash periodically.  I also found that most bot’s had really pore support when it comes to usability.  Most require a decent understanding of how to setup a bot with a server and give very little info on how to setup the bot for new people.  My goal is to make a bot that can both be setup and run quickly and efficiently.
+CommanD-Bot was created with a specific goal. Give Discord server moderators the tools they need to make there job easier. Commands to help moderate chat and servers along with a spam and bad word filter to keep the chat civil and salt free.
 
-A side effect of these ideas was the desire to work in Go.  Go is a relatively new programing language made by Google.  For more info on what the language can do please visit there website at [golang.org](https://golang.org/).  Go gives a lot of support similar to Python and Java, but is a compiled language like C.  It has decent speeds even with garbage collection and gives you the ability to have dynamic typing.  In general the language seemed like an interesting use for a Discord bot.  Python is one of the more common ways to program a Discord bot but it is notorious for being clunky when running.  Given my goal to have a fast and efficient bot, Python would not be my best option.
-
-The main purpose of this bot is to give all the support you could want for servers of any size.  This comes in the way of commands which give you the ability to control the flow of your server.  Create new channels, delete messages, and permission control over the server.
-
-### Initial Setup <a id="Initial_Setup"></a>
-WIP! May be redacted later
+### How to use <a id="HowTo"></a>
+All commands require a `!`.  The bot relays on a main command and sub command argument pair. This takes the shape of something like `!message -delete`. This was to give the ability to have multiple command functions which can differ based on the first command given.
+The spam filter automatically scans every message sent with in any channel. It deletes messages based on excessive bad words or spam based on a bayesian learning algorithm. 
 
 ### Commands <a id="Commands"></a>
-Current supported commands
+List of all currently supported primary commands
 
 |   Command Name |  Command Function |
 | --- | --- |
-|   !help or !h | Gives info on the supported wrapper commands.  Add one of the rappers to !help as an argument and it will give you info on the supported sub commands that command supports. |
+|   [!help](#help) or [!h](#help) | !help will give info on each command. Called on its own it list each primary command. Called with a primary command as an arugment and it will list that primary commands sub-commands. You can also just enter a primary command with out any arguments to get help on that command. |
 |   [!message](#message) or [!ms](#message) |  !message is the wrapper command for all messages with in the server. |
 |   [!player](#player) or [!pl](#player) |   !player is the wrapper function for all player based commands with in the server. |
+|   [!channel](#channel) or [!ch](#channel) |   !channel gives commands for all channel functions. |
+|   [!utility](#utility) or [!util](#utility) |  !utility commands for extra fun stuff with in a server |
 
 ### Sub commands <a id="sub_commands"></a>
-Currently supported sub commands that fall under there parent wrapper.
+Commands that can be called by each primary command.
 
-#### !message <a id="message"></a>
+#### !message <a id="subMessage"></a>
 
 |   Command Name |  Arguments |  Command Function |
 | --- | --- | --- |
 |   -delete or -del | "number of messages" "player name" | Deleted messages from with in the channel the command is sent.  You can pass it any combinations of arguments.  No arguments passed with simply delete the last message sent in the channel.  **Note** Only admin users can delete messages created by other people.  Non admins can only delete messages that they sent. |
-|   -clear or -cl | no arguments | This deletes all messages within a channel that can be deleted.  All messages older then two weeks will not be deleted as its is a limitation presented by the Discord API.  A work around may be possible but for the time being not planed. |
+|   -clear or -cl |  | This deletes all messages within a channel that can be deleted.  All messages older then two weeks will not be deleted as its is a limitation presented by the Discord API.  A work around may be possible but for the time being not planed. |
 
-#### !player <a id="player"></a>
+#### !player <a id="subPlayer"></a>
 
 |   Command Name |  Arguments |  Command Function |
 | --- | --- | --- |
@@ -62,13 +68,20 @@ Currently supported sub commands that fall under there parent wrapper.
 |   -ban or -b |    "username" |    Bands a user from the guild.  Ban time of the user is 30 days by default.  This can be changed with other commands. |
 |   -bantime or -bt |   "number of days" |   Sets the number of days for a user to be band.  If this is not called or changed after startup of the bot the default will be 30 days.  **Note** The time currently set to 30 days for every server the bot is in when the bot starts.  This will be changed in later versions to save the priset times for each server so that the information does not need to be re-entered every time the bot needs to be restarted. |
 
-### planned commands <a id="planned_commands"></a>
-All planned commands are subject to change.  There arguments, naming, and functionality could change based on feedback, limitations of the discord api and discordgo library, limitations of Golang, and any other variables that could change planned development.
+#### !channel <a id=subChannel></a>
 
-|   Command Name |  Arguments |  Command Function |
+|   Command Name | Arguments | Command Function |
 | --- | --- | --- |
-|   !channel -create | "name" "type" | Created a new channel.  The name is mandatory but the type is optional.  If type is not given a text channel will be created by default. |
-|   !channel -delete | "name" | Deletes the given channel. **Note** This will only be able to be used by admins unless there is a way to determine the creator of the channel.  If this is possible then non admin users will be able to delete only channels they created. |
-|   !utility -dice | "lower bound" "upper bound" | Will role a dice.  The upper bound is mandatory.  The lower bound can be omitted and will default to 0.  If the lower bound is omitted then the dice will role from 0 to the upper bound that is given. |
-|   !utility -trinity | "username" "trinity name" | Trinity lets you give "roles" to guild members.  The name is mandatory but the trinity name can be omitted.  If the trinity name is omitted it will by default return the current trinity values given to that user.  If the trinity name is given it will set that trinity name to the given user. |
-|   !utility -ign   | "username" "ign" | Ign lets you give a new name to a user outside of there normal discord names.  The user name is mandatory but the ign can be omitted.  If the ign is omitted then it will by default return the current ign's for that user.  If the ign is given it will add that ign to the users list of ign's. |
+| -create or -c |   "name" "type" | Creates a channel with a given name. You can give it a type as `text` or `voice`. If no type is given it is default a text channel. |
+| -delete or -del | "name" | Deletes the given channel. |
+
+#### !utility <a id=subUtility><a/>
+
+|   Command Name | Arguments | Command Function |
+| --- | --- | --- |
+| -dice or -d | "number greater the zero" | Roles a dice between 1 and the entered number. |
+
+### Whats Planned? <a id="planned"><a/>
+Check out the CommanD-Bot [Trello][4] page. It gives a decent look at what is planned with in the bot.
+
+[4]:https://trello.com/b/UB3kUIlz/command-bot
