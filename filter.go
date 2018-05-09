@@ -2,6 +2,7 @@ package CommanD_Bot
 
 import (
 	"bufio"
+	"errors"
 	"github.com/bwmarrin/discordgo"
 	"github.com/jbrukh/bayesian"
 	"io"
@@ -18,15 +19,8 @@ TODO - Add saving KeyWordMap to a file
 // Constants for algorithm //
 const (
 	// Bayesian Classifiers //
-	Good bayesian.Class = "Good"
-	Spam bayesian.Class = "Spam"
-
-	// Algorithm thresholds //
-	Thresh        = 0.75
-	KeyWordThresh = 0.25
-
-	// Data file root path //
-	FilePath = "../CommanD-Bot/source/data/"
+	good bayesian.Class = "Good"
+	spam bayesian.Class = "Spam"
 )
 
 var filterClassifier *bayesian.Classifier // Bayesian Classifiers
@@ -35,10 +29,10 @@ var filterClassifier *bayesian.Classifier // Bayesian Classifiers
 // Returns a reference to a new Classifier.
 // - nil Classifier if error
 func newFilter() error {
-	filterClassifier = bayesian.NewClassifier(Good, Spam)
+	filterClassifier = bayesian.NewClassifier(good, spam)
 	filterClassifier.ConvertTermsFreqToTfIdf()
 	if !filterClassifier.DidConvertTfIdf {
-		return NewError("Could not convert to TfIdf.", "filter.go")
+		return errors.New("could not convert to TfIdf")
 	}
 	return nil
 }
@@ -53,29 +47,29 @@ func loadFilter() error {
 
 	// Get file from file path //
 	// - Returns an error if err is not nil
-	if path, err := filepath.Abs(FilePath); err != nil {
+	if path, err := filepath.Abs(dataPath); err != nil {
 		return err
 	} else {
 		// Reads class data from file //
 		// - Saves data to Good class
 		// - Returns an error if err is not nil
-		if err := filterClassifier.ReadClassFromFile(Good, path); err != nil {
+		if err := filterClassifier.ReadClassFromFile(good, path); err != nil {
 			return err
 		}
 		// - Saves data to Spam class
 		// - Returns an error if err is not nil
-		if err := filterClassifier.ReadClassFromFile(Spam, path); err != nil {
+		if err := filterClassifier.ReadClassFromFile(spam, path); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (s *server)loadWordsFromFile()error{
+func (s *server) loadWordsFromFile() error {
 	log.Println("loading key word filter default for server...")
 	// Gets list of file paths from path //
 	// - Returns an error if err is not nil
-	if paths, err := filepath.Glob(FilePath + "word_filter/*"); err != nil {
+	if paths, err := filepath.Glob(dataPath + "word_filter/*"); err != nil {
 		return err
 	} else {
 		// Get each file for each path with in returned list of paths //
@@ -117,11 +111,11 @@ func (s *server)loadWordsFromFile()error{
 
 // Save Classifier data to file //
 // - Returns an error if err is not nil
-func SaveFilter() error {
+func saveFilter() error {
 	log.Println("Saving Classifiers...")
 	// Get files to save to from path //
 	// - Returns an error if err is not nil
-	if path, err := filepath.Abs(FilePath); err != nil {
+	if path, err := filepath.Abs(dataPath); err != nil {
 		return err
 	} else {
 		// Save class to file //
@@ -133,65 +127,13 @@ func SaveFilter() error {
 	}
 }
 
-// Scan a message to classify its content //
-// - Returns an error if err is not nil
-func MScan(s *discordgo.Session, m *discordgo.Message) error {
-	// Parce the messages on a | //
-	// - If successful don't run scan on message.
-	// -- Run learning on given message (Can only be used by users with the "Admin" tag)
-	// - If not successful run scan on message
-	if msg := Parce(m.Content, "|"); len(msg) < 2 {
-		// Parce returned only one item //
-		// - Run scan on message
-		// - Returns an error (nil if no error)
-		return scan(s, m)
-	} else {
-		// Parce returned more then one item //
-		// Check for Admin privilege //
-		// - Returns an error if err is not nil
-		if admin, err := IsAdmin(s, m); err != nil {
-			return err
-		} else if !admin {
-			// If not admin return //
-			_, err := s.ChannelMessageSend(m.ChannelID, "You do not have permission to teach the bot new things... Get good?!?!?")
-			return err
-		} else {
-			// Had admin permissions //
-			// Check second value for options //
-			switch msg[1] {
-			case "Good":
-				g, err := GetGuild(s, m)
-				if err != nil {
-					return err
-				}
-				server := serverList[g.ID]
-				server.editWordFilter(msg[0], false)
-			case "Bad":
-				g, err := GetGuild(s, m)
-				if err != nil {
-					return err
-				}
-				server := serverList[g.ID]
-				server.editWordFilter(msg[0], true)
-			case "Spam":
-				filterClassifier.Learn(ToLower(ParceInput(msg[0])), Spam)
-			default:
-				// Returns an error if the value after the | is not "Good", "Bad", or "Spam" //
-				return NewError("Classifier not correct: "+msg[1], "filter.go")
-			}
-
-			return nil
-		}
-	}
-}
-
 // Scan a message and to classify it //
 // - Returns an error if err is not nil
-func scan(s *discordgo.Session, m *discordgo.Message) error {
+func scan(session *discordgo.Session, message *discordgo.Message) error {
 	// Parce message on a space //
-	msg := ToLower(ParceInput(m.Content))
+	msg := toLower(strings.Fields(message.Content))
 
-	g, err := GetGuild(s, m)
+	g, err := getGuild(session, message)
 	if err != nil {
 		return err
 	}
@@ -212,21 +154,21 @@ func scan(s *discordgo.Session, m *discordgo.Message) error {
 
 	// Check average occurrence of bad words with in the message //
 	// - Remove the message if average is over threshold
-	if avr := float64(bWordCount) / float64(len(msg)); avr >= KeyWordThresh {
+	if avr := float64(bWordCount) / float64(len(msg)); avr >= serverList[g.ID].wordFilterThresh {
 		// Get the message to delete //
 		// - Returns an error if err is not nil
-		if a, err := ToDelete(s, m, "", 0, true); err != nil {
+		if a, err := toDelete(session, message, "", 0, true); err != nil {
 			return err
 		} else {
 			// Delete message //
 			// - Return an error if err is not nil
-			if err := s.ChannelMessageDelete(m.ChannelID, a[0]); err != nil {
+			if err := session.ChannelMessageDelete(message.ChannelID, a[0]); err != nil {
 				return err
 			}
 
 			// Notify user of there mistake //
 			// - Returns an error if err is not nil
-			if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" don't say that... that's not nice... bad! :point_up:"); err != nil {
+			if _, err := session.ChannelMessageSend(message.ChannelID, message.Author.Mention()+" don't say that... that's not nice... bad! :point_up:"); err != nil {
 				return err
 			}
 
@@ -252,20 +194,20 @@ func scan(s *discordgo.Session, m *discordgo.Message) error {
 					case 1:
 						// Check if value is over threshold //
 						// - Delete if true
-						if score >= Thresh {
+						if score >= serverList[g.ID].spamFilterThresh {
 							// Get message to delete //
 							// - Returns an error if err is not nil
-							if a, err := ToDelete(s, m, "", 0, true); err != nil {
+							if a, err := toDelete(session, message, "", 0, true); err != nil {
 								return err
 							} else {
 								// Delete message //
 								// - Returns an error if err is not nil
-								if err := s.ChannelMessageDelete(m.ChannelID, a[0]); err != nil {
+								if err := session.ChannelMessageDelete(message.ChannelID, a[0]); err != nil {
 									return err
 								}
 								// Notify member of there mistake //
 								// - Returns an error if err is not nil
-								if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" Why must you spam... No spamming... bad! :point_up:"); err != nil {
+								if _, err := session.ChannelMessageSend(message.ChannelID, message.Author.Mention()+" Why must you spam... No spamming... bad! :point_up:"); err != nil {
 									return err
 								}
 							}
@@ -284,23 +226,23 @@ func scan(s *discordgo.Session, m *discordgo.Message) error {
 				case 1:
 					// Get message to delete //
 					// - Return an error if err is not nil
-					if a, err := ToDelete(s, m, "", 0, true); err != nil {
+					if a, err := toDelete(session, message, "", 0, true); err != nil {
 						return err
 					} else {
 						// Delete message //
 						// - Return an error ir err is not nil
-						if err := s.ChannelMessageDelete(m.ChannelID, a[0]); err != nil {
+						if err := session.ChannelMessageDelete(message.ChannelID, a[0]); err != nil {
 							return err
 						}
 						// Notify member of there mistake //
 						// - Returns an error if err is not nil
-						if _, err := s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" Why must you spam... No spamming... bad! :point_up:"); err != nil {
+						if _, err := session.ChannelMessageSend(message.ChannelID, message.Author.Mention()+" Why must you spam... No spamming... bad! :point_up:"); err != nil {
 							return err
 						}
 					}
 				// Returns an error if inx was anything but 0 or 1 //
 				default:
-					return NewError("inx was a value other then 0,1, or 2", "filter.go")
+					return errors.New("inx was a value other then 0,1, or 2")
 				}
 			}
 		}

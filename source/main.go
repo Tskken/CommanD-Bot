@@ -1,7 +1,7 @@
 package main
 
 /*
-CommanD-Bot Beta V1.1.1
+CommanD-Bot Beta
 Author: Dylan Blanchard
 */
 
@@ -17,7 +17,7 @@ import (
 	"syscall"
 )
 
-var Bot *discordgo.Session
+var bot *discordgo.Session
 
 // On start //
 func init() {
@@ -25,9 +25,9 @@ func init() {
 
 	// Create new Bot session //
 	if b, err := CommanD_Bot.NewBot(); err != nil {
-		log.Panic(err)
+		log.Println(err)
 	} else {
-		Bot = b
+		bot = b
 	}
 }
 
@@ -40,23 +40,7 @@ func main() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 
-	// Save filter classifiers when closing //
-	err := CommanD_Bot.SaveFilter()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	//storage.Save()
-
-	err = CommanD_Bot.SaveServer()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	// Close bot session //
-	if err := Bot.Close(); err != nil {
-		log.Panic(err)
-	}
+	CommanD_Bot.CloseBot(bot)
 
 	log.Println("Session ended.")
 }

@@ -1,7 +1,9 @@
 package CommanD_Bot
 
 import (
+	"errors"
 	"github.com/bwmarrin/discordgo"
+	"strings"
 )
 
 /*
@@ -11,30 +13,30 @@ TODO - Comment
 var botCommands map[string]*commands
 
 type command interface {
-	command(s *discordgo.Session, m *discordgo.Message) error
+	command(session *discordgo.Session, message *discordgo.Message) error
 }
 
 type commands struct {
-	CommandInfo *CommandInfo
-	SubCommands map[string]func(*discordgo.Session, *discordgo.Message) error
+	commandInfo *commandInfo
+	subCommands map[string]func(*discordgo.Session, *discordgo.Message) error
 }
 
-func (c *commands) command(s *discordgo.Session, m *discordgo.Message) error {
-	args := ParceInput(m.Content)
+func (c *commands) command(session *discordgo.Session, message *discordgo.Message) error {
+	args := strings.Fields(message.Content)
 	if len(args) < 2 {
-		_, err := s.ChannelMessageSend(m.ChannelID, c.CommandInfo.Help())
+		_, err := session.ChannelMessageSend(message.ChannelID, c.commandInfo.help())
 		return err
 	} else {
-		if cmd, ok := c.SubCommands[args[1]]; !ok {
-			return NewError("Could not understand given command", "command.go")
+		if cmd, ok := c.subCommands[args[1]]; !ok {
+			return errors.New("could not understand given command")
 		} else {
-			return cmd(s, m)
+			return cmd(session, message)
 		}
 	}
 }
 
-func RunCommand(s *discordgo.Session, m *discordgo.Message, c command) error {
-	return c.command(s, m)
+func runCommand(session *discordgo.Session, message *discordgo.Message, c command) error {
+	return c.command(session, message)
 }
 
 func loadCommands() {
@@ -45,6 +47,7 @@ func loadCommands() {
 	playerCommands := loadPlayerCommand()
 	utilityCommands := loadUtilityCommand()
 	helpCommands := loadHelpCommand()
+	guildCommands := loadGuildCommand()
 
 	botCommands["!message"] = messageCommands
 	botCommands["!ms"] = messageCommands
@@ -56,4 +59,6 @@ func loadCommands() {
 	botCommands["!util"] = utilityCommands
 	botCommands["!help"] = helpCommands
 	botCommands["!h"] = helpCommands
+	botCommands["!guild"] = guildCommands
+	botCommands["!g"] = guildCommands
 }

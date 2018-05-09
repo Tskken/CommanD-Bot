@@ -1,14 +1,14 @@
 package CommanD_Bot
 
 // Command info struct //
-type CommandInfo struct {
+type commandInfo struct {
 	detail   string            // Details about command
 	commands map[string]string // Map of sub commands for command
 }
 
 // Get help for a command //
 // - Returns the detail information and list of sub commands for command
-func (mc *CommandInfo) Help() string {
+func (mc *commandInfo) help() string {
 	// Add detail info to output //
 	output := "**Command**: " + mc.detail + "\n"
 	output += "**Sub-Commands**: \n"
@@ -23,6 +23,6 @@ func (mc *CommandInfo) Help() string {
 
 // Get help for a sub-command //
 // - Returns the info about the sub command
-func (mc *CommandInfo) HelpCommand(arg string) string {
+func (mc *commandInfo) helpCommand(arg string) string {
 	return mc.commands[arg]
 }
