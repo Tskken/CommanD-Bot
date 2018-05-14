@@ -7,40 +7,37 @@ Author: Dylan Blanchard
 
 import (
 	"github.com/tsukinai/CommanD-Bot"
-	//"github.com/tsukinai/CommanD-Bot/filter"
-	//"github.com/tsukinai/CommanD-Bot/storage"
-	//"github.com/tsukinai/CommanD-Bot/commands"
-	"github.com/bwmarrin/discordgo"
+
+
+
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-var bot *discordgo.Session
-
-// On start //
-func init() {
-	//commands.Test()
-
-	// Create new Bot session //
-	if b, err := CommanD_Bot.NewBot(); err != nil {
-		log.Println(err)
-	} else {
-		bot = b
-	}
-}
-
 // Entry point //
 func main() {
-	// Bot is running //
-	log.Println("Bot is now running...")
-	// Wait for user input to close program //
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-sc
+	// Create new Bot session //
+	// - logs an error if err is not nil
+	if bot, err := CommanD_Bot.NewBot(); err != nil {
+		log.Println(err)
+	} else {
+		// Bot is running //
+		log.Println("Bot is now running...")
+		// Wait for user input to close program //
+		sc := make(chan os.Signal, 1)
+		signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+		<-sc
 
-	CommanD_Bot.CloseBot(bot)
+		// Close bot session and save data to files //
+		// - logs an error if err is not nil
+		if err := CommanD_Bot.CloseBot(bot); err != nil {
+			log.Println(err)
+		}
 
-	log.Println("Session ended.")
+		// Bot session ended //
+		log.Println("Session ended.")
+	}
+
 }

@@ -13,7 +13,7 @@ import (
 )
 
 /*
-TODO - Add saving KeyWordMap to a file
+TODO - Fix filter
 */
 
 // Constants for algorithm //

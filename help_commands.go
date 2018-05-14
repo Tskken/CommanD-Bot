@@ -3,50 +3,83 @@ package CommanD_Bot
 import (
 	"errors"
 	"github.com/bwmarrin/discordgo"
-	"strings"
 )
 
-/*
-TODO - Fix help commands
-*/
-
+// Set help command structure //
 func loadHelpCommand() *commands {
+	// Create help command structure //
 	h := commands{}
+
+	// Load help command info structure //
 	h.commandInfo = loadHelpCommandInfo()
-	h.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message) error)
+
+	// Create help sub command map //
+	h.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, []string) error)
+
+	// Set message commands in help message //
 	h.subCommands["!messages"] = helpMessages
 	h.subCommands["!ms"] = helpMessages
+
+	// Set player commands in help message //
 	h.subCommands["!player"] = helpMessages
 	h.subCommands["!pl"] = helpMessages
+
+	// Set channel commands in help message //
 	h.subCommands["!channel"] = helpMessages
 	h.subCommands["!ch"] = helpMessages
+
+	// Set utility commands in help message //
 	h.subCommands["!utility"] = helpMessages
 	h.subCommands["!util"] = helpMessages
+
+	// Set guild commands in help message //
+	h.subCommands["!guild"] = helpMessages
+	h.subCommands["!g"] = helpMessages
+
+	// Returns a reference to help command structure //
 	return &h
 }
 
+// Set help command info structure //
 func loadHelpCommandInfo() *commandInfo {
+	// Create help info structure //
 	h := commandInfo{}
+
+	// Set help default info //
 	h.detail = "type !help and a command to get more info on each command.\n" +
 		"**Commands:**\n" +
 		"    **!message:** Commands for messages\n" +
 		"    **!player:** Commands for Players\n" +
 		"    **!channel:** Commands for channels\n" +
-		"    **!utility:** Utility commands"
+		"    **!utility:** Utility commands\n" +
+		"    **!guild:** commands for a guild"
+
+	// Return a reference to the help info structure //
 	return &h
 }
 
-func helpMessages(session *discordgo.Session, message *discordgo.Message) error {
-	args := toLower(strings.Fields(message.Content))
-
+// Help command //
+// - returns an error (nil if non)
+func helpMessages(session *discordgo.Session, message *discordgo.Message, args []string) error {
+	// Check for help info for a main command //
 	if len(args) == 2 {
+		// Get main command structure //
 		c := botCommands[args[1]]
-		session.ChannelMessageSend(message.ChannelID, c.commandInfo.help())
+
+		// Send help to channel for command //
+		// - returns an error (nil if non)
+		_, err := session.ChannelMessageSend(message.ChannelID, c.commandInfo.help())
+		return err
 	} else if len(args) == 3 {
+		// Get main command structure //
 		c := botCommands[args[1]]
-		session.ChannelMessageSend(message.ChannelID, c.commandInfo.helpCommand(args[2]))
+
+		// Send help info for sub command in command structure //
+		// - returns an error (nil if non)
+		_, err := session.ChannelMessageSend(message.ChannelID, c.commandInfo.helpCommand(args[2]))
+		return err
 	} else {
-		return errors.New("not the right number of arguments in help commnad call")
+		// Return an error if given incorrect arguments //
+		return errors.New("not the right number of arguments in help command call")
 	}
-	return nil
 }
