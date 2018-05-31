@@ -39,16 +39,16 @@ func NewBot() (*discordgo.Session, error) {
 		// Load commands //
 		loadCommands()
 
-		// Load classifier data from file //
+		/*// Load classifier data from file //
 		// - returns an error if err is not nil
 		if err := loadFilter(); err != nil {
 			return nil, err
-		}
+		}*/
 
 		// Loads server data from file //
 		// - return an error if err is not nil
 		if err := loadServer(); err != nil {
-			return nil, err
+			log.Println(err)
 		}
 
 		// Open session //
@@ -67,9 +67,9 @@ func NewBot() (*discordgo.Session, error) {
 func CloseBot(session *discordgo.Session) error {
 	// Save filter data to file //
 	// - returns an error if err is not nil
-	if err := saveFilter(); err != nil {
+	/*if err := saveFilter(); err != nil {
 		return err
-	}
+	}*/
 
 	// Save server data to file //
 	// - returns an error if err is not nil
@@ -119,10 +119,18 @@ func messageCreate(session *discordgo.Session, create *discordgo.MessageCreate) 
 	}
 
 	/*
-	// Temp function call to teach algorithm //
-	if err := scan(session, create.Message); err != nil {
+		// Temp function call to teach algorithm //
+		if err := scan(session, create.Message); err != nil {
+			log.Println(err)
+		}*/
+
+	// TODO - Comment
+	if muted, err := isMuted(session, create.Message); err != nil {
 		log.Println(err)
-	}*/
+	} else if muted {
+		log.Println("user is muted")
+		return
+	}
 
 	// Ignores all messages with out the ! char for commands //
 	if !strings.HasPrefix(create.Content, "!") {

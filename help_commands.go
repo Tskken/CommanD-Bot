@@ -68,16 +68,20 @@ func helpMessages(session *discordgo.Session, message *discordgo.Message, args [
 
 		// Send help to channel for command //
 		// - returns an error (nil if non)
-		_, err := session.ChannelMessageSend(message.ChannelID, c.commandInfo.help())
-		return err
+		if _, err := session.ChannelMessageSend(message.ChannelID, c.commandInfo.help()); err != nil {
+			return err
+		}
+		return deleteMessage(session, message.ChannelID, message.ID)
 	} else if len(args) == 3 {
 		// Get main command structure //
 		c := botCommands[args[1]]
 
 		// Send help info for sub command in command structure //
 		// - returns an error (nil if non)
-		_, err := session.ChannelMessageSend(message.ChannelID, c.commandInfo.helpCommand(args[2]))
-		return err
+		if _, err := session.ChannelMessageSend(message.ChannelID, c.commandInfo.helpCommand(args[2])); err != nil {
+			return err
+		}
+		return deleteMessage(session, message.ChannelID, message.ID)
 	} else {
 		// Return an error if given incorrect arguments //
 		return errors.New("not the right number of arguments in help command call")

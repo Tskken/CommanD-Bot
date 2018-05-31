@@ -3,18 +3,23 @@ package CommanD_Bot
 import (
 	"errors"
 	"github.com/bwmarrin/discordgo"
+	"log"
+	"time"
 )
 
 // Server info structure //
 type server struct {
-	WordFilter       map[string]bool // server word filter map
-	BanTime          uint // server ban time length
-	wordFilterThresh float64 // server world filter threshold
-	spamFilterThresh float64 // server spam filter threshold
+	WordFilter       map[string]bool      // server word filter map
+	MuteList         map[string]time.Time // List of muted players
+	BanTime          uint                 // server ban time length
+	wordFilterThresh float64              // server world filter threshold
+	spamFilterThresh float64              // server spam filter threshold
 }
 
 // List of all servers //
 var serverList = make(map[string]*server)
+
+var muteTimerList = make(map[string]*time.Timer)
 
 // Creates new server //
 // - returns a reference to a server and an error (nil if non)
@@ -26,6 +31,9 @@ func newServer() (*server, error) {
 	if err := s.createWordFilter(); err != nil {
 		return nil, err
 	}
+
+	// TODO - Comment
+	s.MuteList = make(map[string]time.Time)
 
 	// Set default ban time //
 	s.BanTime = 30
@@ -72,6 +80,56 @@ func (s *server) editWordFilter(word string, action bool) error {
 		s.WordFilter[word] = action
 		return nil
 	}
+}
+
+// TODO - Comment
+func (s *server) mute(uId string, duration time.Duration) error {
+	if t, ok := s.MuteList[uId]; ok {
+		s.MuteList[uId] = t.Add(duration)
+		timer, ok := muteTimerList[uId]
+		if !ok {
+			return errors.New("mute timer did not exist")
+		}
+		timer.Stop()
+		timer.Reset(time.Until(t))
+		return nil
+	}
+
+	s.MuteList[uId] = time.Now().Add(duration)
+	timer := time.AfterFunc(duration, func() {
+		err := s.unMute(uId)
+		if err != nil {
+			log.Println(err)
+		}
+	})
+
+	muteTimerList[uId] = timer
+
+	return nil
+}
+
+// TODO - Comment
+func (s *server) unMute(uId string) error {
+	if _, ok := s.MuteList[uId]; !ok {
+		return errors.New("mute id no longer exists")
+	} else {
+		delete(s.MuteList, uId)
+	}
+
+	if _, ok := muteTimerList[uId]; !ok {
+		return errors.New("mute timer no longer exists")
+	} else {
+		timer := muteTimerList[uId]
+		timer.Stop()
+		delete(muteTimerList, uId)
+	}
+	return nil
+}
+
+// TODO - Comment
+func (s *server) isMuted(uId string) (time.Time, bool) {
+	time, ok := s.MuteList[uId]
+	return time, ok
 }
 
 // Get admin role //

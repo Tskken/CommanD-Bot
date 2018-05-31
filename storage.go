@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // Default path for all locally saved data //
@@ -66,6 +67,23 @@ func loadServer() error {
 	// - returns an error if err is not nil
 	if err := dec.Decode(&serverList); err != nil {
 		return err
+	}
+
+	// TODO - Comment
+	for _, server := range serverList {
+		for user, mTime := range server.MuteList {
+			if mTime.UnixNano() > time.Now().UnixNano() {
+				timer := time.AfterFunc(time.Until(mTime), func() {
+					err := server.unMute(user)
+					if err != nil {
+						log.Println(err)
+					}
+				})
+				muteTimerList[user] = timer
+			} else {
+				delete(server.MuteList, user)
+			}
+		}
 	}
 
 	return nil

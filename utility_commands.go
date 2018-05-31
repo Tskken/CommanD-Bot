@@ -53,6 +53,10 @@ func diceRole(session *discordgo.Session, message *discordgo.Message, args []str
 	// Convert the third argument to an int //
 	// - returns an error if err is not nil
 	if val, err := strconv.Atoi(args[2]); err != nil {
+		if err := deleteMessage(session, message.ChannelID, message.ID); err != nil {
+			return err
+		}
+
 		return err
 	} else {
 		// Create a new rand instance with time now seed //
@@ -69,6 +73,7 @@ func diceRole(session *discordgo.Session, message *discordgo.Message, args []str
 		if _, err := session.ChannelMessageSend(message.ChannelID, message.Author.Mention()+" got "+strconv.Itoa(val)); err != nil {
 			return err
 		}
+
+		return deleteMessage(session, message.ChannelID, message.ID)
 	}
-	return nil
 }

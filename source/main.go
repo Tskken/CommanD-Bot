@@ -8,8 +8,6 @@ Author: Dylan Blanchard
 import (
 	"github.com/tsukinai/CommanD-Bot"
 
-
-
 	"log"
 	"os"
 	"os/signal"

@@ -15,7 +15,7 @@ func loadGuildCommand() *commands {
 	g.commandInfo = loadGuildCommandInfo()
 
 	// Create sub command map //
-	g.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, []string)error)
+	g.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, []string) error)
 
 	// Add word filter command to map //
 	g.subCommands["-wordfilter"] = wordFilter
@@ -52,8 +52,8 @@ func loadGuildCommandInfo() *commandInfo {
 	g.commands["-wordfilter"] = "**-wordfilter** or **-wf**.\n" +
 		"**Info**: Adds or removes messages from the word filter.\n" +
 		"**Arguments:**\n" +
-			"    **add <word>:** Adds the given word to the filter\n" +
-			"    **remove <word>:** Removes the givne word from the filter"
+		"    **add <word>:** Adds the given word to the filter\n" +
+		"    **remove <word>:** Removes the givne word from the filter"
 
 	// Set ban time command info //
 	g.commands["-bantime"] = "**-bantime** or **-bt**.\n" +
@@ -213,7 +213,7 @@ func wordFilterThreshold(session *discordgo.Session, message *discordgo.Message,
 
 		// Send message for current word filter threshold //
 		// - returns an error if err is not nil
-		if _, err := session.ChannelMessageSend(message.ChannelID, "Current word filter threshold is " + strconv.FormatFloat(server.wordFilterThresh, 'f', 2, 64)); err != nil {
+		if _, err := session.ChannelMessageSend(message.ChannelID, "Current word filter threshold is "+strconv.FormatFloat(server.wordFilterThresh, 'f', 2, 64)); err != nil {
 			return err
 		}
 
@@ -238,8 +238,8 @@ func wordFilterThreshold(session *discordgo.Session, message *discordgo.Message,
 
 				// Send message displaying changed word filter threshold //
 				// - returns an error (nil if non)
-				 _, err := session.ChannelMessageSend(message.ChannelID, "New word filter threshold is " + strconv.FormatFloat(server.wordFilterThresh, 'f', 2, 64))
-				 return err
+				_, err := session.ChannelMessageSend(message.ChannelID, "New word filter threshold is "+strconv.FormatFloat(server.wordFilterThresh, 'f', 2, 64))
+				return err
 			}
 		}
 	}
@@ -272,7 +272,7 @@ func spamFilterThreshold(session *discordgo.Session, message *discordgo.Message,
 
 		// Send message for current spam filter threshold //
 		// - returns an error if err is not nil
-		if _, err := session.ChannelMessageSend(message.ChannelID, "Current spam filter threshold is " + strconv.FormatFloat(server.spamFilterThresh, 'f', 2, 64)); err != nil {
+		if _, err := session.ChannelMessageSend(message.ChannelID, "Current spam filter threshold is "+strconv.FormatFloat(server.spamFilterThresh, 'f', 2, 64)); err != nil {
 			return err
 		}
 
@@ -297,7 +297,7 @@ func spamFilterThreshold(session *discordgo.Session, message *discordgo.Message,
 
 				// Send message displaying changed spam filter threshold //
 				// - returns an error (nil if non)
-				_, err := session.ChannelMessageSend(message.ChannelID, "New word filter threshold is " + strconv.FormatFloat(server.spamFilterThresh, 'f', 2, 64))
+				_, err := session.ChannelMessageSend(message.ChannelID, "New word filter threshold is "+strconv.FormatFloat(server.spamFilterThresh, 'f', 2, 64))
 				return err
 			}
 		}

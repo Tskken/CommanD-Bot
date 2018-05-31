@@ -157,7 +157,7 @@ func scan(session *discordgo.Session, message *discordgo.Message) error {
 	if avr := float64(bWordCount) / float64(len(msg)); avr >= serverList[g.ID].wordFilterThresh {
 		// Get the message to delete //
 		// - Returns an error if err is not nil
-		if a, err := toDelete(session, message, "", 0, true); err != nil {
+		if a, err := getMessages(session, message, "", 0, true); err != nil {
 			return err
 		} else {
 			// Delete message //
@@ -197,7 +197,7 @@ func scan(session *discordgo.Session, message *discordgo.Message) error {
 						if score >= serverList[g.ID].spamFilterThresh {
 							// Get message to delete //
 							// - Returns an error if err is not nil
-							if a, err := toDelete(session, message, "", 0, true); err != nil {
+							if a, err := getMessages(session, message, "", 0, true); err != nil {
 								return err
 							} else {
 								// Delete message //
@@ -226,7 +226,7 @@ func scan(session *discordgo.Session, message *discordgo.Message) error {
 				case 1:
 					// Get message to delete //
 					// - Return an error if err is not nil
-					if a, err := toDelete(session, message, "", 0, true); err != nil {
+					if a, err := getMessages(session, message, "", 0, true); err != nil {
 						return err
 					} else {
 						// Delete message //

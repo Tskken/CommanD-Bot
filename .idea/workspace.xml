@@ -4,8 +4,6 @@
     <list default="true" id="6a77c490-cc79-4981-a6b9-dff4e6ce28f4" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot.go" beforeDir="false" afterPath="$PROJECT_DIR$/bot.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/channel_commands.go" beforeDir="false" afterPath="$PROJECT_DIR$/channel_commands.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/commands.go" beforeDir="false" afterPath="$PROJECT_DIR$/commands.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/filter.go" beforeDir="false" afterPath="$PROJECT_DIR$/filter.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/guild_commands.go" beforeDir="false" afterPath="$PROJECT_DIR$/guild_commands.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/help_commands.go" beforeDir="false" afterPath="$PROJECT_DIR$/help_commands.go" afterDir="false" />
@@ -14,9 +12,9 @@
       <change beforePath="$PROJECT_DIR$/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/server.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/source/data/Good" beforeDir="false" afterPath="$PROJECT_DIR$/source/data/Good" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/source/data/Spam" beforeDir="false" afterPath="$PROJECT_DIR$/source/data/Spam" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/data/server_data" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/source/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/source/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/storage.go" beforeDir="false" afterPath="$PROJECT_DIR$/storage.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/util.go" beforeDir="false" afterPath="$PROJECT_DIR$/util.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utility_commands.go" beforeDir="false" afterPath="$PROJECT_DIR$/utility_commands.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -27,16 +25,17 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="bot.go" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/bot.go">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="message_commands.go" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/message_commands.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="117">
-              <caret line="120" column="6" selection-start-line="120" selection-start-column="6" selection-end-line="120" selection-end-column="6" />
+            <state relative-caret-position="126">
+              <caret line="226" column="32" lean-forward="true" selection-start-line="226" selection-start-column="32" selection-end-line="226" selection-end-column="32" />
               <folding>
-                <element signature="n#!!block;n#NewBot#0" />
-                <element signature="n#!!block;n#CloseBot#0" />
-                <element signature="n#!!block;n#guildCreate#0" />
+                <element signature="n#!!block;n#loadMessageCommand#0" />
+                <element signature="n#!!block;n#loadMessageCommandInfo#0" />
+                <element signature="n#!!block;n#deleteMessage#0" />
+                <element signature="n#!!block;n#messageTime#0" />
               </folding>
             </state>
           </provider>
@@ -88,18 +87,18 @@
         <option value="$PROJECT_DIR$/source/data/server_data" />
         <option value="$PROJECT_DIR$/help.go" />
         <option value="$PROJECT_DIR$/commands.go" />
-        <option value="$PROJECT_DIR$/filter.go" />
         <option value="$PROJECT_DIR$/guild_commands.go" />
-        <option value="$PROJECT_DIR$/help_commands.go" />
-        <option value="$PROJECT_DIR$/message_commands.go" />
-        <option value="$PROJECT_DIR$/player_commands.go" />
-        <option value="$PROJECT_DIR$/server.go" />
-        <option value="$PROJECT_DIR$/storage.go" />
         <option value="$PROJECT_DIR$/util.go" />
-        <option value="$PROJECT_DIR$/utility_commands.go" />
         <option value="$PROJECT_DIR$/channel_commands.go" />
         <option value="$PROJECT_DIR$/source/main.go" />
+        <option value="$PROJECT_DIR$/server.go" />
         <option value="$PROJECT_DIR$/bot.go" />
+        <option value="$PROJECT_DIR$/storage.go" />
+        <option value="$PROJECT_DIR$/help_commands.go" />
+        <option value="$PROJECT_DIR$/utility_commands.go" />
+        <option value="$PROJECT_DIR$/player_commands.go" />
+        <option value="$PROJECT_DIR$/filter.go" />
+        <option value="$PROJECT_DIR$/message_commands.go" />
       </list>
     </option>
   </component>
@@ -121,7 +120,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -134,10 +132,17 @@
               <item name="CommanD-Bot" type="462c0819:PsiDirectoryNode" />
               <item name="source" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="CommanD-Bot" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CommanD-Bot" type="462c0819:PsiDirectoryNode" />
+              <item name="source" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -229,14 +234,13 @@
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18597998" />
-      <window_info anchor="bottom" id="TODO" order="6" visible="true" weight="0.32876712" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19241774" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32876712" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="right" id="Database" order="3" />
-      <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="9" weight="0.32919255" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32627645" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32627645" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32919255" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -247,23 +251,24 @@
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" />
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17750533" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32919255" />
+      <window_info anchor="bottom" id="Version Control" order="10" weight="0.32919255" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.32672232" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Terminal" order="9" weight="0.32919255" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="10" weight="0.32919255" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -281,10 +286,17 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="25" />
+      <option name="time" value="26" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/commands.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/filter.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-122">
@@ -457,28 +469,71 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
           <caret line="112" lean-forward="true" selection-start-line="112" selection-end-line="112" />
-          <folding>
-            <element signature="n#!!block;n#loadChannelCommand#0" />
-            <element signature="n#!!block;n#loadChannelCommandInfo#0" />
-            <element signature="n#!!block;n#createChannel#0" />
-            <element signature="n#!!block;n#newChannel#0" />
-            <element signature="n#!!block;n#deleteChannel#0" />
-            <element signature="n#!!block;n#getChannelToDel#0" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/filter.go">
+    <entry file="file://$PROJECT_DIR$/source/data/Good">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
+        <state relative-caret-position="171">
+          <caret line="85" column="345" selection-start-line="85" selection-start-column="345" selection-end-line="85" selection-end-column="345" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/commands.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+        <state relative-caret-position="164">
+          <caret line="47" selection-start-line="47" selection-end-line="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/util.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="11" column="42" lean-forward="true" selection-start-line="11" selection-start-column="42" selection-end-line="11" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="25" column="34" selection-start-line="25" selection-start-column="34" selection-end-line="25" selection-end-column="34" />
+          <folding>
+            <element signature="n#!!block;n#newServer#0" />
+            <element signature="n#!!block;n#createWordFilter#0" />
+            <element signature="n#!!block;n#editWordFilter#0" />
+            <element signature="n#!!block;n#mute#0" />
+            <element signature="n#!!block;n#unMute#0" />
+            <element signature="n#!!block;n#isMuted#0" />
+            <element signature="n#!!block;n#getAdminRole#0" />
+            <element signature="n#!!block;n#roleCheck#0" />
+            <element signature="n#!!block;n#isAdmin#0" />
+            <element signature="n#!!block;n#getGuild#0" />
+            <element signature="n#!!block;n#getMember#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bot.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="66" column="48" selection-start-line="66" selection-start-column="48" selection-end-line="66" selection-end-column="48" />
+          <folding>
+            <element signature="n#!!block;n#NewBot#0" />
+            <element signature="n#!!block;n#CloseBot#0" />
+            <element signature="n#!!block;n#guildCreate#0" />
+            <element signature="n#!!block;n#messageCreate#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/storage.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="46" column="24" selection-start-line="46" selection-start-column="24" selection-end-line="46" selection-end-column="24" />
+          <folding>
+            <element signature="n#!!block;n#saveServer#0" />
+            <element signature="n#!!block;n#loadServer#0" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -506,101 +561,54 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/help_commands.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1170">
-          <caret line="81" column="58" lean-forward="true" selection-start-line="81" selection-start-column="58" selection-end-line="81" selection-end-column="58" />
+        <state relative-caret-position="636">
+          <caret line="83" column="68" selection-start-line="83" selection-start-column="68" selection-end-line="83" selection-end-column="68" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/message_commands.go">
+    <entry file="file://$PROJECT_DIR$/utility_commands.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="280" column="93" lean-forward="true" selection-start-line="280" selection-start-column="93" selection-end-line="280" selection-end-column="93" />
+        <state relative-caret-position="555">
+          <caret line="76" column="68" selection-start-line="76" selection-start-column="68" selection-end-line="76" selection-end-column="68" />
           <folding>
-            <element signature="n#!!block;n#loadMessageCommand#0" />
-            <element signature="n#!!block;n#loadMessageCommandInfo#0" />
-            <element signature="n#!!block;n#deleteMessage#0" />
-            <element signature="n#!!block;n#toDelete#0" />
-            <element signature="n#!!block;n#getUserMessages#0" />
-            <element signature="n#!!block;n#clearMessages#0" />
+            <element signature="n#!!block;n#loadUtilityCommand#0" />
+            <element signature="n#!!block;n#loadUtilityCommandInfo#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/player_commands.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="105" column="92" selection-start-line="105" selection-start-column="92" selection-end-line="105" selection-end-column="92" />
+        <state relative-caret-position="75">
+          <caret line="12" column="35" selection-start-line="12" selection-start-column="35" selection-end-line="12" selection-end-column="35" />
           <folding>
             <element signature="n#!!block;n#loadPlayerCommand#0" />
             <element signature="n#!!block;n#loadPlayerCommandInfo#0" />
             <element signature="n#!!block;n#kickMember#0" />
             <element signature="n#!!block;n#banMember#0" />
+            <element signature="n#!!block;n#isMuted#0" />
+            <element signature="n#!!block;n#muteUser#0" />
+            <element signature="n#!!block;n#unMuteUser#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server.go">
+    <entry file="file://$PROJECT_DIR$/filter.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="673">
-          <caret line="166" column="98" selection-start-line="166" selection-start-column="98" selection-end-line="166" selection-end-column="98" />
+        <state relative-caret-position="521">
+          <caret line="228" column="45" selection-start-line="228" selection-start-column="45" selection-end-line="228" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/message_commands.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="226" column="32" lean-forward="true" selection-start-line="226" selection-start-column="32" selection-end-line="226" selection-end-column="32" />
           <folding>
-            <element signature="n#!!block;n#newServer#0" />
-            <element signature="n#!!block;n#createWordFilter#0" />
-            <element signature="n#!!block;n#editWordFilter#0" />
-            <element signature="n#!!block;n#getAdminRole#0" />
-            <element signature="n#!!block;n#roleCheck#0" />
-            <element signature="n#!!block;n#isAdmin#0" />
-            <element signature="n#!!block;n#getGuild#0" />
-            <element signature="n#!!block;n#getMember#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/storage.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="45" column="24" lean-forward="true" selection-start-line="45" selection-start-column="24" selection-end-line="45" selection-end-column="24" />
-          <folding>
-            <element signature="n#!!block;n#saveServer#0" />
-            <element signature="n#!!block;n#loadServer#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/util.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="11" column="42" lean-forward="true" selection-start-line="11" selection-start-column="42" selection-end-line="11" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utility_commands.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="51" column="91" selection-start-line="51" selection-start-column="91" selection-end-line="51" selection-end-column="91" />
-          <folding>
-            <element signature="n#!!block;n#loadUtilityCommand#0" />
-            <element signature="n#!!block;n#loadUtilityCommandInfo#0" />
-            <element signature="n#!!block;n#diceRole#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/source/data/Good">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="85" column="345" selection-start-line="85" selection-start-column="345" selection-end-line="85" selection-end-column="345" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bot.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="117">
-          <caret line="120" column="6" selection-start-line="120" selection-start-column="6" selection-end-line="120" selection-end-column="6" />
-          <folding>
-            <element signature="n#!!block;n#NewBot#0" />
-            <element signature="n#!!block;n#CloseBot#0" />
-            <element signature="n#!!block;n#guildCreate#0" />
+            <element signature="n#!!block;n#loadMessageCommand#0" />
+            <element signature="n#!!block;n#loadMessageCommandInfo#0" />
+            <element signature="n#!!block;n#deleteMessage#0" />
+            <element signature="n#!!block;n#messageTime#0" />
           </folding>
         </state>
       </provider>
