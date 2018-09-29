@@ -6,25 +6,22 @@ import (
 	"strconv"
 )
 
-// Sets command struct info for Channel commands //
-// - returns the channel commands instance
-func loadChannelCommand() *commands {
-	// Creates channel command struct //
-	c := commands{}
 
-	// Load help info for channel command //
-	c.commandInfo = loadChannelCommandInfo()
+
+func loadChannelCommand() *ChannelCommands {
+	// Creates channel command struct //
+	c := ChannelCommands{}
 
 	// Creates sub command function map //
-	c.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, []string) error)
+	c.commands = make(map[CommandKey]func(RootCommand) error)
 
 	// Create Channel function //
-	c.subCommands["-new"] = createChannel
-	c.subCommands["-c"] = createChannel
+	c.commands["-new"] = createChannel
+	c.commands["-c"] = createChannel
 
 	// Delete Channel function //
-	c.subCommands["-delete"] = deleteChannel
-	c.subCommands["-del"] = deleteChannel
+	c.commands["-delete"] = deleteChannel
+	c.commands["-del"] = deleteChannel
 
 	// Return reference to Channel commands instance //
 	return &c
@@ -58,35 +55,35 @@ func loadChannelCommandInfo() *commandInfo {
 
 // Create new channel function //
 // - Returns an error (nil if non)
-func createChannel(session *discordgo.Session, message *discordgo.Message, args []string) error {
+func createChannel(command RootCommand) error {
 	// Check if user is admin //
 	// - Returns if user is not an admin
 	// - Returns an error if err is not nil
-	if ok, err := isAdmin(session, message); err != nil {
+	if ok, err := isAdmin(command.session, command.message); err != nil {
 		return err
 	} else if !ok {
-		_, err := session.ChannelMessageSend(message.ChannelID, "You do not have permission to do that.")
+		_, err := command.session.ChannelMessageSend(command.message.ChannelID, "You do not have permission to do that.")
 		return err
 	}
 
 	// Get guild to add channel to //
 	// - Returns an error if err is not nil
-	if guild, err := getGuild(session, message); err != nil {
+	if guild, err := getGuild(command.session, command.message); err != nil {
 		return err
 	} else {
 		// Check the number of args //
 		// - 3 = Create a channel with out giving a type (default text)
 		// - 4 = Create a channel with a given type
-		switch len(args) {
-		case 3:
+		switch len(command.args) {
+		case 1:
 			// Create channel with default type //
-			return newChannel(session, guild, args[2], "text")
-		case 4:
+			return newChannel(command.session, guild, command.args[0], "text")
+		case 2:
 			// Create channel with a given type //
-			return newChannel(session, guild, args[2], args[3])
+			return newChannel(command.session, guild, command.args[0], command.args[1])
 		default:
 			// Error if the number of arguments is anything above 4 or below 3 //
-			return errors.New("length of args was not correct. Length: " + strconv.Itoa(len(args)))
+			return errors.New("length of args was not correct. Length: " + strconv.Itoa(len(command.args)))
 		}
 		return nil
 	}
@@ -113,35 +110,35 @@ func newChannel(session *discordgo.Session, guild *discordgo.Guild, name, cType 
 
 // Delete a channel function //
 // - Returns an error (nil if non)
-func deleteChannel(session *discordgo.Session, message *discordgo.Message, args []string) error {
+func deleteChannel(command RootCommand) error {
 	// Check if user is an admin //
 	// - returns an error if err is not nil
 	// - returns if user is not an admin
-	if ok, err := isAdmin(session, message); err != nil {
+	if ok, err := isAdmin(command.session, command.message); err != nil {
 		return err
 	} else if !ok {
-		_, err := session.ChannelMessageSend(message.ChannelID, "You do not have permission to do that.")
+		_, err := command.session.ChannelMessageSend(command.message.ChannelID, "You do not have permission to do that.")
 		return err
 	}
 
 	// Get guild channel the channel exists in //
 	// - returns an error if err is not nil
-	if guild, err := getGuild(session, message); err != nil {
+	if guild, err := getGuild(command.session, command.message); err != nil {
 		return err
 	} else {
 		// Check length of message //
 		// - returns an error if if args does not have a channel name
-		switch len(args) {
+		switch len(command.args) {
 		// channel name was given //
-		case 3:
+		case 1:
 			// Get channel to delete //
 			// - returns an error if err is not nil
-			if c, err := getChannelToDel(session, guild, args[2]); err != nil {
+			if c, err := getChannelToDel(command.session, guild, command.args[0]); err != nil {
 				return err
 			} else {
 				// Delete channel //
 				// - returns error (nil if non)
-				_, err := session.ChannelDelete(c.ID)
+				_, err := command.session.ChannelDelete(c.ID)
 				return err
 			}
 		// channel name was not given //

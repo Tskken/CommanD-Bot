@@ -37,7 +37,7 @@ func NewBot() (*discordgo.Session, error) {
 		session.AddHandler(messageCreate)
 
 		// Load commands //
-		loadCommands()
+		StartUp()
 
 		/*// Load classifier data from file //
 		// - returns an error if err is not nil
@@ -140,15 +140,17 @@ func messageCreate(session *discordgo.Session, create *discordgo.MessageCreate) 
 	// Parce input in to arguments and set them to lower case //
 	args := toLower(strings.Fields(create.Content))
 
-	// Get command struct from list of commands //
-	// - logs an error if command does not exist
-	if cmd, ok := botCommands[args[0]]; !ok {
-		log.Println("Could not understand given command")
-	} else {
-		// Run command struct //
-		// - logs an error if err is not nil
-		if err := runCommand(session, create.Message, cmd, args); err != nil {
-			log.Println(err)
-		}
+	var keys []CommandKey
+	for key := range args[:2] {
+		keys = append(keys, CommandKey(key))
 	}
+
+	root := RootCommand{session, create.Message, keys, args[2:]}
+
+	// Run command struct //
+	// - logs an error if err is not nil
+	if err := Run(root); err != nil {
+		log.Println(err)
+	}
+
 }

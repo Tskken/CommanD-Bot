@@ -1,26 +1,22 @@
 package CommanD_Bot
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"math/rand"
 	"strconv"
 	"time"
 )
 
 // Set utility command structure //
-func loadUtilityCommand() *commands {
+func loadUtilityCommand() *UtilityCommands {
 	// Create utility command structure //
-	u := commands{}
-
-	// Load utility command info structure //
-	u.commandInfo = loadUtilityCommandInfo()
+	u := UtilityCommands{}
 
 	// Create utility sub command map //
-	u.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, []string) error)
+	u.commands = make(map[CommandKey]func(RootCommand) error)
 
 	// Set dice role function in map //
-	u.subCommands["-dice"] = diceRole
-	u.subCommands["-d"] = diceRole
+	u.commands["-dice"] = diceRole
+	u.commands["-d"] = diceRole
 
 	// Return reference to utility command structure //
 	return &u
@@ -49,11 +45,11 @@ func loadUtilityCommandInfo() *commandInfo {
 
 // Roles a dice //
 // - returns an error (nil if non)
-func diceRole(session *discordgo.Session, message *discordgo.Message, args []string) error {
+func diceRole(command RootCommand) error {
 	// Convert the third argument to an int //
 	// - returns an error if err is not nil
-	if val, err := strconv.Atoi(args[2]); err != nil {
-		if err := deleteMessage(session, message.ChannelID, message.ID); err != nil {
+	if val, err := strconv.Atoi(command.args[0]); err != nil {
+		if err := deleteMessage(command.session, command.message.ChannelID, command.message.ID); err != nil {
 			return err
 		}
 
@@ -70,10 +66,10 @@ func diceRole(session *discordgo.Session, message *discordgo.Message, args []str
 
 		// Print random number to channel //
 		// - returns an error if err is not nil
-		if _, err := session.ChannelMessageSend(message.ChannelID, message.Author.Mention()+" got "+strconv.Itoa(val)); err != nil {
+		if _, err := command.session.ChannelMessageSend(command.message.ChannelID, command.message.Author.Mention()+" got "+strconv.Itoa(val)); err != nil {
 			return err
 		}
 
-		return deleteMessage(session, message.ChannelID, message.ID)
+		return deleteMessage(command.session, command.message.ChannelID, command.message.ID)
 	}
 }

@@ -12,11 +12,6 @@ A sudo command line for full control over your Discord server.  This bot is powe
 
 ---
 
-# NOTE!!!
-THIS README IS SUBJECT TO CHANGE.  ALL GIVEN FUNCTIONALITY COULD BE CHANGED OR REMOVED IF IT IS DEEMED APPROPRIATE
-
----
-
 ## Table Of Contents
 + [What is CommanD-Bot?](#Introduction)
 + [How to use](#HowTo)
