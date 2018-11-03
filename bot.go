@@ -124,8 +124,14 @@ func messageCreate(session *discordgo.Session, create *discordgo.MessageCreate) 
 			log.Println(err)
 		}*/
 
+	command := RootCommand{
+		&Root{session, create.Message},
+		nil,
+		nil,
+	}
+
 	// TODO - Comment
-	if muted, err := isMuted(session, create.Message); err != nil {
+	if muted, err := command.isMuted(); err != nil {
 		log.Println(err)
 	} else if muted {
 		log.Println("user is muted")
@@ -145,11 +151,12 @@ func messageCreate(session *discordgo.Session, create *discordgo.MessageCreate) 
 		keys = append(keys, CommandKey(key))
 	}
 
-	root := RootCommand{session, create.Message, keys, args[2:]}
+	command.keys = keys
+	command.args = args[2:]
 
 	// Run command struct //
 	// - logs an error if err is not nil
-	if err := Run(root); err != nil {
+	if err := Run(command); err != nil {
 		log.Println(err)
 	}
 

@@ -128,8 +128,8 @@ func (s *server) unMute(uId string) error {
 
 // TODO - Comment
 func (s *server) isMuted(uId string) (time.Time, bool) {
-	time, ok := s.MuteList[uId]
-	return time, ok
+	t, ok := s.MuteList[uId]
+	return t, ok
 }
 
 // Get admin role //
@@ -171,17 +171,17 @@ func roleCheck(session *discordgo.Session, guild *discordgo.Guild) error {
 
 // Check if a user is an admin //
 // - returns admin state boolean and an error (nil if non)
-func isAdmin(session *discordgo.Session, message *discordgo.Message) (bool, error) {
+func (r *Root) isAdmin() (bool, error) {
 	// Get guild the message was sent in //
 	// - returns an error if err is not nil
-	guild, err := getGuild(session, message)
+	guild, err := r.getGuild()
 	if err != nil {
 		return false, err
 	}
 
 	// Get member that created the message //
 	// - returns an error if err is not nil
-	member, err := getMember(session, message)
+	member, err := r.getMember()
 	if err != nil {
 		return false, err
 	}
@@ -208,28 +208,28 @@ func isAdmin(session *discordgo.Session, message *discordgo.Message) (bool, erro
 
 // Gets guild structure //
 // - returns an error (nil if non)
-func getGuild(session *discordgo.Session, message *discordgo.Message) (*discordgo.Guild, error) {
+func (r *Root) getGuild() (*discordgo.Guild, error) {
 	// Get the channel the message was created //
 	// - returns an error if err is not nil
-	if c, err := session.State.Channel(message.ChannelID); err != nil {
+	if c, err := r.State.Channel(r.ChannelID); err != nil {
 		return nil, err
 	} else {
 		// Gets guild from channel guild ID //
 		// - returns a reference to guild structure and an error (nil if non)
-		return session.State.Guild(c.GuildID)
+		return r.State.Guild(c.GuildID)
 	}
 }
 
 // Gets member structure //
 // - returns an error (nil if non)
-func getMember(session *discordgo.Session, message *discordgo.Message) (*discordgo.Member, error) {
+func (r *Root) getMember() (*discordgo.Member, error) {
 	// Gets the guild the message was created in //
 	// - returns an error if err is not nil
-	if g, err := getGuild(session, message); err != nil {
+	if g, err := r.getGuild(); err != nil {
 		return nil, err
 	} else {
 		// Get member from guild with message author ID //
 		// - returns a reference to member structure and an error (nil if non)
-		return session.GuildMember(g.ID, message.Author.ID)
+		return r.GuildMember(g.ID, r.Author.ID)
 	}
 }

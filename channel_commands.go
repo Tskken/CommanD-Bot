@@ -59,16 +59,16 @@ func createChannel(command RootCommand) error {
 	// Check if user is admin //
 	// - Returns if user is not an admin
 	// - Returns an error if err is not nil
-	if ok, err := isAdmin(command.session, command.message); err != nil {
+	if ok, err := command.isAdmin(); err != nil {
 		return err
 	} else if !ok {
-		_, err := command.session.ChannelMessageSend(command.message.ChannelID, "You do not have permission to do that.")
+		_, err := command.ChannelMessageSend(command.ChannelID, "You do not have permission to do that.")
 		return err
 	}
 
 	// Get guild to add channel to //
 	// - Returns an error if err is not nil
-	if guild, err := getGuild(command.session, command.message); err != nil {
+	if guild, err := command.getGuild(); err != nil {
 		return err
 	} else {
 		// Check the number of args //
@@ -77,10 +77,10 @@ func createChannel(command RootCommand) error {
 		switch len(command.args) {
 		case 1:
 			// Create channel with default type //
-			return newChannel(command.session, guild, command.args[0], "text")
+			return newChannel(command.Session, guild, command.args[0], "text")
 		case 2:
 			// Create channel with a given type //
-			return newChannel(command.session, guild, command.args[0], command.args[1])
+			return newChannel(command.Session, guild, command.args[0], command.args[1])
 		default:
 			// Error if the number of arguments is anything above 4 or below 3 //
 			return errors.New("length of args was not correct. Length: " + strconv.Itoa(len(command.args)))
@@ -114,16 +114,16 @@ func deleteChannel(command RootCommand) error {
 	// Check if user is an admin //
 	// - returns an error if err is not nil
 	// - returns if user is not an admin
-	if ok, err := isAdmin(command.session, command.message); err != nil {
+	if ok, err := command.isAdmin(); err != nil {
 		return err
 	} else if !ok {
-		_, err := command.session.ChannelMessageSend(command.message.ChannelID, "You do not have permission to do that.")
+		_, err := command.ChannelMessageSend(command.ChannelID, "You do not have permission to do that.")
 		return err
 	}
 
 	// Get guild channel the channel exists in //
 	// - returns an error if err is not nil
-	if guild, err := getGuild(command.session, command.message); err != nil {
+	if guild, err := command.getGuild(); err != nil {
 		return err
 	} else {
 		// Check length of message //
@@ -133,12 +133,12 @@ func deleteChannel(command RootCommand) error {
 		case 1:
 			// Get channel to delete //
 			// - returns an error if err is not nil
-			if c, err := getChannelToDel(command.session, guild, command.args[0]); err != nil {
+			if c, err := getChannelToDel(command.Session, guild, command.args[0]); err != nil {
 				return err
 			} else {
 				// Delete channel //
 				// - returns error (nil if non)
-				_, err := command.session.ChannelDelete(c.ID)
+				_, err := command.ChannelDelete(c.ID)
 				return err
 			}
 		// channel name was not given //

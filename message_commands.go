@@ -67,7 +67,7 @@ func deleteMessageHandler(command RootCommand) error {
 	// - returns error if err is not nil
 	// - true: is admin
 	// - false: not admin
-	admin, err := isAdmin(command.session, command.message)
+	admin, err := command.isAdmin()
 	if err != nil {
 		return err
 	}
@@ -79,12 +79,12 @@ func deleteMessageHandler(command RootCommand) error {
 	case 0:
 		// Get messages to delete //
 		// - returns an error if err is not nil
-		if messages, err := getMessages(command.session, command.message, "", 1, admin); err != nil {
+		if messages, err := command.getMessages("", 1, admin); err != nil {
 			return err
 		} else {
 			// Delete messages //
 			// - returns error (nil if non)
-			return deleteMessage(command.session, command.message.ChannelID, messages)
+			return command.deleteMessage(messages)
 		}
 	// -del was called with either a number of messages or a user name //
 	// - Number: deletes that number of messages in that channel or by that user if the user is not an admin
@@ -94,18 +94,18 @@ func deleteMessageHandler(command RootCommand) error {
 		if i, err := strconv.Atoi(command.args[0]); err != nil {
 			if !admin {
 				// - returns an error (nil if non)
-				_, err := command.session.ChannelMessageSend(command.message.ChannelID, "You are not an admin, you can not delete message by a specific user.")
+				_, err := command.ChannelMessageSend(command.ChannelID, "You are not an admin, you can not delete message by a specific user.")
 				return err
 			}
 			// Argument two was a username //
 			// - get last message sent by given user to delete
 			// - returns an error if err is not nil
-			if messages, err := getMessages(command.session, command.message, command.args[0], 1, admin); err != nil {
+			if messages, err := command.getMessages(command.args[0], 1, admin); err != nil {
 				return err
 			} else {
 				// Delete given messages //
 				// - returns an error (nil if non)
-				return deleteMessage(command.session, command.message.ChannelID, messages)
+				return command.deleteMessage(messages)
 			}
 		} else {
 			// Argument two was a number //
@@ -113,18 +113,18 @@ func deleteMessageHandler(command RootCommand) error {
 			if i >= 100 || i <= 0 {
 				// Send message to channel saying you do not have permission for this action //
 				// - returns an error (nil if non)
-				_, err := command.session.ChannelMessageSend(command.message.ChannelID, "You entered a number that I don't understand. Please enter a number between 1-99.")
+				_, err := command.ChannelMessageSend(command.ChannelID, "You entered a number that I don't understand. Please enter a number between 1-99.")
 				return err
 			}
 
 			// Gets last given number of messages to delete.  Gets messages by user if not admin //
 			// - returns an error if err is not nil
-			if messages, err := getMessages(command.session, command.message, "", i, admin); err != nil {
+			if messages, err := command.getMessages("", i, admin); err != nil {
 				return err
 			} else {
 				// Delete given messages //
 				// - returns an error (nil if non)
-				return deleteMessage(command.session, command.message.ChannelID, messages)
+				return command.deleteMessage(messages)
 			}
 		}
 	// -del was called with both a number to delete and a username //
@@ -134,7 +134,7 @@ func deleteMessageHandler(command RootCommand) error {
 		if !admin {
 			// Send message saying user was not an admin //
 			// - return an error (nil if non)
-			_, err := command.session.ChannelMessageSend(command.message.ChannelID, "You can not use this command. If you want to multiple of your own messages just type !ms -del <number of messages>.")
+			_, err := command.ChannelMessageSend(command.ChannelID, "You can not use this command. If you want to multiple of your own messages just type !ms -del <number of messages>.")
 			return err
 		}
 
@@ -147,17 +147,17 @@ func deleteMessageHandler(command RootCommand) error {
 			if i >= 100 || i <= 0 {
 				// Send message to channel for value being out of range //
 				// - return an error (nil if non)
-				_, err := command.session.ChannelMessageSend(command.message.ChannelID, "You entered a number that I don't understand. Please enter a number between 1-99.")
+				_, err := command.ChannelMessageSend(command.ChannelID, "You entered a number that I don't understand. Please enter a number between 1-99.")
 				return err
 			}
 			// Gets messages by user to be deleted //
 			// - returns an error if err is not nil
-			if messages, err := getMessages(command.session, command.message, command.args[0], i, true); err != nil {
+			if messages, err := command.getMessages(command.args[0], i, true); err != nil {
 				return err
 			} else {
 				// Deletes messages //
 				// - returns an error (nil if non)
-				return deleteMessage(command.session, command.message.ChannelID, messages)
+				return command.deleteMessage(messages)
 			}
 		}
 	}
@@ -165,47 +165,47 @@ func deleteMessageHandler(command RootCommand) error {
 
 // Get messages from channel to delete //
 // - returns an array of strings and an error (nil if non)
-func getMessages(session *discordgo.Session, message *discordgo.Message, uName string, i int, admin bool) ([]string, error) {
+func (r *Root) getMessages(uName string, i int, admin bool) ([]string, error) {
 
 	// Check if user is an admin //
 	if !admin {
 		// User was not admin, get only messages create by them //
 		// - returns list of message by user
 		// - returns error (nil if non)
-		member, err := getMember(session, message)
+		member, err := r.getMember()
 		if err != nil {
 			return nil, err
 		}
-		return getMessagesId(session, message, member.User.Mention(), i)
+		return r.getMessagesId(member.User.Mention(), i)
 
 	}
 
-	return getMessagesId(session, message, uName, i)
+	return r.getMessagesId(uName, i)
 }
 
 // Find user messages to delete //
-func getMessagesId(session *discordgo.Session, message *discordgo.Message, uName string, i int) ([]string, error) {
+func (r *Root) getMessagesId(uName string, i int) ([]string, error) {
 	// Create list of message to delete //
 	toDelete := make([]string, 0)
 
 	// Save current message id //
-	current := message.ID
+	current := r.ID
 
 	// Loop while toDelete list is less then the number of messages to be deleted //
 	for len(toDelete) < i {
 		// Get the given number of messages from the channel //
 		// - returns an error if err is not nil
-		if messages, err := session.ChannelMessages(message.ChannelID, i, current, "", ""); err != nil {
+		if messages, err := r.ChannelMessages(r.ChannelID, i, current, "", ""); err != nil {
 			return nil, err
 		} else {
 			// Returns an error if no messages to in the channel //
 			if len(messages) == 0 && len(toDelete) == 0 {
-				if err := deleteMessage(session, message.ChannelID, message.ID); err != nil {
+				if err := r.deleteMessage(r.ID); err != nil {
 					return nil, err
 				}
 				return nil, errors.New("there was no messages to delete with in given channel")
 			} else if len(messages) == 0 && len(toDelete) != 0{
-				toDelete = append(toDelete, message.ID)
+				toDelete = append(toDelete, r.ID)
 				return toDelete, nil
 			}
 
@@ -219,14 +219,14 @@ func getMessagesId(session *discordgo.Session, message *discordgo.Message, uName
 				if ok, err := messageTime(m); err != nil {
 					return nil, err
 				} else if !ok {
-					toDelete = append(toDelete, message.ID)
+					toDelete = append(toDelete, r.ID)
 					return toDelete, nil
 				}
 
 				if uName != "" {
 					// Gets the user info of the message //
 					// - returns an error if err is nil
-					if member, err := getMember(session, m); err != nil {
+					if member, err := r.getMember(); err != nil {
 						return nil, err
 					} else if getMention(member, uName) {
 						toDelete = append(toDelete, m.ID)
@@ -244,18 +244,18 @@ func getMessagesId(session *discordgo.Session, message *discordgo.Message, uName
 	}
 
 	// Add the initial !message -delete call to the toDelete list //
-	toDelete = append(toDelete, message.ID)
+	toDelete = append(toDelete, r.ID)
 
 	// Return list of messages to delete //
 	return toDelete, nil
 }
 
-func deleteMessage(session *discordgo.Session, chanId string, mId interface{}) error {
+func (r *Root) deleteMessage(mId interface{}) error {
 	switch mId.(type) {
 	case []string:
-		return session.ChannelMessagesBulkDelete(chanId, mId.([]string))
+		return r.ChannelMessagesBulkDelete(r.ChannelID, mId.([]string))
 	case string:
-		return session.ChannelMessageDelete(chanId, mId.(string))
+		return r.ChannelMessageDelete(r.ChannelID, mId.(string))
 	default:
 		return errors.New("mId is not of type []string or string")
 	}
@@ -285,24 +285,24 @@ func clearMessages(command RootCommand) error {
 	// Check if user is an admin //
 	// - return an error if err is not nil
 	// - return if user is not an admin
-	if admin, err := isAdmin(command.session, command.message); err != nil {
+	if admin, err := command.isAdmin(); err != nil {
 		return err
 	} else if !admin {
-		_, err := command.session.ChannelMessageSend(command.message.ChannelID, "You do not have the permissions to use this command.")
+		_, err := command.ChannelMessageSend(command.ChannelID, "You do not have the permissions to use this command.")
 		return err
 	}
 
 	// Clear message Loop //
 	// - runs toDelete to get the list of messages to delete in batches of 99
 	// - loop ends if the list of messages returned from toDelete is 0 or it returns an error
-	for ms, err := getMessages(command.session, command.message, "", 99, true); len(ms) > 0; ms, err = getMessages(command.session, command.message, "", 99, true) {
+	for ms, err := command.getMessages("", 99, true); len(ms) > 0; ms, err = command.getMessages("", 99, true) {
 		if err != nil {
 			return err
 		}
 
 		// Deletes the current batch of 99 messages //
 		// - returns an error if err is not nil
-		if err := command.session.ChannelMessagesBulkDelete(command.message.ChannelID, ms); err != nil {
+		if err := command.ChannelMessagesBulkDelete(command.ChannelID, ms); err != nil {
 			return err
 		}
 	}

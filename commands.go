@@ -8,9 +8,14 @@ var botCommands BotCommands
 
 type Commands map[CommandKey]CommandAction
 
+type Root struct {
+	*discordgo.Session
+	*discordgo.Message
+}
+
 type RootCommand struct {
-	session *discordgo.Session
-	message *discordgo.Message
+	*Root
+
 	keys []CommandKey
 	args []string
 }

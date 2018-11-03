@@ -3,7 +3,6 @@ package CommanD_Bot
 import (
 	"bufio"
 	"errors"
-	"github.com/bwmarrin/discordgo"
 	"github.com/jbrukh/bayesian"
 	"io"
 	"log"
@@ -129,11 +128,11 @@ func saveFilter() error {
 
 // Scan a message and to classify it //
 // - Returns an error if err is not nil
-func scan(session *discordgo.Session, message *discordgo.Message) error {
+func (r *Root) scan() error {
 	// Parce message on a space //
-	msg := toLower(strings.Fields(message.Content))
+	msg := toLower(strings.Fields(r.Content))
 
-	g, err := getGuild(session, message)
+	g, err := r.getGuild()
 	if err != nil {
 		return err
 	}
@@ -157,18 +156,18 @@ func scan(session *discordgo.Session, message *discordgo.Message) error {
 	if avr := float64(bWordCount) / float64(len(msg)); avr >= serverList[g.ID].wordFilterThresh {
 		// Get the message to delete //
 		// - Returns an error if err is not nil
-		if a, err := getMessages(session, message, "", 0, true); err != nil {
+		if a, err := r.getMessages("", 0, true); err != nil {
 			return err
 		} else {
 			// Delete message //
 			// - Return an error if err is not nil
-			if err := session.ChannelMessageDelete(message.ChannelID, a[0]); err != nil {
+			if err := r.ChannelMessageDelete(r.ChannelID, a[0]); err != nil {
 				return err
 			}
 
 			// Notify user of there mistake //
 			// - Returns an error if err is not nil
-			if _, err := session.ChannelMessageSend(message.ChannelID, message.Author.Mention()+" don't say that... that's not nice... bad! :point_up:"); err != nil {
+			if _, err := r.ChannelMessageSend(r.ChannelID, r.Author.Mention()+" don't say that... that's not nice... bad! :point_up:"); err != nil {
 				return err
 			}
 
@@ -197,17 +196,17 @@ func scan(session *discordgo.Session, message *discordgo.Message) error {
 						if score >= serverList[g.ID].spamFilterThresh {
 							// Get message to delete //
 							// - Returns an error if err is not nil
-							if a, err := getMessages(session, message, "", 0, true); err != nil {
+							if a, err := r.getMessages("", 0, true); err != nil {
 								return err
 							} else {
 								// Delete message //
 								// - Returns an error if err is not nil
-								if err := session.ChannelMessageDelete(message.ChannelID, a[0]); err != nil {
+								if err := r.ChannelMessageDelete(r.ChannelID, a[0]); err != nil {
 									return err
 								}
 								// Notify member of there mistake //
 								// - Returns an error if err is not nil
-								if _, err := session.ChannelMessageSend(message.ChannelID, message.Author.Mention()+" Why must you spam... No spamming... bad! :point_up:"); err != nil {
+								if _, err := r.ChannelMessageSend(r.ChannelID, r.Author.Mention()+" Why must you spam... No spamming... bad! :point_up:"); err != nil {
 									return err
 								}
 							}
@@ -226,17 +225,17 @@ func scan(session *discordgo.Session, message *discordgo.Message) error {
 				case 1:
 					// Get message to delete //
 					// - Return an error if err is not nil
-					if a, err := getMessages(session, message, "", 0, true); err != nil {
+					if a, err := r.getMessages( "", 0, true); err != nil {
 						return err
 					} else {
 						// Delete message //
 						// - Return an error ir err is not nil
-						if err := session.ChannelMessageDelete(message.ChannelID, a[0]); err != nil {
+						if err := r.ChannelMessageDelete(r.ChannelID, a[0]); err != nil {
 							return err
 						}
 						// Notify member of there mistake //
 						// - Returns an error if err is not nil
-						if _, err := session.ChannelMessageSend(message.ChannelID, message.Author.Mention()+" Why must you spam... No spamming... bad! :point_up:"); err != nil {
+						if _, err := r.ChannelMessageSend(r.ChannelID, r.Author.Mention()+" Why must you spam... No spamming... bad! :point_up:"); err != nil {
 							return err
 						}
 					}

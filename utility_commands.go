@@ -49,7 +49,7 @@ func diceRole(command RootCommand) error {
 	// Convert the third argument to an int //
 	// - returns an error if err is not nil
 	if val, err := strconv.Atoi(command.args[0]); err != nil {
-		if err := deleteMessage(command.session, command.message.ChannelID, command.message.ID); err != nil {
+		if err := command.deleteMessage(command.ID); err != nil {
 			return err
 		}
 
@@ -66,10 +66,10 @@ func diceRole(command RootCommand) error {
 
 		// Print random number to channel //
 		// - returns an error if err is not nil
-		if _, err := command.session.ChannelMessageSend(command.message.ChannelID, command.message.Author.Mention()+" got "+strconv.Itoa(val)); err != nil {
+		if _, err := command.ChannelMessageSend(command.ChannelID, command.Author.Mention()+" got "+strconv.Itoa(val)); err != nil {
 			return err
 		}
 
-		return deleteMessage(command.session, command.message.ChannelID, command.message.ID)
+		return command.deleteMessage(command.ID)
 	}
 }

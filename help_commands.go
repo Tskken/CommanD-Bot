@@ -1,14 +1,10 @@
 package CommanD_Bot
 
-import (
-	"errors"
-	"github.com/bwmarrin/discordgo"
-)
-
+/*
 // Set help command structure //
-func loadHelpCommand() *commands {
+func loadHelpCommand() *Commands {
 	// Create help command structure //
-	h := commands{}
+	h := &Commands{}
 
 	// Load help command info structure //
 	h.commandInfo = loadHelpCommandInfo()
@@ -37,7 +33,7 @@ func loadHelpCommand() *commands {
 	h.subCommands["!g"] = helpMessages
 
 	// Returns a reference to help command structure //
-	return &h
+	return h
 }
 
 // Set help command info structure //
@@ -60,7 +56,7 @@ func loadHelpCommandInfo() *commandInfo {
 
 // Help command //
 // - returns an error (nil if non)
-func helpMessages(session *discordgo.Session, message *discordgo.Message, args []string) error {
+func helpMessages(command *RootCommand) error {
 	// Check for help info for a main command //
 	if len(args) == 2 {
 		// Get main command structure //
@@ -87,3 +83,4 @@ func helpMessages(session *discordgo.Session, message *discordgo.Message, args [
 		return errors.New("not the right number of arguments in help command call")
 	}
 }
+*/

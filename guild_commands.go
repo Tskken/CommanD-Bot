@@ -2,7 +2,6 @@ package CommanD_Bot
 
 import (
 	"errors"
-	"github.com/bwmarrin/discordgo"
 	"strconv"
 )
 
@@ -43,26 +42,26 @@ func loadGuildCommand() *GuildCommands {
 // TODO: Deprecated function needs to be fixed and changed or removed
 // Word filter modification function //
 // - returns an error (nil if non)
-func wordFilter(session *discordgo.Session, message *discordgo.Message, args []string) error {
+func wordFilter(command RootCommand) error {
 	// Check if user is an admin //
 	// - returns an error if err is not nil
 	// - returns if user is not an admin
-	if admin, err := isAdmin(session, message); err != nil {
+	if admin, err := command.isAdmin(); err != nil {
 		return err
 	} else if !admin {
-		_, err := session.ChannelMessageSend(message.ChannelID, "You do not have permission to change the ban length.")
+		_, err := command.ChannelMessageSend(command.ChannelID, "You do not have permission to change the ban length.")
 		return err
 	}
 
 	// Check to make sure all arguments were given //
 	// - returns an error if they were not
-	if len(args) < 4 {
+	if len(command.args) < 4 {
 		return errors.New("the number of messages with in the command was to short")
 	}
 
 	// Get guild to edit the world filter for //
 	// - returns an error if err is not nil
-	if g, err := getGuild(session, message); err != nil {
+	if g, err := command.getGuild(); err != nil {
 		return err
 	} else {
 		// Get server info for guild //
@@ -74,15 +73,15 @@ func wordFilter(session *discordgo.Session, message *discordgo.Message, args []s
 			// - add: add a word to the list
 			// - remove: remove the word from the list
 			// - returns an error if it was not add or remove
-			switch args[2] {
+			switch command.args[2] {
 			case "add":
 				// Add word to list //
 				// - returns an error (nil if non)
-				return server.editWordFilter(args[3], true)
+				return server.editWordFilter(command.args[3], true)
 			case "remove":
 				// Remove word from list //
 				// - returns an error (nil if non)
-				return server.editWordFilter(args[3], false)
+				return server.editWordFilter(command.args[3], false)
 			default:
 				// Return an error as argument was not add or remove
 				return errors.New("argument given could not be understood")
@@ -97,16 +96,16 @@ func banTime(command RootCommand) error {
 	// Check if user is an admin //
 	// - return an error if err is not nil
 	// - return if user is not an admin
-	if admin, err := isAdmin(command.session, command.message); err != nil {
+	if admin, err := command.isAdmin(); err != nil {
 		return err
 	} else if !admin {
-		_, err := command.session.ChannelMessageSend(command.message.ChannelID, "You do not have permission to change the ban length.")
+		_, err := command.ChannelMessageSend(command.ChannelID, "You do not have permission to change the ban length.")
 		return err
 	}
 
 	// Gets the guild the messages was created in //
 	// - returns an error if err is not nil
-	if guild, err := getGuild(command.session, command.message); err != nil {
+	if guild, err := command.getGuild(); err != nil {
 		return err
 	} else {
 		// Get server info for guild //
@@ -118,7 +117,7 @@ func banTime(command RootCommand) error {
 
 		// Send the current ban time to the channel //
 		// - returns an error if err is not nil
-		if _, err := command.session.ChannelMessageSend(command.message.ChannelID, "Ban time was "+strconv.Itoa(int(server.BanTime))); err != nil {
+		if _, err := command.ChannelMessageSend(command.ChannelID, "Ban time was "+strconv.Itoa(int(server.BanTime))); err != nil {
 			return err
 		}
 
@@ -143,7 +142,7 @@ func banTime(command RootCommand) error {
 
 				// Print the new ban time to the server //
 				// - return an error if err is not nil
-				_, err = command.session.ChannelMessageSend(command.message.ChannelID, "Ban time has been set to "+strconv.Itoa(int(server.BanTime)))
+				_, err = command.ChannelMessageSend(command.ChannelID, "Ban time has been set to "+strconv.Itoa(int(server.BanTime)))
 				return err
 			}
 		}
@@ -153,20 +152,20 @@ func banTime(command RootCommand) error {
 // TODO: Deprecated function needs to be fixed and changed or removed
 // World filter threshold function //
 // - return an error (nil if non)
-func wordFilterThreshold(session *discordgo.Session, message *discordgo.Message, args []string) error {
+func wordFilterThreshold(command RootCommand) error {
 	// Check if user is an admin //
 	// - returns an error if err is not nil
 	// - returns if user is not an admin
-	if admin, err := isAdmin(session, message); err != nil {
+	if admin, err := command.isAdmin(); err != nil {
 		return err
 	} else if !admin {
-		_, err := session.ChannelMessageSend(message.ChannelID, "You do not have permition to change word filter settings.")
+		_, err := command.ChannelMessageSend(command.ChannelID, "You do not have permition to change word filter settings.")
 		return err
 	}
 
 	// Get guild the message was sent in //
 	// - returns an error if err is not nil
-	if guild, err := getGuild(session, message); err != nil {
+	if guild, err := command.getGuild(); err != nil {
 		return err
 	} else {
 		// Get server info for guild //
@@ -178,18 +177,18 @@ func wordFilterThreshold(session *discordgo.Session, message *discordgo.Message,
 
 		// Send message for current word filter threshold //
 		// - returns an error if err is not nil
-		if _, err := session.ChannelMessageSend(message.ChannelID, "Current word filter threshold is "+strconv.FormatFloat(server.wordFilterThresh, 'f', 2, 64)); err != nil {
+		if _, err := command.ChannelMessageSend(command.ChannelID, "Current word filter threshold is "+strconv.FormatFloat(server.wordFilterThresh, 'f', 2, 64)); err != nil {
 			return err
 		}
 
 		// Check if new threshold was given //
 		// - returns if false
-		if len(args) < 3 {
+		if len(command.args) < 3 {
 			return nil
 		} else {
 			// Convert argument to float for new threshold //
 			// - return an error if err is not nil
-			if thresh, err := strconv.ParseFloat(args[2], 64); err != nil {
+			if thresh, err := strconv.ParseFloat(command.args[2], 64); err != nil {
 				return err
 			} else {
 				// Check if threshold given is with in range //
@@ -203,7 +202,7 @@ func wordFilterThreshold(session *discordgo.Session, message *discordgo.Message,
 
 				// Send message displaying changed word filter threshold //
 				// - returns an error (nil if non)
-				_, err := session.ChannelMessageSend(message.ChannelID, "New word filter threshold is "+strconv.FormatFloat(server.wordFilterThresh, 'f', 2, 64))
+				_, err := command.ChannelMessageSend(command.ChannelID, "New word filter threshold is "+strconv.FormatFloat(server.wordFilterThresh, 'f', 2, 64))
 				return err
 			}
 		}
@@ -213,20 +212,20 @@ func wordFilterThreshold(session *discordgo.Session, message *discordgo.Message,
 // TODO: Deprecated function needs to be fixed and changed or removed
 // Spam filter threshold function //
 // - returns an error (nil if non)
-func spamFilterThreshold(session *discordgo.Session, message *discordgo.Message, args []string) error {
+func spamFilterThreshold(command RootCommand) error {
 	// Check if user is an admin //
 	// - returns an error if err is not nil
 	// - returns if user is not an admin
-	if admin, err := isAdmin(session, message); err != nil {
+	if admin, err := command.isAdmin(); err != nil {
 		return err
 	} else if !admin {
-		_, err := session.ChannelMessageSend(message.ChannelID, "You do not have permition to change word filter settings.")
+		_, err := command.ChannelMessageSend(command.ChannelID, "You do not have permition to change word filter settings.")
 		return err
 	}
 
 	// Get guild the message was sent in //
 	// - returns an error if err is not nil
-	if guild, err := getGuild(session, message); err != nil {
+	if guild, err := command.getGuild(); err != nil {
 		return err
 	} else {
 		// Get server info for guild //
@@ -238,18 +237,18 @@ func spamFilterThreshold(session *discordgo.Session, message *discordgo.Message,
 
 		// Send message for current spam filter threshold //
 		// - returns an error if err is not nil
-		if _, err := session.ChannelMessageSend(message.ChannelID, "Current spam filter threshold is "+strconv.FormatFloat(server.spamFilterThresh, 'f', 2, 64)); err != nil {
+		if _, err := command.ChannelMessageSend(command.ChannelID, "Current spam filter threshold is "+strconv.FormatFloat(server.spamFilterThresh, 'f', 2, 64)); err != nil {
 			return err
 		}
 
 		// Check if new threshold was given //
 		// - returns if false
-		if len(args) < 3 {
+		if len(command.args) < 3 {
 			return nil
 		} else {
 			// Convert argument to float for new threshold //
 			// - return an error if err is not nil
-			if thresh, err := strconv.ParseFloat(args[2], 64); err != nil {
+			if thresh, err := strconv.ParseFloat(command.args[2], 64); err != nil {
 				return err
 			} else {
 				// Check if threshold given is with in range //
@@ -263,7 +262,7 @@ func spamFilterThreshold(session *discordgo.Session, message *discordgo.Message,
 
 				// Send message displaying changed spam filter threshold //
 				// - returns an error (nil if non)
-				_, err := session.ChannelMessageSend(message.ChannelID, "New word filter threshold is "+strconv.FormatFloat(server.spamFilterThresh, 'f', 2, 64))
+				_, err := command.ChannelMessageSend(command.ChannelID, "New word filter threshold is "+strconv.FormatFloat(server.spamFilterThresh, 'f', 2, 64))
 				return err
 			}
 		}
