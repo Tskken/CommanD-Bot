@@ -2,52 +2,38 @@ package CommanD_Bot
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"strings"
 )
 
-var botCommands BotCommands
-
-type Commands map[CommandKey]CommandAction
-
-type Root struct {
-	*discordgo.Session
-	*discordgo.Message
-}
-
-type RootCommand struct {
-	*Root
-
-	keys []CommandKey
-	args []string
-}
+type Commands map[string]CommandAction
 
 type BotCommands struct {
 	commands Commands
 }
 
-func Run(command RootCommand) error {
-	return botCommands.commands[command.keys[0]].RunCommand(command)
+func (r *Root) Run() error {
+	return r.commands[r.CommandRoot()].RunCommand(r)
 }
 
-func StartUp(){
-	botCommands = BotCommands{}
-
-	mc := loadMessageCommand()
-	botCommands.commands["!messages"] = mc
-	botCommands.commands["!ms"] = mc
-
-	cc := loadChannelCommand()
-	botCommands.commands["!channel"] = cc
-	botCommands.commands["!ch"] = cc
-
-	gc := loadGuildCommand()
-	botCommands.commands["!guild"] = gc
-	botCommands.commands["!gl"] = gc
-
-	pc := loadPlayerCommand()
-	botCommands.commands["!player"] = pc
-	botCommands.commands["!pl"] = pc
-
-	uc := loadUtilityCommand()
-	botCommands.commands["!utility"] = uc
-	botCommands.commands["!ut"] = uc
+func (r *Root) Args() []string {
+	return ToLower(strings.Fields(r.Content))
 }
+
+func (r *Root) CommandArgs() []string{
+	// Parce input in to arguments and set them to lower case //
+	return r.Args()[2:]
+}
+
+func (r *Root) CommandRoot()string {
+	return r.Args()[0]
+}
+
+func (r *Root) CommandType()string {
+	return r.Args()[1]
+}
+
+func (r *Root) MessageSend(content string) error {
+	_, err := r.ChannelMessageSend(r.ChannelID, content)
+	return err
+}
+

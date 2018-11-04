@@ -6,17 +6,25 @@ import (
 	"time"
 )
 
+type UtilityCommands struct {
+	commands map[string]func(*Root)error
+}
+
+func (m *UtilityCommands) RunCommand(root *Root) error {
+	return m.commands[root.CommandType()](root)
+}
+
 // Set utility command structure //
-func loadUtilityCommand() *UtilityCommands {
+func LoadUtilityCommand() *UtilityCommands {
 	// Create utility command structure //
 	u := UtilityCommands{}
 
 	// Create utility sub command map //
-	u.commands = make(map[CommandKey]func(RootCommand) error)
+	u.commands = make(map[string]func(*Root) error)
 
 	// Set dice role function in map //
-	u.commands["-dice"] = diceRole
-	u.commands["-d"] = diceRole
+	u.commands["-dice"] = DiceRole
+	u.commands["-d"] = DiceRole
 
 	// Return reference to utility command structure //
 	return &u
@@ -45,11 +53,11 @@ func loadUtilityCommandInfo() *commandInfo {
 
 // Roles a dice //
 // - returns an error (nil if non)
-func diceRole(command RootCommand) error {
+func DiceRole(root *Root) error {
 	// Convert the third argument to an int //
 	// - returns an error if err is not nil
-	if val, err := strconv.Atoi(command.args[0]); err != nil {
-		if err := command.deleteMessage(command.ID); err != nil {
+	if val, err := strconv.Atoi(root.CommandArgs()[0]); err != nil {
+		if err := root.DeleteMessage(root.ID); err != nil {
 			return err
 		}
 
@@ -66,10 +74,10 @@ func diceRole(command RootCommand) error {
 
 		// Print random number to channel //
 		// - returns an error if err is not nil
-		if _, err := command.ChannelMessageSend(command.ChannelID, command.Author.Mention()+" got "+strconv.Itoa(val)); err != nil {
+		if err := root.MessageSend(root.Author.Mention()+" got "+strconv.Itoa(val)); err != nil {
 			return err
 		}
 
-		return command.deleteMessage(command.ID)
+		return root.DeleteMessage(root.ID)
 	}
 }

@@ -23,12 +23,12 @@ var muteTimerList = make(map[string]*time.Timer)
 
 // Creates new server //
 // - returns a reference to a server and an error (nil if non)
-func newServer() (*server, error) {
+func NewServer() (*server, error) {
 	// Creates server structure //
 	s := server{}
 
 	// Set server default word filter //
-	if err := s.createWordFilter(); err != nil {
+	if err := s.CreateWordFilter(); err != nil {
 		return nil, err
 	}
 
@@ -50,13 +50,13 @@ func newServer() (*server, error) {
 
 // Create word filter map //
 // - returns an error (nil if non)
-func (s *server) createWordFilter() error {
+func (s *server) CreateWordFilter() error {
 	// Create word filter map //
 	s.WordFilter = make(map[string]bool)
 
 	// Load default word filter from file //
 	// - returns an error if err is not nil
-	if err := s.loadWordsFromFile(); err != nil {
+	if err := s.LoadWordsFromFile(); err != nil {
 		return err
 	}
 	return nil
@@ -64,7 +64,7 @@ func (s *server) createWordFilter() error {
 
 // Change a value with in word filter //
 // - returns an error (nil if non)
-func (s *server) editWordFilter(word string, action bool) error {
+func (s *server) EditWordFilter(word string, action bool) error {
 	if !action {
 		// Remove word from filter //
 		// - returns an error if word does not exist in list
@@ -83,7 +83,7 @@ func (s *server) editWordFilter(word string, action bool) error {
 }
 
 // TODO - Comment
-func (s *server) mute(uId string, duration time.Duration) error {
+func (s *server) Mute(uId string, duration time.Duration) error {
 	if t, ok := s.MuteList[uId]; ok {
 		s.MuteList[uId] = t.Add(duration)
 		timer, ok := muteTimerList[uId]
@@ -97,7 +97,7 @@ func (s *server) mute(uId string, duration time.Duration) error {
 
 	s.MuteList[uId] = time.Now().Add(duration)
 	timer := time.AfterFunc(duration, func() {
-		err := s.unMute(uId)
+		err := s.UnMute(uId)
 		if err != nil {
 			log.Println(err)
 		}
@@ -109,7 +109,7 @@ func (s *server) mute(uId string, duration time.Duration) error {
 }
 
 // TODO - Comment
-func (s *server) unMute(uId string) error {
+func (s *server) UnMute(uId string) error {
 	if _, ok := s.MuteList[uId]; !ok {
 		return errors.New("mute id no longer exists")
 	} else {
@@ -127,14 +127,14 @@ func (s *server) unMute(uId string) error {
 }
 
 // TODO - Comment
-func (s *server) isMuted(uId string) (time.Time, bool) {
+func (s *server) IsMuted(uId string) (time.Time, bool) {
 	t, ok := s.MuteList[uId]
 	return t, ok
 }
 
 // Get admin role //
 // - returns reference to ID and an error (nil if non)
-func getAdminRole(guild *discordgo.Guild) (*string, error) {
+func GetAdminRole(guild *discordgo.Guild) (*string, error) {
 	// Look though guild roles //
 	for _, role := range guild.Roles {
 		// Check if role name is Admin
@@ -150,10 +150,10 @@ func getAdminRole(guild *discordgo.Guild) (*string, error) {
 
 // Check if the Admin role exist in guild //
 // - return an error (nil if non)
-func roleCheck(session *discordgo.Session, guild *discordgo.Guild) error {
+func RoleCheck(session *discordgo.Session, guild *discordgo.Guild) error {
 	// Try go get admin role //
 	// - if error is not nil create admin role
-	_, err := getAdminRole(guild)
+	_, err := GetAdminRole(guild)
 	if err != nil {
 		// Create a new role with in the guild //
 		// - returns an error if err is not nil
@@ -171,24 +171,24 @@ func roleCheck(session *discordgo.Session, guild *discordgo.Guild) error {
 
 // Check if a user is an admin //
 // - returns admin state boolean and an error (nil if non)
-func (r *Root) isAdmin() (bool, error) {
+func (r *Root) IsAdmin() (bool, error) {
 	// Get guild the message was sent in //
 	// - returns an error if err is not nil
-	guild, err := r.getGuild()
+	guild, err := r.GetGuild()
 	if err != nil {
 		return false, err
 	}
 
 	// Get member that created the message //
 	// - returns an error if err is not nil
-	member, err := r.getMember()
+	member, err := r.GetMember()
 	if err != nil {
 		return false, err
 	}
 
 	// Gets the admin role ID from the guild //
 	// - returns an error if err is not nil
-	if roleID, err := getAdminRole(guild); err != nil {
+	if roleID, err := GetAdminRole(guild); err != nil {
 		return false, err
 	} else {
 		// Check member roles //
@@ -208,7 +208,7 @@ func (r *Root) isAdmin() (bool, error) {
 
 // Gets guild structure //
 // - returns an error (nil if non)
-func (r *Root) getGuild() (*discordgo.Guild, error) {
+func (r *Root) GetGuild() (*discordgo.Guild, error) {
 	// Get the channel the message was created //
 	// - returns an error if err is not nil
 	if c, err := r.State.Channel(r.ChannelID); err != nil {
@@ -222,10 +222,10 @@ func (r *Root) getGuild() (*discordgo.Guild, error) {
 
 // Gets member structure //
 // - returns an error (nil if non)
-func (r *Root) getMember() (*discordgo.Member, error) {
+func (r *Root) GetMember() (*discordgo.Member, error) {
 	// Gets the guild the message was created in //
 	// - returns an error if err is not nil
-	if g, err := r.getGuild(); err != nil {
+	if g, err := r.GetGuild(); err != nil {
 		return nil, err
 	} else {
 		// Get member from guild with message author ID //

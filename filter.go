@@ -27,7 +27,7 @@ var filterClassifier *bayesian.Classifier // Bayesian Classifiers
 // Create Classifier filter //
 // Returns a reference to a new Classifier.
 // - nil Classifier if error
-func newFilter() error {
+func NewFilter() error {
 	filterClassifier = bayesian.NewClassifier(good, spam)
 	filterClassifier.ConvertTermsFreqToTfIdf()
 	if !filterClassifier.DidConvertTfIdf {
@@ -37,10 +37,10 @@ func newFilter() error {
 }
 
 // Loads Classifier data from pri-trained data file //
-func loadFilter() error {
+func LoadFilter() error {
 	log.Println("loading classifiers...")
 
-	if err := newFilter(); err != nil {
+	if err := NewFilter(); err != nil {
 		return err
 	}
 
@@ -64,7 +64,7 @@ func loadFilter() error {
 	return nil
 }
 
-func (s *server) loadWordsFromFile() error {
+func (s *server) LoadWordsFromFile() error {
 	log.Println("loading key word filter default for server...")
 	// Gets list of file paths from path //
 	// - Returns an error if err is not nil
@@ -110,7 +110,7 @@ func (s *server) loadWordsFromFile() error {
 
 // Save Classifier data to file //
 // - Returns an error if err is not nil
-func saveFilter() error {
+func SaveFilter() error {
 	log.Println("Saving Classifiers...")
 	// Get files to save to from path //
 	// - Returns an error if err is not nil
@@ -128,11 +128,10 @@ func saveFilter() error {
 
 // Scan a message and to classify it //
 // - Returns an error if err is not nil
-func (r *Root) scan() error {
-	// Parce message on a space //
-	msg := toLower(strings.Fields(r.Content))
+func (r *Root) Scan() error {
+	msg := r.Args()
 
-	g, err := r.getGuild()
+	g, err := r.GetGuild()
 	if err != nil {
 		return err
 	}
@@ -156,7 +155,7 @@ func (r *Root) scan() error {
 	if avr := float64(bWordCount) / float64(len(msg)); avr >= serverList[g.ID].wordFilterThresh {
 		// Get the message to delete //
 		// - Returns an error if err is not nil
-		if a, err := r.getMessages("", 0, true); err != nil {
+		if a, err := r.GetMessages("", 0, true); err != nil {
 			return err
 		} else {
 			// Delete message //
@@ -196,7 +195,7 @@ func (r *Root) scan() error {
 						if score >= serverList[g.ID].spamFilterThresh {
 							// Get message to delete //
 							// - Returns an error if err is not nil
-							if a, err := r.getMessages("", 0, true); err != nil {
+							if a, err := r.GetMessages("", 0, true); err != nil {
 								return err
 							} else {
 								// Delete message //
@@ -225,7 +224,7 @@ func (r *Root) scan() error {
 				case 1:
 					// Get message to delete //
 					// - Return an error if err is not nil
-					if a, err := r.getMessages( "", 0, true); err != nil {
+					if a, err := r.GetMessages( "", 0, true); err != nil {
 						return err
 					} else {
 						// Delete message //

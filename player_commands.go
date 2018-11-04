@@ -8,29 +8,37 @@ import (
 	"time"
 )
 
+type PlayerCommands struct {
+	commands map[string]func(*Root)error
+}
+
+func (m *PlayerCommands) RunCommand(root *Root) error {
+	return m.commands[root.CommandType()](root)
+}
+
 // Set player command structure //
-func loadPlayerCommand() *PlayerCommands {
+func LoadPlayerCommand() *PlayerCommands {
 	// Create player command structure //
 	p := PlayerCommands{}
 
 	// Create sub command map //
-	p.commands = make(map[CommandKey]func(RootCommand) error)
+	p.commands = make(map[string]func(*Root) error)
 
 	// Set kick sub command //
-	p.commands["-kick"] = kickMember
-	p.commands["-k"] = kickMember
+	p.commands["-kick"] = KickMember
+	p.commands["-k"] = KickMember
 
 	// Set ban sub command //
-	p.commands["-ban"] = banMember
-	p.commands["-b"] = banMember
+	p.commands["-ban"] = BanMember
+	p.commands["-b"] = BanMember
 
 	// TODO - Comment
-	p.commands["-mute"] = muteUser
-	p.commands["-m"] = muteUser
+	p.commands["-mute"] = MuteUser
+	p.commands["-m"] = MuteUser
 
 	// TODO - Comment
-	p.commands["-unmute"] = unMuteUser
-	p.commands["-um"] = unMuteUser
+	p.commands["-unmute"] = UnMuteUser
+	p.commands["-um"] = UnMuteUser
 
 	// Return a reference to command structure //
 	return &p
@@ -66,208 +74,205 @@ func loadPlayerCommandInfo() *commandInfo {
 // User kick function //
 // - returns an error (nil if non)
 // TODO - Fix kick with reason functionality
-func kickMember(command RootCommand) error {
+func KickMember(root *Root) error {
 	// Check if user is admin //
 	// - return an error if err is not nil
-	if admin, err := command.isAdmin(); err != nil {
+	if admin, err := root.IsAdmin(); err != nil {
 		return err
 	} else if !admin {
 		// User was not an admin //
 		// - return an error (nil if non)
-		if _, err := command.ChannelMessageSend(command.ChannelID, "You do not have the permission to kick someone."); err != nil {
+		if err := root.MessageSend("You do not have the permission to kick someone."); err != nil {
 			return err
 		}
-		return command.deleteMessage(command.ID)
+		return root.DeleteMessage(root.ID)
 	}
 
 	// Gets the guild the messages was created in //
 	// - returns an error if err is not nil
-	if guild, err := command.getGuild(); err != nil {
+	if guild, err := root.GetGuild(); err != nil {
 		return err
 	} else {
 		// Find the user with in the guild //
 		for _, member := range guild.Members {
 			// Check if mention of user is the same as passed user mention //
-			if command.args[0] == member.User.Mention() {
-				if len(command.args) == 1 {
+			if root.CommandArgs()[0] == member.User.Mention() {
+				if len(root.CommandArgs()) == 1 {
 					// Kick user with out reason //
 
-					if err := command.GuildMemberDelete(guild.ID, member.User.ID); err != nil {
+					if err := root.GuildMemberDelete(guild.ID, member.User.ID); err != nil {
 						return err
 					}
 
-					if _, err := command.ChannelMessageSend(command.ChannelID, command.args[0] + " was kicked"); err != nil {
+					if err := root.MessageSend(root.CommandArgs()[0] + " was kicked"); err != nil {
 						return err
 					}
 
-					return command.deleteMessage(command.ID)
-				} else if len(command.args) >= 2 {
+					return root.DeleteMessage(root.ID)
+				} else if len(root.CommandArgs()) >= 2 {
 					// Kick user with reason //
-					if err := command.GuildMemberDeleteWithReason(guild.ID, member.User.ID, strings.Join(command.args[2:], " ")); err != nil {
+					if err := root.GuildMemberDeleteWithReason(guild.ID, member.User.ID, strings.Join(root.CommandArgs()[2:], " ")); err != nil {
 						return err
 					}
 
-					return command.deleteMessage(command.ID)
+					return root.DeleteMessage(root.ID)
 				} else {
 					// Could not find user with in guild //
 					// - returns an error (nil if non)
-					if _, err := command.ChannelMessageSend(command.ChannelID, "You did not enter a user to kick.  Type !help -kick for more info."); err != nil {
+					if err := root.MessageSend("You did not enter a user to kick.  Type !help -kick for more info."); err != nil {
 						return err
 					}
-					return command.deleteMessage(command.ID)
+					return root.DeleteMessage(root.ID)
 				}
 			}
 		}
 
-		if _, err := command.ChannelMessageSend(command.ChannelID, "given user mention was not found in server"); err != nil {
+		if err := root.MessageSend("given user mention was not found in server"); err != nil {
 			return err
 		}
 		// User was not found in server //
 		// - return an error for no user found
-		return command.deleteMessage(command.ID)
+		return root.DeleteMessage(root.ID)
 	}
 }
 
 // User ban function //
 // - returns an error (nil if non)
 // TODO - Fix Ban with reason functionality
-func banMember(command RootCommand) error {
+func BanMember(root *Root) error {
 	// Check if user is an admin //
 	// - returns an error if err is not nil
-	if admin, err := command.isAdmin(); err != nil {
+	if admin, err := root.IsAdmin(); err != nil {
 		return err
 	} else if !admin {
 		// User was not an admin //
 		// - return an error (nil if non)
-		if _, err := command.ChannelMessageSend(command.ChannelID, "You do not have the permission to kick someone."); err != nil {
+		if err := root.MessageSend( "You do not have the permission to kick someone."); err != nil {
 			return err
 		}
-		return command.deleteMessage(command.ID)
+		return root.DeleteMessage(root.ID)
 	}
 
 	// Gets the guild the messages was created in //
 	// - returns an error if err is not nil
-	if guild, err := command.getGuild(); err != nil {
+	if guild, err := root.GetGuild(); err != nil {
 		return err
 	} else {
 		// Get the ban time for a server //
 		// - returns an error if guild is not in server list
 		server, ok := serverList[guild.ID]
 		if !ok {
-			if err := command.deleteMessage(command.ID); err != nil {
+			if err := root.DeleteMessage(root.ID); err != nil {
 				return err
 			}
 			return errors.New("guild did not exist in serverList")
 		}
 
-		if len(command.args) == 1 {
+		if len(root.CommandArgs()) == 1 {
 			// Find the user to ban with in the guild //
 			for _, member := range guild.Members {
 
 				// Check if mention of user is equal to argument //
-				if command.args[0] == member.User.Mention() {
-					if err := command.deleteMessage(command.ID); err != nil {
+				if root.CommandArgs()[0] == member.User.Mention() {
+					if err := root.DeleteMessage(root.ID); err != nil {
 						return err
 					}
 
 					// Ban the user for set server ban time //
 					// - returns an error (nil if non)
-					return command.GuildBanCreate(guild.ID, member.User.ID, int(server.BanTime))
+					return root.GuildBanCreate(guild.ID, member.User.ID, int(server.BanTime))
 				}
 			}
 
 			// given user was found in guild //
 			// - return an error
 			return errors.New("no user was found")
-		} else if len(command.args) >= 2 {
+		} else if len(root.CommandArgs()) >= 2 {
 			// Find the user to ban with in the guild //
 			for _, member := range guild.Members {
 
 				// Check if mention of user is equal to argument //
-				if member.Nick == command.args[0] || member.User.Username == command.args[0] {
-					if err := command.deleteMessage(command.ID); err != nil {
+				if GetMention(member, root.CommandArgs()[0]) {
+					if err := root.DeleteMessage(root.ID); err != nil {
 						return err
 					}
 
 					// Ban user with given reason for set server ban time //
 					// - returns an error (nil if non)
-					return command.GuildBanCreateWithReason(guild.ID, member.User.ID, strings.Join(command.args[1:], " "), int(server.BanTime))
+					return root.GuildBanCreateWithReason(guild.ID, member.User.ID, strings.Join(root.CommandArgs()[1:], " "), int(server.BanTime))
 				}
 			}
 
-			if _, err := command.ChannelMessageSend(command.ChannelID, "given user mention was not found in server"); err != nil {
+			if err := root.MessageSend("given user mention was not found in server"); err != nil {
 				return err
 			}
 
 			// given user was found in guild //
 			// - return an error
-			return command.deleteMessage(command.ID)
+			return root.DeleteMessage(root.ID)
 		} else {
 			// Given arguments were not correct //
 			// - return an error (nil if non)
-			if _, err := command.ChannelMessageSend(command.ChannelID, "Could not understand given arguments."); err != nil {
+			if err := root.MessageSend("Could not understand given arguments."); err != nil {
 				return err
 			}
 
-			return command.deleteMessage(command.ID)
+			return root.DeleteMessage(root.ID)
 		}
 	}
 }
 
 // TODO - Comment
-func (r *Root) isMuted() (bool, error) {
-	guild, err := r.getGuild()
+func (r *Root) IsMuted() (bool, error) {
+	guild, err := r.GetGuild()
 	if err != nil {
 		return false, err
 	}
 	server := serverList[guild.ID]
 
-	member, err := r.getMember()
+	member, err := r.GetMember()
 	if err != nil {
 		return false, err
 	}
 
-	if muteTime, muted := server.isMuted(member.User.ID); muted {
+	if muteTime, muted := server.IsMuted(member.User.ID); muted {
 		log.Println("is muted till " + time.Until(muteTime).Truncate(time.Second).String())
-		if err := r.deleteMessage(r.ID); err != nil {
+		if err := r.DeleteMessage(r.ID); err != nil {
 			return false, err
 		}
-
-		_, err := r.ChannelMessageSend(r.ChannelID, member.User.Mention()+" you are muted for "+time.Until(muteTime).Truncate(time.Second).String())
-		return true, err
+		return true, r.MessageSend(member.User.Mention()+" you are muted for "+time.Until(muteTime).Truncate(time.Second).String())
 	}
 
 	return false, nil
 }
 
 // TODO - Comment
-func muteUser(command RootCommand) error {
-	if len(command.args) < 2 {
+func MuteUser(root *Root) error {
+	if len(root.CommandArgs()) < 2 {
 		return errors.New("to few args in muteUser")
 	}
 
-	if ok, err := command.isAdmin(); err != nil {
+	if ok, err := root.IsAdmin(); err != nil {
 		return err
 	} else if !ok {
-		member, err := command.getMember()
+		member, err := root.GetMember()
 		if err != nil {
 			return err
 		}
-		_, err = command.ChannelMessageSend(command.ChannelID, member.User.Mention()+" You do not have permission to use that command.")
-		return err
+		return root.MessageSend(member.User.Mention()+" You do not have permission to use that root.")
 	}
 
-	guild, err := command.getGuild()
+	guild, err := root.GetGuild()
 	if err != nil {
 		return err
 	}
 
 	for _, member := range guild.Members {
-		if member.User.Mention() == command.args[0] {
+		if member.User.Mention() == root.CommandArgs()[0] {
 
 			var key time.Duration
 
-			d := command.args[1]
+			d := root.CommandArgs()[1]
 			k := d[len(d)-1]
 			switch k {
 			case 's':
@@ -280,7 +285,7 @@ func muteUser(command RootCommand) error {
 				return errors.New("unknown time key " + string(d))
 			}
 
-			t, err := strconv.Atoi(command.args[1][:len(d)-1])
+			t, err := strconv.Atoi(root.CommandArgs()[1][:len(d)-1])
 			if err != nil {
 				return err
 			}
@@ -292,15 +297,15 @@ func muteUser(command RootCommand) error {
 				return errors.New("server did not exist in server list")
 			}
 
-			if err := server.mute(member.User.ID, duration); err != nil {
+			if err := server.Mute(member.User.ID, duration); err != nil {
 				return err
 			}
 
-			if _, err := command.ChannelMessageSend(command.ChannelID, command.args[0]+" has been muted for "+duration.Truncate(time.Second).String()); err != nil {
+			if err := root.MessageSend(root.CommandArgs()[0]+" has been muted for "+duration.Truncate(time.Second).String()); err != nil {
 				return err
 			}
 
-			return command.deleteMessage(command.ID)
+			return root.DeleteMessage(root.ID)
 		}
 	}
 
@@ -308,23 +313,22 @@ func muteUser(command RootCommand) error {
 }
 
 // TODO - Comment
-func unMuteUser(command RootCommand) error {
-	if len(command.args) < 1 {
+func UnMuteUser(root *Root) error {
+	if len(root.CommandArgs()) < 1 {
 		return errors.New("to few args in muteUser")
 	}
 
-	if ok, err := command.isAdmin(); err != nil {
+	if ok, err := root.IsAdmin(); err != nil {
 		return err
 	} else if !ok {
-		member, err := command.getMember()
+		member, err := root.GetMember()
 		if err != nil {
 			return err
 		}
-		_, err = command.ChannelMessageSend(command.ChannelID, member.User.Mention()+" You do not have permission to use that command.")
-		return err
+		return root.MessageSend(member.User.Mention()+" You do not have permission to use that root.")
 	}
 
-	guild, err := command.getGuild()
+	guild, err := root.GetGuild()
 	if err != nil {
 		return err
 	}
@@ -335,16 +339,16 @@ func unMuteUser(command RootCommand) error {
 	}
 
 	for _, member := range guild.Members {
-		if member.User.Mention() == command.args[0] {
-			if err := server.unMute(member.User.ID); err != nil {
+		if member.User.Mention() == root.CommandArgs()[0] {
+			if err := server.UnMute(member.User.ID); err != nil {
 				return err
 			}
 
-			if _, err := command.ChannelMessageSend(command.ChannelID, command.args[0]+" has been unmuted"); err != nil {
+			if err := root.MessageSend(root.CommandArgs()[0]+" has been unmuted"); err != nil {
 				return err
 			}
 
-			return command.deleteMessage(command.ID)
+			return root.DeleteMessage(root.ID)
 
 		}
 	}
