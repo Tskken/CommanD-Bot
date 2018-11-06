@@ -1,5 +1,5 @@
 package CommanD_Bot
 
-type CommandAction interface {
+type CommandFunction interface {
 	RunCommand(*Root)error
 }

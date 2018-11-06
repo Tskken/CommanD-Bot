@@ -2,7 +2,6 @@ package CommanD_Bot
 
 import (
 	"errors"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -220,30 +219,6 @@ func BanMember(root *Root) error {
 			return root.DeleteMessage(root.ID)
 		}
 	}
-}
-
-// TODO - Comment
-func (r *Root) IsMuted() (bool, error) {
-	guild, err := r.GetGuild()
-	if err != nil {
-		return false, err
-	}
-	server := serverList[guild.ID]
-
-	member, err := r.GetMember()
-	if err != nil {
-		return false, err
-	}
-
-	if muteTime, muted := server.IsMuted(member.User.ID); muted {
-		log.Println("is muted till " + time.Until(muteTime).Truncate(time.Second).String())
-		if err := r.DeleteMessage(r.ID); err != nil {
-			return false, err
-		}
-		return true, r.MessageSend(member.User.Mention()+" you are muted for "+time.Until(muteTime).Truncate(time.Second).String())
-	}
-
-	return false, nil
 }
 
 // TODO - Comment

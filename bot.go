@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+var bot *Bot
+
 type Bot struct {
 	*discordgo.Session
 	*BotCommands
@@ -44,7 +46,7 @@ func (b *Bot) SetCommands() *Bot {
 // Create Bot info //
 // - Returns error (nil if non)
 func NewBot() (*Bot, error) {
-	b := &Bot{}
+	bot = &Bot{}
 
 	// Bot token //
 	var token string
@@ -67,12 +69,12 @@ func NewBot() (*Bot, error) {
 	if session, err := discordgo.New(token); err != nil {
 		return nil, err
 	} else {
-		b.Session = session
+		bot.Session = session
 
-		b.AddHandlers()
+		bot.AddHandlers()
 
 		// Load commands //
-		b.SetCommands()
+		bot.SetCommands()
 
 		/*// Load classifier data from file //
 		// - returns an error if err is not nil
@@ -88,12 +90,12 @@ func NewBot() (*Bot, error) {
 
 		// Open session //
 		// - returns error if err is not nil
-		if err = b.Open(); err != nil {
+		if err = bot.Open(); err != nil {
 			return nil, err
 		}
 
 		// Return bot session //
-		return b, nil
+		return bot, nil
 	}
 }
 

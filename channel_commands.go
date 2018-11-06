@@ -2,7 +2,6 @@ package CommanD_Bot
 
 import (
 	"errors"
-	"github.com/bwmarrin/discordgo"
 	"strconv"
 )
 
@@ -89,30 +88,6 @@ func CreateChannel(root *Root) error {
 
 }
 
-// Create channel with given name an type //
-// - Returns an error (nil if non)
-func (r *Root) NewChannel(name, cType string) error {
-	// Get guild to add channel to //
-	// - Returns an error if err is not nil
-	if guild, err := r.GetGuild(); err != nil {
-		return err
-	} else {
-		// Check to make sure the type was correct //
-		// - returns and error if it was not
-		if cType != "text" && cType != "voice" {
-			return errors.New("channel type was not ether text or voice")
-		}
-
-		// Create channel with given name and type in guild //
-		// - Returns an error if err is not nil
-		if _, err := r.GuildChannelCreate(guild.ID, name, cType); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 // Delete a channel function //
 // - Returns an error (nil if non)
 func DeleteChannel(root *Root) error {
@@ -145,31 +120,4 @@ func DeleteChannel(root *Root) error {
 		// returns an error for channel name not being given //
 		return errors.New("channel name to delete was not given")
 	}
-}
-
-// Get the channel to delete //
-// - Returns a reference to a channel and an error (nil if non)
-func (r *Root) GetChannelToDel(name string) (*discordgo.Channel, error) {
-	// Get guild channel the channel exists in //
-	// - returns an error if err is not nil
-	if guild, err := r.GetGuild(); err != nil {
-		return nil, err
-	} else {
-		// Gets all channels with in the guild //
-		// - Returns an error if err is not nil
-		if chs, err := r.GuildChannels(guild.ID); err != nil {
-			return nil, err
-		} else {
-			// Check list of channels for given name to delete //
-			for _, c := range chs {
-				// Return channel if channel name = given name //
-				if c.Name == name {
-					return c, nil
-				}
-			}
-		}
-	}
-
-	// Return error if channel was not found in guild //
-	return nil, errors.New("could not find channel to delete")
 }

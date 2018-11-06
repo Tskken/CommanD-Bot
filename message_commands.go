@@ -1,11 +1,10 @@
 package CommanD_Bot
 
 import (
-	"errors"
 	"github.com/bwmarrin/discordgo"
 	"strconv"
-	"time"
 	"strings"
+	"time"
 )
 
 
@@ -114,14 +113,6 @@ func DeleteMessageHandler(root *Root) error {
 				return root.DeleteMessage(messages)
 			}
 		} else {
-			// Argument two was a number //
-			// - checks given number is between 1 and 99
-			if i >= 100 || i <= 0 {
-				// Send message to channel saying you do not have permission for this action //
-				// - returns an error (nil if non)
-				return root.MessageSend("You entered a number that I don't understand. Please enter a number between 1-99.")
-			}
-
 			// Gets last given number of messages to delete.  Gets messages by user if not admin //
 			// - returns an error if err is not nil
 			if messages, err := root.GetMessages("", i, admin); err != nil {
@@ -164,103 +155,6 @@ func DeleteMessageHandler(root *Root) error {
 			}
 		}
 	}
-}
-
-// Get messages from channel to delete //
-// - returns an array of strings and an error (nil if non)
-func (r *Root) GetMessages(uName string, i int, admin bool) ([]string, error) {
-	// Check if user is an admin //
-	if !admin {
-		// User was not admin, get only messages create by them //
-		// - returns list of message by user
-		// - returns error (nil if non)
-		member, err := r.GetMember()
-		if err != nil {
-			return nil, err
-		}
-		return r.GetMessagesId(member.User.Mention(), i)
-	}
-
-	return r.GetMessagesId(uName, i)
-}
-
-// Find user messages to delete //
-func (r *Root) GetMessagesId(uName string, i int) ([]string, error) {
-	// Create list of message to delete //
-	toDelete := make([]string, 0)
-
-	// Save current message id //
-	current := r.ID
-
-	// Loop while toDelete list is less then the number of messages to be deleted //
-	for len(toDelete) < i {
-		// Get the given number of messages from the channel //
-		// - returns an error if err is not nil
-		if messages, err := r.ChannelMessages(r.ChannelID, i, current, "", ""); err != nil {
-			return nil, err
-		} else {
-			// Returns an error if no messages to in the channel //
-			if len(messages) == 0 && len(toDelete) == 0 {
-				if err := r.DeleteMessage(r.ID); err != nil {
-					return nil, err
-				}
-				return nil, errors.New("there was no messages to delete with in given channel")
-			} else if len(messages) == 0 && len(toDelete) != 0{
-				toDelete = append(toDelete, r.ID)
-				return toDelete, nil
-			}
-
-			// Move current message pointer to the last message ID with in messages //
-			current = messages[len(messages)-1].ID
-
-			// for each message in messages add message to list if uName matches user ID //
-			for _, m := range messages {
-				// Get message creation time //
-				// - returns an error if err is not nil
-				if ok, err := MessageTime(r.Message); err != nil {
-					return nil, err
-				} else if !ok {
-					toDelete = append(toDelete, r.ID)
-					return toDelete, nil
-				}
-
-				if uName != "" {
-					// Gets the user info of the message //
-					// - returns an error if err is nil
-					if member, err := r.GetMember(); err != nil {
-						return nil, err
-					} else if GetMention(member, uName) {
-						toDelete = append(toDelete, m.ID)
-					}
-				} else {
-					toDelete = append(toDelete, m.ID)
-				}
-
-
-				if len(toDelete) == i {
-					break
-				}
-			}
-		}
-	}
-
-	// Add the initial !message -delete call to the toDelete list //
-	toDelete = append(toDelete, r.ID)
-
-	// Return list of messages to delete //
-	return toDelete, nil
-}
-
-func (r *Root) DeleteMessage(mId interface{}) error {
-	switch mId.(type) {
-	case []string:
-		return r.ChannelMessagesBulkDelete(r.ChannelID, mId.([]string))
-	case string:
-		return r.ChannelMessageDelete(r.ChannelID, mId.(string))
-	default:
-		return errors.New("mId is not of type []string or string")
-	}
-
 }
 
 func MessageTime(message *discordgo.Message) (bool, error) {
