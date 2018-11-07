@@ -8,9 +8,46 @@ import (
 	"strings"
 )
 
+var bot *Bot
+
+type Bot struct {
+	*discordgo.Session
+	*BotCommands
+}
+
+func (b *Bot) SetCommands() *Bot {
+	botCommands := &BotCommands{}
+
+	mc := LoadMessageCommand()
+	botCommands.commands["!messages"] = mc
+	botCommands.commands["!ms"] = mc
+
+	cc := LoadChannelCommand()
+	botCommands.commands["!channel"] = cc
+	botCommands.commands["!ch"] = cc
+
+	gc := LoadGuildCommand()
+	botCommands.commands["!guild"] = gc
+	botCommands.commands["!gl"] = gc
+
+	pc := LoadPlayerCommand()
+	botCommands.commands["!player"] = pc
+	botCommands.commands["!pl"] = pc
+
+	uc := LoadUtilityCommand()
+	botCommands.commands["!utility"] = uc
+	botCommands.commands["!ut"] = uc
+
+	b.BotCommands = botCommands
+
+	return b
+}
+
 // Create Bot info //
 // - Returns error (nil if non)
-func NewBot() (*discordgo.Session, error) {
+func NewBot() (*Bot, error) {
+	bot = &Bot{}
+
 	// Bot token //
 	var token string
 
@@ -32,12 +69,12 @@ func NewBot() (*discordgo.Session, error) {
 	if session, err := discordgo.New(token); err != nil {
 		return nil, err
 	} else {
-		// Set event handlers //
-		session.AddHandler(guildCreate)
-		session.AddHandler(messageCreate)
+		bot.Session = session
+
+		bot.AddHandlers()
 
 		// Load commands //
-		loadCommands()
+		bot.SetCommands()
 
 		/*// Load classifier data from file //
 		// - returns an error if err is not nil
@@ -47,24 +84,24 @@ func NewBot() (*discordgo.Session, error) {
 
 		// Loads server data from file //
 		// - return an error if err is not nil
-		if err := loadServer(); err != nil {
+		if err := LoadServer(); err != nil {
 			log.Println(err)
 		}
 
 		// Open session //
 		// - returns error if err is not nil
-		if err = session.Open(); err != nil {
+		if err = bot.Open(); err != nil {
 			return nil, err
 		}
 
 		// Return bot session //
-		return session, nil
+		return bot, nil
 	}
 }
 
 // Close bot session and save data to file //
 // - Returns error (nil if non)
-func CloseBot(session *discordgo.Session) error {
+func (b *Bot) CloseBot() error {
 	// Save filter data to file //
 	// - returns an error if err is not nil
 	/*if err := saveFilter(); err != nil {
@@ -73,25 +110,30 @@ func CloseBot(session *discordgo.Session) error {
 
 	// Save server data to file //
 	// - returns an error if err is not nil
-	if err := saveServer(); err != nil {
+	if err := SaveServer(); err != nil {
 		return err
 	}
 
 	// Close bot session //
 	// - returns an error if err is not nil
-	if err := session.Close(); err != nil {
+	if err := b.Close(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+func (b *Bot) AddHandlers() {
+	b.AddHandler(GuildCreate)
+	b.AddHandler(MessageCreate)
+}
+
 // GuildCreate event handling when the bot joins a server //
-func guildCreate(session *discordgo.Session, create *discordgo.GuildCreate) {
+func GuildCreate(session *discordgo.Session, create *discordgo.GuildCreate) {
 	// Checks if admin role exists in server //
 	// - if it does not exist create it
 	// - logs an error if err is not nil
-	if err := roleCheck(session, create.Guild); err != nil {
+	if err := RoleCheck(session, create.Guild); err != nil {
 		log.Println(err)
 	}
 
@@ -101,7 +143,7 @@ func guildCreate(session *discordgo.Session, create *discordgo.GuildCreate) {
 		log.Println("Creating new server data...")
 		// Create new server data //
 		// - logs an error if err is not nil
-		if s, err := newServer(); err != nil {
+		if s, err := NewServer(); err != nil {
 			log.Println(err)
 		} else {
 			// Add new server data to server list //
@@ -112,9 +154,22 @@ func guildCreate(session *discordgo.Session, create *discordgo.GuildCreate) {
 }
 
 // MessageCreate event handling when a message is sent in a text channel //
-func messageCreate(session *discordgo.Session, create *discordgo.MessageCreate) {
+func MessageCreate(session *discordgo.Session, create *discordgo.MessageCreate) {
 	// Ignores all messages from the bot it self //
 	if create.Author.ID == session.State.User.ID {
+		return
+	}
+
+	r := &Root{
+		session,
+		create.Message,
+	}
+
+	// TODO - Comment
+	if muted, err := r.IsMuted(); err != nil {
+		log.Println(err)
+	} else if muted {
+		log.Println("user is muted")
 		return
 	}
 
@@ -124,31 +179,14 @@ func messageCreate(session *discordgo.Session, create *discordgo.MessageCreate) 
 			log.Println(err)
 		}*/
 
-	// TODO - Comment
-	if muted, err := isMuted(session, create.Message); err != nil {
-		log.Println(err)
-	} else if muted {
-		log.Println("user is muted")
-		return
-	}
-
 	// Ignores all messages with out the ! char for commands //
 	if !strings.HasPrefix(create.Content, "!") {
 		return
 	}
 
-	// Parce input in to arguments and set them to lower case //
-	args := toLower(strings.Fields(create.Content))
-
-	// Get command struct from list of commands //
-	// - logs an error if command does not exist
-	if cmd, ok := botCommands[args[0]]; !ok {
-		log.Println("Could not understand given command")
-	} else {
-		// Run command struct //
-		// - logs an error if err is not nil
-		if err := runCommand(session, create.Message, cmd, args); err != nil {
-			log.Println(err)
-		}
+	// Run command struct //
+	// - logs an error if err is not nil
+	if err := r.Run(); err != nil {
+		log.Println(err)
 	}
 }

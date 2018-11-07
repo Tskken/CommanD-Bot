@@ -1,0 +1,7 @@
+{
+  "name": "CommanD-Bot",
+  "version": "1.0.0",
+  "dependencies": {
+    "discordgo": "http://bwmarrin.github.com/discordgo"
+  }
+}

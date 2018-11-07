@@ -1,26 +1,30 @@
 package CommanD_Bot
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"math/rand"
 	"strconv"
 	"time"
 )
 
-// Set utility command structure //
-func loadUtilityCommand() *commands {
-	// Create utility command structure //
-	u := commands{}
+type UtilityCommands struct {
+	commands map[string]func(*Root)error
+}
 
-	// Load utility command info structure //
-	u.commandInfo = loadUtilityCommandInfo()
+func (m *UtilityCommands) RunCommand(root *Root) error {
+	return m.commands[root.CommandType()](root)
+}
+
+// Set utility command structure //
+func LoadUtilityCommand() *UtilityCommands {
+	// Create utility command structure //
+	u := UtilityCommands{}
 
 	// Create utility sub command map //
-	u.subCommands = make(map[string]func(*discordgo.Session, *discordgo.Message, []string) error)
+	u.commands = make(map[string]func(*Root) error)
 
 	// Set dice role function in map //
-	u.subCommands["-dice"] = diceRole
-	u.subCommands["-d"] = diceRole
+	u.commands["-dice"] = DiceRole
+	u.commands["-d"] = DiceRole
 
 	// Return reference to utility command structure //
 	return &u
@@ -49,11 +53,11 @@ func loadUtilityCommandInfo() *commandInfo {
 
 // Roles a dice //
 // - returns an error (nil if non)
-func diceRole(session *discordgo.Session, message *discordgo.Message, args []string) error {
+func DiceRole(root *Root) error {
 	// Convert the third argument to an int //
 	// - returns an error if err is not nil
-	if val, err := strconv.Atoi(args[2]); err != nil {
-		if err := deleteMessage(session, message.ChannelID, message.ID); err != nil {
+	if val, err := strconv.Atoi(root.CommandArgs()[0]); err != nil {
+		if err := root.DeleteMessage(root.ID); err != nil {
 			return err
 		}
 
@@ -70,10 +74,10 @@ func diceRole(session *discordgo.Session, message *discordgo.Message, args []str
 
 		// Print random number to channel //
 		// - returns an error if err is not nil
-		if _, err := session.ChannelMessageSend(message.ChannelID, message.Author.Mention()+" got "+strconv.Itoa(val)); err != nil {
+		if err := root.MessageSend(root.Author.Mention()+" got "+strconv.Itoa(val)); err != nil {
 			return err
 		}
 
-		return deleteMessage(session, message.ChannelID, message.ID)
+		return root.DeleteMessage(root.ID)
 	}
 }

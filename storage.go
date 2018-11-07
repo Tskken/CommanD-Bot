@@ -13,7 +13,7 @@ const dataPath = "../CommanD-Bot/source/data"
 
 // Save server data //
 // - returns an error (nil if non)
-func saveServer() error {
+func SaveServer() error {
 	log.Println("Saving server data...")
 	// Get path to data folder //
 	// - returns an error if err is not nil
@@ -44,7 +44,7 @@ func saveServer() error {
 
 // Load data from server data file //
 // - returns an error (nil if non)
-func loadServer() error {
+func LoadServer() error {
 	log.Println("Loading server data...")
 	// Get path to data folder //
 	// - returns an error if err is not nil
@@ -74,7 +74,7 @@ func loadServer() error {
 		for user, mTime := range server.MuteList {
 			if mTime.UnixNano() > time.Now().UnixNano() {
 				timer := time.AfterFunc(time.Until(mTime), func() {
-					err := server.unMute(user)
+					err := server.UnMute(user)
 					if err != nil {
 						log.Println(err)
 					}

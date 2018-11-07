@@ -16,6 +16,8 @@ import (
 
 // Entry point //
 func main() {
+
+	log.Println("Beta branch")
 	// Create new Bot session //
 	// - logs an error if err is not nil
 	if bot, err := CommanD_Bot.NewBot(); err != nil {
