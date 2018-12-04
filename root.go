@@ -234,7 +234,7 @@ func (r *Root) GetMessages(uName string, i int, admin bool) ([]string, error) {
 // Find user messages to delete //
 func (r *Root) GetMessagesId(uName string, i int) ([]string, error) {
 	// Create list of message to delete //
-	toDelete := make([]string, 0)
+	toDelete := make([]string, i)
 
 	// Save current message id //
 	current := r.ID
@@ -246,15 +246,19 @@ func (r *Root) GetMessagesId(uName string, i int) ([]string, error) {
 		if messages, err := r.ChannelMessages(r.ChannelID, i, current, "", ""); err != nil {
 			return nil, err
 		} else {
-			// Returns an error if no messages to in the channel //
-			if len(messages) == 0 && len(toDelete) == 0 {
-				if err := r.DeleteMessage(r.ID); err != nil {
-					return nil, err
+			// No messages returned from ChannelMessages //
+			if len(messages) == 0 {
+				// Messages in list to delete //
+				if len(toDelete) != 0 {
+					toDelete = append(toDelete, r.ID)
+					return toDelete, nil
+					// No messages in list to delete //
+				} else {
+					if err := r.DeleteMessage(r.ID); err != nil {
+						return nil, err
+					}
+					return nil, errors.New("there was no messages to delete with in given channel")
 				}
-				return nil, errors.New("there was no messages to delete with in given channel")
-			} else if len(messages) == 0 && len(toDelete) != 0{
-				toDelete = append(toDelete, r.ID)
-				return toDelete, nil
 			}
 
 			// Move current message pointer to the last message ID with in messages //
@@ -282,11 +286,6 @@ func (r *Root) GetMessagesId(uName string, i int) ([]string, error) {
 				} else {
 					toDelete = append(toDelete, m.ID)
 				}
-
-
-				if len(toDelete) == i {
-					break
-				}
 			}
 		}
 	}
@@ -294,7 +293,7 @@ func (r *Root) GetMessagesId(uName string, i int) ([]string, error) {
 	// Add the initial !message -delete call to the toDelete list //
 	toDelete = append(toDelete, r.ID)
 
-	// Return list of messages to delete //
+	// Return messages to delete //
 	return toDelete, nil
 }
 
@@ -403,6 +402,7 @@ func (r *Root) GetGuild() (*discordgo.Guild, error) {
 
 // Gets member structure //
 // - returns an error (nil if non)
+// TODO: this does not work for entered user names. fix to take a user @mention string
 func (r *Root) GetMember() (*discordgo.Member, error) {
 	// Gets the guild the message was created in //
 	// - returns an error if err is not nil
