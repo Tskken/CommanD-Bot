@@ -11,7 +11,7 @@ type ParsedCommand struct {
 }
 
 func ParseMessage(message string) (*ParsedCommand, error) {
-	inputArgs := strings.Fields(message)
+	inputArgs := strings.Fields(strings.ToLower(message))
 	if len(inputArgs) <= 1 {
 		return nil, NewError("ParseMessage()", "given arguments is <= 1")
 	}

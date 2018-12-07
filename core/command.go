@@ -27,6 +27,7 @@ func NewCommand(session *discordgo.Session, message *discordgo.Message, command 
 
 type Commands struct {
 	MessageCommands Commander `!message:"MessageCommands" !ms:"MessageCommands"`
+	//ChannelCommands Commander `!channel:"" !ch:""`
 }
 
 var RootCommands *Commands
