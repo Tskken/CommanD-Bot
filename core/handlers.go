@@ -31,4 +31,6 @@ func MessageCreate(session *discordgo.Session, create *discordgo.MessageCreate) 
 	} else if command == nil {
 		return
 	}
+
+
 }
