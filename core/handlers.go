@@ -5,6 +5,8 @@ import (
 	"log"
 )
 
+type HandlerFunction func()error
+
 func AddHandlers() {
 	CC.AddHandler(MessageCreate)
 	CC.AddHandler(GuildCreate)
@@ -24,13 +26,13 @@ func MessageCreate(session *discordgo.Session, create *discordgo.MessageCreate) 
 		return
 	}
 
-	command, err := ParseMessage(create.Content)
+	parsedInput, err := ParseMessage(create.Content)
 	if err != nil {
 		log.Println(err)
 		return
-	} else if command == nil {
+	} else if parsedInput == nil {
 		return
 	}
 
-
+	NewCommand(session, create.Message, parsedInput).Run()
 }

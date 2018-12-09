@@ -1,9 +1,8 @@
 package core
 
 import (
-	"github.com/Tskana/CommanD-Bot/messagecommands"
+	"github.com/Tskana/CommanD-Bot/mc"
 	"github.com/bwmarrin/discordgo"
-	"reflect"
 )
 
 type Commander interface {
@@ -25,29 +24,20 @@ func NewCommand(session *discordgo.Session, message *discordgo.Message, command 
 	}
 }
 
-type Commands struct {
-	MessageCommands Commander `!message:"MessageCommands" !ms:"MessageCommands"`
-	//ChannelCommands Commander `!channel:"" !ch:""`
+var (
+	MessageCommand = new(mc.MessageCommand)
+)
+
+var Commands = map[string]Commander {
+	"!message":MessageCommand,
+	"!ms":MessageCommand,
 }
 
-var RootCommands *Commands
-
-func InitCommands() {
-	RootCommands = &Commands{
-		MessageCommands:new(messagecommands.MessageCommand),
-	}
-}
-
-func (c *Command) Run() {
-	t := reflect.TypeOf(RootCommands)
-	for i := 0; i < t.NumField(); i++ {
-		if value, ok := t.Field(i).Tag.Lookup(c.Command); ok {
-			switch value {
-			case "MessageCommands":
-				RootCommands.MessageCommands.Init(c).Run()
-			default:
-			}
-		}
+func (c *Command) Run() error {
+	if command, ok := Commands[c.Command]; !ok {
+		return NewError("Command Run()", "command does not exist in map")
+	} else {
+		return command.Init(c).Run()
 	}
 }
 
