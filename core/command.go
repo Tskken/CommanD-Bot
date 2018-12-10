@@ -11,15 +11,16 @@ type Commander interface {
 }
 
 type Command struct {
-	*discordgo.Session
-	*discordgo.Message
+	*Root
 	*ParsedCommand
 }
 
 func NewCommand(session *discordgo.Session, message *discordgo.Message, command *ParsedCommand) *Command {
 	return &Command{
-		session,
-		message,
+		&Root{
+			session,
+			message,
+		},
 		command,
 	}
 }
