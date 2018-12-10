@@ -1,7 +1,6 @@
 package core
 
 import (
-	"github.com/Tskana/CommanD-Bot/mc"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -25,13 +24,11 @@ func NewCommand(session *discordgo.Session, message *discordgo.Message, command 
 	}
 }
 
-var (
-	MessageCommand = new(mc.MessageCommand)
-)
+var Commands = make(map[string]Commander)
 
-var Commands = map[string]Commander {
-	"!message":MessageCommand,
-	"!ms":MessageCommand,
+func AddCommand(lCommand, sCommand string, command Commander) {
+	Commands[lCommand] = command
+	Commands[sCommand] = command
 }
 
 func (c *Command) Run() error {

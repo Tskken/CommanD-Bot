@@ -77,13 +77,13 @@ func (r *Root) getNUserMessages(n int, uID []string) (mID []string, err error) {
 				}
 
 				if len(mID) == n {
-					return
+					return nil, nil
 				}
 			}
 		}
 
 		if len(ms) < n {
-			return
+			return nil, nil
 		}
 	}
 

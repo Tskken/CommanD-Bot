@@ -5,25 +5,21 @@ import "github.com/Tskana/CommanD-Bot/core"
 type MessageCommand struct {
 	*core.Command
 
-	// TODO: Implement command functions
-	DeleteMessage core.HandlerFunction
+	MessageOptions map[string]core.HandlerFunction
 }
 
 func (m *MessageCommand) Init(command *core.Command) core.Commander {
 	m.Command = command
 
-	// TODO: Implement initializer
-	m.DeleteMessage = m.DeleteMessageHandler
+	m.MessageOptions = make(map[string]core.HandlerFunction)
+
+	m.MessageOptions["-delete"] = m.DeleteMessageHandler
+	m.MessageOptions["-del"] = m.DeleteMessageHandler
 	return m
 }
 
 func (m *MessageCommand) Run() error {
-	switch m.Option {
-	case "-delete", "-del":
-		return m.DeleteMessage()
-	default:
-		return nil
-	}
+	return m.MessageOptions[m.Option]()
 }
 
 
