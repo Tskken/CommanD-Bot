@@ -1,10 +1,11 @@
 package mc
 
 import (
-	"errors"
+	"github.com/Tskana/CommanD-Bot/core"
 	"strconv"
 )
 
+// TODO: update to handler more then one given user
 func (m *MessageCommand) DeleteMessageHandler() error {
 	switch len(m.Args) {
 	case 0:
@@ -44,6 +45,6 @@ func (m *MessageCommand) DeleteMessageHandler() error {
 
 		return m.DeleteMessages(ms...)
 	default:
-		return errors.New("to many arguments passed to DeleteMessageHandler()")
+		return core.NewError("DeleteMessageHandler()", "to many arguments given to handler")
 	}
 }

@@ -21,7 +21,8 @@ func init() {
 		log.Fatal(err)
 	}
 
-	core.AddCommand("!message", "!ms", new(mc.MessageCommand))
+	log.Println("adding message commands...")
+	core.AddCommand(new(mc.MessageCommand), "!message", "!ms")
 }
 
 // Entry point //

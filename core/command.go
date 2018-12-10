@@ -28,9 +28,10 @@ func NewCommand(session *discordgo.Session, message *discordgo.Message, command 
 
 var Commands = make(map[string]Commander)
 
-func AddCommand(lCommand, sCommand string, command Commander) {
-	Commands[lCommand] = command
-	Commands[sCommand] = command
+func AddCommand(command Commander, keys... string) {
+	for _, k := range keys {
+		Commands[k] = command
+	}
 }
 
 func (c *Command) Run() error {

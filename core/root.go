@@ -1,7 +1,6 @@
 package core
 
 import (
-	"errors"
 	"github.com/bwmarrin/discordgo"
 	"time"
 )
@@ -27,7 +26,7 @@ func (r *Root) getUserMessage(uID []string) (string, error) {
 		}
 
 		if len(ms) == 0 {
-			return "", errors.New("no user user found")
+			return "", NewError("getUserMessage()", "returned messages is zero")
 		}
 
 		for _, id := range uID {
@@ -38,8 +37,7 @@ func (r *Root) getUserMessage(uID []string) (string, error) {
 
 		ms, err = r.ChannelMessages(r.ChannelID, 1, ms[0].ID, "", "")
 	}
-
-	return "", errors.New("something went wrong in getUserMessage()")
+	return "", NewError("getUserMessage()", "something went wrong in getUserMessage()")
 }
 
 func (r *Root) getMessage() (string, error) {
@@ -85,7 +83,7 @@ func (r *Root) getNUserMessages(n int, uID []string) (mID []string, err error) {
 		}
 	}
 
-	return nil, errors.New("something went wrong in getNUserMessages()")
+	return nil, NewError("getNUserMessages()", "something went wrong in getNUserMessages()")
 }
 
 func (r *Root) getNMessages(n int) (mID []string, err error) {
