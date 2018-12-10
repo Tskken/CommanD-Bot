@@ -16,10 +16,6 @@ func ParseMessage(message string) (*ParsedCommand, error) {
 		return nil, NewError("ParseMessage()", "given arguments is <= 1")
 	}
 
-	if !strings.HasPrefix(inputArgs[0], "!") {
-		return nil,  nil
-	}
-
 	pc := &ParsedCommand{
 		Command: inputArgs[0],
 		Option:  inputArgs[1],

@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"github.com/bwmarrin/discordgo"
+	"time"
 )
 
 type Root struct {
@@ -10,7 +11,6 @@ type Root struct {
 	*discordgo.Message
 }
 
-// TODO: optimize function
 func (r *Root) GetMessage(uID... string) (string, error) {
 	if uID != nil {
 		return r.getUserMessage(uID)
@@ -26,8 +26,12 @@ func (r *Root) getUserMessage(uID []string) (string, error) {
 			return "", err
 		}
 
+		if len(ms) == 0 {
+			return "", errors.New("no user user found")
+		}
+
 		for _, id := range uID {
-			if ms[0].Author.Mention() == id {
+			if IsMentioned(ms[0].Author.Mention(), id) {
 				return ms[0].ID, nil
 			}
 		}
@@ -47,12 +51,7 @@ func (r *Root) getMessage() (string, error) {
 	return ms[0].ID, nil
 }
 
-// TODO: optimize function
 func (r *Root) GetNMessages(n int, uID... string) ([]string, error) {
-	if n > 99 {
-		return nil, errors.New("you can only delete up to 99 message at one time")
-	}
-
 	if uID != nil {
 		return r.getNUserMessages(n, uID)
 	}
@@ -69,21 +68,20 @@ func (r *Root) getNUserMessages(n int, uID []string) (mID []string, err error) {
 			return nil, err
 		}
 
-
 		for _, m := range ms {
 			for _, id := range uID {
-				if id == m.Author.Mention() {
+				if IsMentioned(m.Author.Mention(), id) {
 					mID = append(mID, m.ID)
 				}
 
 				if len(mID) == n {
-					return nil, nil
+					return mID, nil
 				}
 			}
 		}
 
 		if len(ms) < n {
-			return nil, nil
+			return mID, nil
 		}
 	}
 
@@ -103,3 +101,40 @@ func (r *Root) getNMessages(n int) (mID []string, err error) {
 	return
 }
 
+func (r *Root) DeleteMessages(mID... string) error {
+	mID, err := r.checkMessageTime(mID)
+	if err != nil {
+		return err
+	}
+
+	if len(mID) > 99 {
+		for len(mID) > 0 {
+			err := r.ChannelMessagesBulkDelete(r.ChannelID, mID[:100])
+			if err != nil {
+				return err
+			}
+
+			mID = mID[100:]
+		}
+		return nil
+	}
+
+	return r.ChannelMessagesBulkDelete(r.ChannelID, mID)
+}
+
+func (r *Root) checkMessageTime(mID []string) ([]string, error) {
+	for i, id := range mID {
+		ms, err := r.ChannelMessage(r.ChannelID, id)
+		if err != nil {
+			return nil, err
+		}
+		t, err := ms.Timestamp.Parse()
+		if err != nil {
+			return nil, err
+		}
+		if !CheckTime(t, time.Now()) {
+			return mID[:i], nil
+		}
+	}
+	return mID, nil
+}

@@ -3,10 +3,8 @@ package core
 import (
 	"github.com/bwmarrin/discordgo"
 	"log"
+	"strings"
 )
-
-type HandlerFunction func()error
-
 func AddHandlers() {
 	CC.AddHandler(MessageCreate)
 	CC.AddHandler(GuildCreate)
@@ -19,10 +17,11 @@ func GuildCreate(session *discordgo.Session, create *discordgo.GuildCreate) {}
 // TODO: Implement GuildDelete
 func GuildDelete(session *discordgo.Session, delete *discordgo.GuildDelete) {}
 
-// TODO: Implement MessageCreate
 func MessageCreate(session *discordgo.Session, create *discordgo.MessageCreate) {
 	// Ignores all messages from the bot it self //
 	if create.Author.ID == CC.State.User.ID {
+		return
+	} else if !strings.HasPrefix(create.Content, "!") {
 		return
 	}
 
@@ -30,9 +29,10 @@ func MessageCreate(session *discordgo.Session, create *discordgo.MessageCreate) 
 	if err != nil {
 		log.Println(err)
 		return
-	} else if parsedInput == nil {
-		return
 	}
 
-	NewCommand(session, create.Message, parsedInput).Run()
+	err = NewCommand(session, create.Message, parsedInput).Run()
+	if err != nil {
+		log.Println(err)
+	}
 }

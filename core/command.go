@@ -14,6 +14,8 @@ type Command struct {
 	*ParsedCommand
 }
 
+type HandlerFunction func()error
+
 func NewCommand(session *discordgo.Session, message *discordgo.Message, command *ParsedCommand) *Command {
 	return &Command{
 		&Root{

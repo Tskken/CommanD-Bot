@@ -19,7 +19,12 @@ func (m *MessageCommand) Init(command *core.Command) core.Commander {
 }
 
 func (m *MessageCommand) Run() error {
-	return m.MessageOptions[m.Option]()
+	err := m.MessageOptions[m.Option]()
+	if err != nil {
+		return err
+	}
+
+	return m.DeleteMessages(m.ID)
 }
 
 
