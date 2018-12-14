@@ -39,6 +39,12 @@ func New() error {
 		return err
 	}
 
+	log.Println("loading permissions...")
+	err = NewPermissoins()
+	if err != nil {
+		return err
+	}
+
 	log.Println("creating discordgo session...")
 	session, err := discordgo.New("Bot " + token)
 	if err != nil {

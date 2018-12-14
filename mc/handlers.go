@@ -13,6 +13,7 @@ func (m *MessageCommand) DeleteMessageHandler() error {
 		if err != nil {
 			return err
 		}
+		
 
 		return m.DeleteMessages(ms...)
 	case len(m.Args) == 1:
