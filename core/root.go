@@ -10,34 +10,36 @@ type Root struct {
 	*discordgo.Message
 }
 
-func (r *Root) GetMessage(uID... string) (string, error) {
+func (r *Root) GetMessage(uID... string) ([]string, error) {
 	if uID != nil {
 		return r.getUserMessage(uID)
 	}
-
-	return r.getMessage()
+	ms, err := r.getMessage()
+	return []string{ms}, err
 }
 
-func (r *Root) getUserMessage(uID []string) (string, error) {
-	ms, err := r.ChannelMessages(r.ChannelID, 1, r.ID, "", "")
-	for true {
-		if err != nil {
-			return "", err
-		}
-
-		if len(ms) == 0 {
-			return "", NewError("getUserMessage()", "returned messages is zero")
-		}
-
-		for _, id := range uID {
-			if IsMentioned(ms[0].Author.Mention(), id) {
-				return ms[0].ID, nil
+func (r *Root) getUserMessage(uID []string) (mID []string, err error) {
+	for _, id := range uID {
+		ms, err := r.ChannelMessages(r.ChannelID, 1, r.ID, "", "")
+		for true {
+			if err != nil {
+				return nil, err
 			}
-		}
 
-		ms, err = r.ChannelMessages(r.ChannelID, 1, ms[0].ID, "", "")
+			if len(ms) == 0 {
+				return nil, NewError("getUserMessage()", "returned messages is zero")
+			}
+
+
+			if IsMentioned(ms[0].Author.Mention(), id) {
+				mID = append(mID, ms[0].ID)
+				break
+			}
+
+			ms, err = r.ChannelMessages(r.ChannelID, 1, ms[0].ID, "", "")
+		}
 	}
-	return "", NewError("getUserMessage()", "something went wrong in getUserMessage()")
+	return
 }
 
 func (r *Root) getMessage() (string, error) {
