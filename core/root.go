@@ -138,3 +138,31 @@ func (r *Root) checkMessageTime(mID []string) ([]string, error) {
 	}
 	return mID, nil
 }
+
+// Gets guild structure //
+// - returns an error (nil if non)
+func (r *Root) GetGuild() (*discordgo.Guild, error) {
+	// Get the channel the message was created //
+	// - returns an error if err is not nil
+	if c, err := r.State.Channel(r.ChannelID); err != nil {
+		return nil, err
+	} else {
+		// Gets guild from channel guild ID //
+		// - returns a reference to guild structure and an error (nil if non)
+		return r.State.Guild(c.GuildID)
+	}
+}
+
+// Gets member structure //
+// - returns an error (nil if non)
+func (r *Root) GetMember() (*discordgo.Member, error) {
+	// Gets the guild the message was created in //
+	// - returns an error if err is not nil
+	if g, err := r.GetGuild(); err != nil {
+		return nil, err
+	} else {
+		// Get member from guild with message author ID //
+		// - returns a reference to member structure and an error (nil if non)
+		return r.GuildMember(g.ID, r.Author.ID)
+	}
+}

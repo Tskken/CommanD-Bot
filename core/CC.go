@@ -40,7 +40,7 @@ func New() error {
 	}
 
 	log.Println("loading permissions...")
-	err = NewPermissoins()
+	err = NewPermissions()
 	if err != nil {
 		return err
 	}

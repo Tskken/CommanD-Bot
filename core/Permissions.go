@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 )
 
+// TODO: Figure out permission shit...
+
 const filePath = "../CommanD-Bot/core/src/permissions.json"
 
 type BotPermission []*Permissions
@@ -17,7 +19,7 @@ type Permissions struct {
 	Name string `json:"name"`
 }
 
-func NewPermissoins() error {
+func NewPermissions() error {
 	path, err := filepath.Abs(filePath)
 	if err != nil {
 		return err
