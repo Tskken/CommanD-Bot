@@ -3,3 +3,4 @@
 *.DS_Store
 source/data/token
 *.iml
+core/src/token
