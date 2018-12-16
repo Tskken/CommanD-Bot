@@ -11,8 +11,8 @@ func AddHandlers() {
 	CC.AddHandler(GuildDelete)
 }
 
-// TODO: Implement GuildCreate
 func GuildCreate(session *discordgo.Session, create *discordgo.GuildCreate) {
+	log.Println("checking guild permissions...")
 	for key := range BotPermissions {
 		exists := false
 		for _, r := range create.Roles {
@@ -22,6 +22,7 @@ func GuildCreate(session *discordgo.Session, create *discordgo.GuildCreate) {
 		}
 
 		if !exists {
+			log.Println("role did not exist. creating role...")
 			if role, err := session.GuildRoleCreate(create.ID); err != nil {
 				log.Fatal(err)
 			} else {

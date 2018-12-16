@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-// TODO: update to handler more then one given user
+// TODO: Posibly could use some optimizations
 func (m *MessageCommand) DeleteMessageHandler() error {
 	member, err := m.GetMember()
 	if err != nil {
