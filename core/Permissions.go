@@ -2,7 +2,6 @@ package core
 
 import (
 	"encoding/json"
-	"github.com/bwmarrin/discordgo"
 	"os"
 	"path/filepath"
 )
@@ -11,12 +10,13 @@ import (
 
 const filePath = "../CommanD-Bot/core/src/permissions.json"
 
-type BotPermission []*Permissions
+type BotPermission map[string]Permissions
 
-var BotPermissions *BotPermission
+var BotPermissions = make(BotPermission)
 
 type Permissions struct {
 	Name string `json:"name"`
+	Permissions []string `json:"permissions"`
 }
 
 func NewPermissions() error {
@@ -29,15 +29,15 @@ func NewPermissions() error {
 		return err
 	}
 	dec := json.NewDecoder(file)
-	BotPermissions = new(BotPermission)
-	return dec.Decode(BotPermissions)
-}
-
-func (p *Permissions) CheckUserPermission(member *discordgo.Member) bool {
-	for _, r := range member.Roles {
-		if p.Name == r {
-			return true
-		}
+	jsonData := make([]Permissions, 0)
+	err = dec.Decode(&jsonData)
+	if err != nil {
+		return err
 	}
-	return false
+
+	for _, data := range jsonData {
+		BotPermissions[data.Name] = data
+	}
+
+	return nil
 }

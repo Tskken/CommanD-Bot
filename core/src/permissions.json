@@ -1,5 +1,14 @@
 [
   {
-    "name": "admin"
+    "name": "admin",
+    "permissions": [
+      "*"
+    ]
+  },
+  {
+    "name": "member",
+    "permissions": [
+      "message:del_self"
+    ]
   }
 ]
