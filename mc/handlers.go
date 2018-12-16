@@ -3,7 +3,6 @@ package mc
 import (
 	"github.com/Tskana/CommanD-Bot/core"
 	"strconv"
-	"strings"
 )
 
 // TODO: update to handler more then one given user
@@ -26,7 +25,7 @@ func (m *MessageCommand) DeleteMessageHandler() error {
 					nRole = role.Name
 				}
 			}
-			perm, ok := core.BotPermissions[strings.ToLower(nRole)]
+			perm, ok := core.BotPermissions[nRole]
 			if ok {
 				for _, p := range perm.Permissions {
 					switch p {
@@ -62,7 +61,7 @@ func (m *MessageCommand) DeleteMessageHandler() error {
 					nRole = role.Name
 				}
 			}
-			perm, ok := core.BotPermissions[strings.ToLower(nRole)]
+			perm, ok := core.BotPermissions[nRole]
 			if ok {
 				for _, p := range perm.Permissions {
 					switch p {
@@ -112,7 +111,7 @@ func (m *MessageCommand) DeleteMessageHandler() error {
 					nRole = role.Name
 				}
 			}
-			perm, ok := core.BotPermissions[strings.ToLower(nRole)]
+			perm, ok := core.BotPermissions[nRole]
 			if ok {
 				for _, p := range perm.Permissions {
 					switch p {

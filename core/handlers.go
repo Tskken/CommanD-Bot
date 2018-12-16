@@ -12,7 +12,29 @@ func AddHandlers() {
 }
 
 // TODO: Implement GuildCreate
-func GuildCreate(session *discordgo.Session, create *discordgo.GuildCreate) {}
+func GuildCreate(session *discordgo.Session, create *discordgo.GuildCreate) {
+	for key := range BotPermissions {
+		exists := false
+		for _, r := range create.Roles {
+			if r.Name == key {
+				exists = true
+			}
+		}
+
+		if !exists {
+			if role, err := session.GuildRoleCreate(create.ID); err != nil {
+				log.Fatal(err)
+			} else {
+				// Set the new roles name to Admin and permissions to admin //
+				// - returns an error if err is not nil
+				_, err = session.GuildRoleEdit(create.ID, role.ID, key, 0, false, 0, false)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+		}
+	}
+}
 
 // TODO: Implement GuildDelete
 func GuildDelete(session *discordgo.Session, delete *discordgo.GuildDelete) {}
