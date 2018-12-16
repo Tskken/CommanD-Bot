@@ -1,0 +1,9 @@
+[
+  {
+    "command": "message",
+    "keys": [
+      "!message",
+      "!ms"
+    ]
+  }
+]

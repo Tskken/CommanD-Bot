@@ -8,7 +8,6 @@ Github: https://github.com/Tskana
 
 import (
 	"github.com/Tskana/CommanD-Bot/core"
-	"github.com/Tskana/CommanD-Bot/mc"
 	"log"
 	"os"
 	"os/signal"
@@ -22,7 +21,10 @@ func init() {
 	}
 
 	log.Println("adding message commands...")
-	core.AddCommand(new(mc.MessageCommand), "!message", "!ms")
+	err = LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // Entry point //
