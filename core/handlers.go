@@ -41,7 +41,7 @@ func GuildCreate(session *discordgo.Session, create *discordgo.GuildCreate) {
 func GuildDelete(session *discordgo.Session, delete *discordgo.GuildDelete) {}
 
 func MessageCreate(session *discordgo.Session, create *discordgo.MessageCreate) {
-	// Ignores all messages from the bot it self //
+	// Ignores all messages from the bc it self //
 	if create.Author.ID == CC.State.User.ID {
 		return
 	} else if !strings.HasPrefix(create.Content, "!") {

@@ -6,6 +6,12 @@
     ]
   },
   {
+    "name": "mod",
+    "permissions": [
+      "message:del_all"
+    ]
+  },
+  {
     "name": "member",
     "permissions": [
       "message:del_self"

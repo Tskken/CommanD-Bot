@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/Tskana/CommanD-Bot/bc"
 	"github.com/Tskana/CommanD-Bot/core"
 	"github.com/Tskana/CommanD-Bot/mc"
 	"os"
@@ -12,6 +13,7 @@ const (
 	configPath = "../CommanD-Bot/core/src/config.json"
 
 	Message = "message"
+	Bot = "bot"
 )
 
 func LoadConfig() error {
@@ -43,6 +45,8 @@ func LoadConfig() error {
 		switch d.Command {
 		case Message:
 			core.AddCommand(new(mc.MessageCommand), d.Keys...)
+		case Bot:
+			core.AddCommand(new(bc.BotCommand), d.Keys...)
 		}
 	}
 	return nil
