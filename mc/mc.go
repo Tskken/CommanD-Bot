@@ -19,7 +19,11 @@ func (m *MessageCommand) Init(command *core.Command) core.Commander {
 }
 
 func (m *MessageCommand) Run() error {
-	err := m.MessageOptions[m.Option]()
+	fnc, ok := m.MessageOptions[m.Option]
+	if !ok {
+		return core.NewError("MessageCommand Run()", "unknown MessageCommand option given")
+	}
+	err := fnc()
 	if err != nil {
 		return err
 	}
