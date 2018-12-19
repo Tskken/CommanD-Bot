@@ -1,5 +1,4 @@
 package main
-
 /*
 Project CC 1.0
 Author: Dylan Blanchard
@@ -7,6 +6,7 @@ Github: https://github.com/Tskana
 */
 
 import (
+	"fmt"
 	"github.com/Tskana/CommanD-Bot/core"
 	"log"
 	"os"
@@ -15,13 +15,26 @@ import (
 )
 
 func init() {
-	err := core.New()
+	log.Println("loading token from file...")
+	token, err := LoadToken()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println("adding message commands...")
+	log.Println("loading bot session...")
+	err = core.New(token)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("loading message commands from config...")
 	err = LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("loading permissions from config...")
+	err = LoadPermissions()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -29,8 +42,8 @@ func init() {
 
 // Entry point //
 func main() {
-	log.Println("Project CC 1.0")
-	log.Println("running...")
+	fmt.Println("Project CC 1.0")
+	fmt.Println("running...")
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)

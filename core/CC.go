@@ -1,15 +1,9 @@
 package core
 
 import (
-	"bufio"
 	"github.com/bwmarrin/discordgo"
-	"io"
 	"log"
-	"os"
-	"path/filepath"
 )
-
-const tokenPath = "../CommanD-Bot/core/src/token"
 
 type CentralCommand struct {
 	*discordgo.Session
@@ -17,34 +11,7 @@ type CentralCommand struct {
 
 var CC *CentralCommand
 
-func New() error {
-	log.Println("getting token file path...")
-	fPath, err := filepath.Abs(tokenPath)
-	if err != nil {
-		return err
-	}
-
-	log.Println("getting token file...")
-	file, err := os.Open(fPath)
-	if err != nil {
-		return err
-	}
-
-	log.Println("creating io reader...")
-	reader := bufio.NewReader(file)
-
-	log.Println("reading token from file...")
-	token, err := reader.ReadString('\n')
-	if err != nil && err != io.EOF {
-		return err
-	}
-
-	log.Println("loading permissions...")
-	err = NewPermissions()
-	if err != nil {
-		return err
-	}
-
+func New(token string) error {
 	log.Println("creating discordgo session...")
 	session, err := discordgo.New("Bot " + token)
 	if err != nil {

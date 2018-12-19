@@ -1,4 +1,4 @@
 *.xml
 *.DS_Store
 *.iml
-core/src/token
+token
