@@ -5,8 +5,8 @@ import (
 )
 
 type Commander interface {
-	Init(command *Command)Commander
-	Run()error
+	Init(command *Command) Commander
+	Run() error
 }
 
 type Command struct {
@@ -14,7 +14,7 @@ type Command struct {
 	*ParsedCommand
 }
 
-type HandlerFunction func()error
+type HandlerFunction func() error
 
 func NewCommand(session *discordgo.Session, message *discordgo.Message, command *ParsedCommand) *Command {
 	return &Command{
@@ -28,7 +28,7 @@ func NewCommand(session *discordgo.Session, message *discordgo.Message, command 
 
 var Commands = make(map[string]Commander)
 
-func AddCommand(command Commander, keys... string) {
+func AddCommand(command Commander, keys ...string) {
 	for _, k := range keys {
 		Commands[k] = command
 	}
@@ -41,7 +41,3 @@ func (c *Command) Run() error {
 		return command.Init(c).Run()
 	}
 }
-
-
-
-

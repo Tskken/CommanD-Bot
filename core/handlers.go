@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 )
+
 func AddHandlers() {
 	CC.AddHandler(MessageCreate)
 	CC.AddHandler(GuildCreate)
@@ -38,7 +39,7 @@ func GuildCreate(session *discordgo.Session, create *discordgo.GuildCreate) {
 }
 
 // TODO: Implement GuildDelete
-func GuildDelete(session *discordgo.Session, delete *discordgo.GuildDelete) {}
+func GuildDelete(_ *discordgo.Session, _ *discordgo.GuildDelete) {}
 
 func MessageCreate(session *discordgo.Session, create *discordgo.MessageCreate) {
 	// Ignores all messages from the bc it self //
@@ -48,13 +49,9 @@ func MessageCreate(session *discordgo.Session, create *discordgo.MessageCreate) 
 		return
 	}
 
-	parsedInput, err := ParseMessage(create.Content)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	parsedInput := ParseMessage(create.Content)
 
-	err = NewCommand(session, create.Message, parsedInput).Run()
+	err := NewCommand(session, create.Message, parsedInput).Run()
 	if err != nil {
 		log.Println(err)
 	}

@@ -7,6 +7,6 @@ type BotPermission map[string]Permissions
 var BotPermissions = make(BotPermission)
 
 type Permissions struct {
-	Name string `json:"name"`
+	Name        string   `json:"name"`
 	Permissions []string `json:"permissions"`
 }

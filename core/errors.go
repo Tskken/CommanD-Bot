@@ -2,7 +2,7 @@ package core
 
 type BotErrors struct {
 	location string
-	info string
+	info     string
 }
 
 func (e *BotErrors) Error() string {
@@ -11,7 +11,7 @@ func (e *BotErrors) Error() string {
 
 func NewError(location, info string) *BotErrors {
 	return &BotErrors{
-		location:location,
-		info:info,
+		location: location,
+		info:     info,
 	}
 }

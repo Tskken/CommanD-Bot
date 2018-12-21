@@ -30,6 +30,3 @@ func (m *MessageCommand) Run() error {
 
 	return m.DeleteMessages(m.ID)
 }
-
-
-

@@ -32,7 +32,3 @@ func (b *BotCommand) Run() error {
 
 	return b.DeleteMessages(b.ID)
 }
-
-
-
-

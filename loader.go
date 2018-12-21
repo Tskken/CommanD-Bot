@@ -7,17 +7,18 @@ import (
 	"github.com/Tskana/CommanD-Bot/core"
 	"github.com/Tskana/CommanD-Bot/mc"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 )
 
 const (
 	configPath = "../CommanD-Bot/config.json"
-	permPath = "../CommanD-Bot/permissions.json"
-	tokenPath = "../CommanD-Bot/token"
+	permPath   = "../CommanD-Bot/permissions.json"
+	tokenPath  = "../CommanD-Bot/token"
 
 	Message = "message"
-	Bot = "bot"
+	Bot     = "bot"
 )
 
 func LoadConfig() error {
@@ -30,13 +31,18 @@ func LoadConfig() error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	dec := json.NewDecoder(file)
 
 	type data struct {
-		Command string `json:"command"`
-		Keys []string `json:"keys"`
+		Command string   `json:"command"`
+		Keys    []string `json:"keys"`
 	}
 
 	dat := make([]data, 0)
@@ -66,7 +72,12 @@ func LoadPermissions() error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	dec := json.NewDecoder(file)
 	jsonData := make([]core.Permissions, 0)
@@ -92,7 +103,12 @@ func LoadToken() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	reader := bufio.NewReader(file)
 

@@ -10,7 +10,7 @@ type Root struct {
 	*discordgo.Message
 }
 
-func (r *Root) GetMessage(uID... string) ([]string, error) {
+func (r *Root) GetMessage(uID ...string) ([]string, error) {
 	if uID != nil {
 		return r.getUserMessage(uID)
 	}
@@ -29,7 +29,6 @@ func (r *Root) getUserMessage(uID []string) (mID []string, err error) {
 			if len(ms) == 0 {
 				return nil, NewError("getUserMessage()", "returned messages is zero")
 			}
-
 
 			if IsMentioned(ms[0].Author.Mention(), id) {
 				mID = append(mID, ms[0].ID)
@@ -51,7 +50,7 @@ func (r *Root) getMessage() (string, error) {
 	return ms[0].ID, nil
 }
 
-func (r *Root) GetNMessages(n int, uID... string) ([]string, error) {
+func (r *Root) GetNMessages(n int, uID ...string) ([]string, error) {
 	if uID != nil {
 		return r.getNUserMessages(n, uID)
 	}
@@ -101,7 +100,7 @@ func (r *Root) getNMessages(n int) (mID []string, err error) {
 	return
 }
 
-func (r *Root) DeleteMessages(mID... string) error {
+func (r *Root) DeleteMessages(mID ...string) error {
 	mID, err := r.checkMessageTime(mID)
 	if err != nil {
 		return err
