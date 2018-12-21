@@ -5,7 +5,6 @@ import (
 	"strconv"
 )
 
-// TODO: Posibly could use some optimizations
 func (m *MessageCommand) DeleteMessageHandler() error {
 	member, err := m.GetMember()
 	if err != nil {

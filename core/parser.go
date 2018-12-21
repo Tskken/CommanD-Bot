@@ -15,7 +15,7 @@ func ParseMessage(message string) *ParsedCommand {
 
 	pc := new(ParsedCommand)
 
-	if len(inputArgs) == 2 {
+	if len(inputArgs) >= 2 {
 		pc.Option = inputArgs[1]
 	}
 

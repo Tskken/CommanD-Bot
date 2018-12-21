@@ -8,25 +8,13 @@ type MessageCommand struct {
 	MessageOptions map[string]core.HandlerFunction
 }
 
-func (m *MessageCommand) Init(command *core.Command) core.Commander {
+func (m *MessageCommand) Init(command *core.Command) map[string]core.HandlerFunction {
 	m.Command = command
 
 	m.MessageOptions = make(map[string]core.HandlerFunction)
 
 	m.MessageOptions["-delete"] = m.DeleteMessageHandler
 	m.MessageOptions["-del"] = m.DeleteMessageHandler
-	return m
-}
 
-func (m *MessageCommand) Run() error {
-	fnc, ok := m.MessageOptions[m.Option]
-	if !ok {
-		return core.NewError("MessageCommand Run()", "unknown MessageCommand option given")
-	}
-	err := fnc()
-	if err != nil {
-		return err
-	}
-
-	return m.DeleteMessages(m.ID)
+	return m.MessageOptions
 }

@@ -1,6 +1,8 @@
 package bc
 
-import "github.com/Tskana/CommanD-Bot/core"
+import (
+	"github.com/Tskana/CommanD-Bot/core"
+)
 
 type BotCommand struct {
 	*core.Command
@@ -8,7 +10,7 @@ type BotCommand struct {
 	BotOptions map[string]core.HandlerFunction
 }
 
-func (b *BotCommand) Init(command *core.Command) core.Commander {
+func (b *BotCommand) Init(command *core.Command) map[string]core.HandlerFunction {
 	b.Command = command
 
 	b.BotOptions = make(map[string]core.HandlerFunction)
@@ -16,19 +18,5 @@ func (b *BotCommand) Init(command *core.Command) core.Commander {
 	b.BotOptions["-changecommand"] = b.ChangeCommandHandler
 	b.BotOptions["-cc"] = b.ChangeCommandHandler
 
-	return b
-}
-
-func (b *BotCommand) Run() error {
-	fnc, ok := b.BotOptions[b.Option]
-	if !ok {
-		return core.NewError("BotCommand Run()", "unknown BotCommand option given")
-	}
-
-	err := fnc()
-	if err != nil {
-		return err
-	}
-
-	return b.DeleteMessages(b.ID)
+	return b.BotOptions
 }
