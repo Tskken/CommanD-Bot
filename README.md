@@ -1,6 +1,6 @@
  # **CommanD-Bot**
  
- # **NOTE!!!!!!***
+ # **NOTE!!!!!!**
  ### This projected is currently being rewriten under a new name with a new repository. No progress will be made on this repository from hear on out. For all future releases please move to [this repository][4]
  
  [4]: https://github.com/Tskken/CentralCommand
