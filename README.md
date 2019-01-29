@@ -1,4 +1,10 @@
  # **CommanD-Bot**
+ 
+ # **NOTE!!!!!!***
+ ### This projected is currently being rewriten under a new name with a new repository. No progress will be made on this repository from hear on out. For all future releases please move to [this repository][4]
+ 
+ [4]: https://github.com/Tskken/CentralCommand
+ 
 A sudo command line for full control over your Discord server.  This bot is powered by [Go][1], [Discordgo][2], and [jbrukh/bayesian][3] library's.  Please support them, this bot would not be possible without them.
 
 [1]: https://golang.org/
